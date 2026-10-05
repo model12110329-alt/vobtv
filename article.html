@@ -48,6 +48,7 @@ setInterval(()=>clock.textContent = new Date().toLocaleTimeString("ko-KR",{hour1
       <h1>${esc(n.title)}</h1>
       ${n.image_url?`<img src="${esc(n.image_url)}" alt="">`:""}
       <div class="body">${body}</div>
+      ${(n.sources||[]).length?`<div class="sources"><strong>${n.auto?"이 기사는 아래 보도를 바탕으로 VoB AI가 정리했습니다":"출처"}</strong><ul>${n.sources.map(x=>`<li><a href="${esc(x.url)}" target="_blank" rel="noopener">${esc(x.name||x.url)}</a></li>`).join("")}</ul></div>`:""}
       <a class="back" href="index.html">← 첫 화면으로</a>`;
   }catch(e){ box.innerHTML = `<p class="empty">기사를 불러오지 못했습니다. 잠시 후 다시 시도해 주세요.</p>`; }
 })();

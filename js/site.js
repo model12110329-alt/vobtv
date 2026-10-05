@@ -7,6 +7,7 @@ const REDUCED = matchMedia("(prefers-reduced-motion: reduce)").matches;
 let DATA = null;          // 불러온 사이트 데이터
 let PROGRAMS = [];        // 편성표 (재생 가능한 방송)
 let CHANNEL_ID = null;    // 유튜브 채널 ID (최신 영상 API에서 받아옴)
+let YT_VIDEOS = [];       // 채널 영상, 최근 업로드 순
 let current = null;
 
 function esc(s){ return String(s ?? "").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c])); }
@@ -189,7 +190,7 @@ function renderNews(){
     return `<article class="card"><a href="${esc(href)}"${ext?' target="_blank" rel="noopener"':""}>${thumb}</a>
       <h3><a href="${esc(href)}"${ext?' target="_blank" rel="noopener"':""}>${esc(n.title)}</a></h3>
       ${n.summary?`<p>${esc(n.summary)}</p>`:""}
-      <div class="meta">${esc(n.section||"")} · ${ago(n.published_at)}</div></article>`;
+      <div class="meta">${esc(n.section||"")} · ${ago(n.published_at)}${n.auto?`<span class="ai-tag">AI 정리</span>`:""}</div></article>`;
   }).join("") : `<p class="empty">아직 올라온 기사가 없습니다.</p>`;
 }
 document.querySelector("nav").addEventListener("click",e=>{
@@ -214,7 +215,8 @@ async function loadYouTube(){
     if(!r.ok) return;
     const j = await r.json();
     CHANNEL_ID = j.channelId || null;
-    const vids = j.videos || [];
+    const vids = (j.videos || []).slice().sort((a,b)=>new Date(b.published) - new Date(a.published));
+    YT_VIDEOS = vids;
     // 관리자가 숏츠를 따로 등록하지 않았으면 채널의 숏츠를 자동으로 보여줍니다
     const ytShorts = vids.filter(v=>v.isShort);
     if(!DATA.shorts.length && ytShorts.length){
@@ -336,7 +338,10 @@ document.addEventListener("pointermove",e=>{
   PROGRAMS = DATA.programs.map(toProgram);
   renderTicker(); renderAds(); renderShorts(); renderNews();
   await loadYouTube();
-  const first = PROGRAMS.find(p=>p.main) || PROGRAMS.find(p=>p.live) || PROGRAMS[0]
+  // 첫 화면은 유튜브 채널에 가장 최근 올린 영상을 기본으로 재생합니다
+  const v = YT_VIDEOS[0];
+  const first = (v && {id:"yt-"+v.id, type:"youtube", url:`https://youtu.be/${v.id}`, live:false, title:v.title, desc:""})
+    || PROGRAMS.find(p=>p.main) || PROGRAMS.find(p=>p.live) || PROGRAMS[0]
     || {id:"demo", type:"demo", live:true, main:true, title:"VoB TV 종합뉴스", desc:""};
   play(first);
 })();

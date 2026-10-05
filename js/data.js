@@ -32,8 +32,25 @@
     },
   };
 
+  // 매일 자동으로 만들어지는 기사 (저장소의 data/news.json)
+  let dailyCache = null;
+  async function daily(){
+    if(dailyCache) return dailyCache;
+    try{
+      const r = await fetch("data/news.json", {cache:"no-cache"});
+      dailyCache = r.ok ? await r.json() : [];
+    }catch(e){ dailyCache = []; }
+    return dailyCache;
+  }
+  const byDate = (a,b)=>new Date(b.published_at)-new Date(a.published_at);
+
   async function load(){
-    if(!db) return Object.assign({sample:true}, SAMPLE);
+    const auto = await daily();
+    if(!db){
+      const s = Object.assign({sample:true}, SAMPLE);
+      if(auto.length){ s.news = auto.slice().sort(byDate).slice(0,12); s.sample = false; }
+      return s;
+    }
     const [programs, news, shorts, ads, ticker, briefing] = await Promise.all([
       db.from("programs").select("*").order("sort").order("created_at"),
       db.from("news").select("id,section,title,summary,image_url,link_url,published_at").order("published_at",{ascending:false}).limit(12),
@@ -46,13 +63,15 @@
     if(bad) throw bad.error;
     return {
       sample:false,
-      programs: programs.data, news: news.data, shorts: shorts.data, ads: ads.data,
+      programs: programs.data, news: news.data.concat(auto).sort(byDate).slice(0,12), shorts: shorts.data, ads: ads.data,
       ticker: ticker.data.map(t=>t.text),
       briefing: briefing.data || {lines:[], captions:[]},
     };
   }
 
   async function article(id){
+    const auto = (await daily()).find(n=>n.id===id);
+    if(auto) return auto;
     if(!db) return SAMPLE.news.find(n=>n.id===id) || null;
     const {data, error} = await db.from("news").select("*").eq("id",id).maybeSingle();
     if(error) throw error;
