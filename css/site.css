@@ -299,17 +299,15 @@ a.adslot img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;b
 .art-img{margin:0 0 20px}.art-img img{width:100%;border-radius:10px;display:block}
 .art-img figcaption{font-size:12px;color:var(--muted);margin-top:6px}
 
-/* 3D 렌더 로고 이미지 + 마우스 따라 살짝 기울기 + 지나가는 광택 */
+/* 3D 렌더 로고: 36장 회전 장면(스프라이트). 마우스를 올리면 360도 회전 */
 .logo{perspective:700px;align-items:center}
 .logo .l3d{position:relative;display:inline-block;line-height:0;
   transform:rotateX(var(--rx,0deg)) rotateY(var(--ry,0deg));transition:transform .4s ease-out;
   filter:drop-shadow(0 6px 10px rgba(0,0,0,.35)) drop-shadow(0 0 14px rgba(160,20,80,.4))}
-.logo .l3d img{height:40px;width:auto;display:block}
-.logo .l3d::after{content:"";position:absolute;inset:0;pointer-events:none;mix-blend-mode:overlay;
-  -webkit-mask:url(../assets/logo3d.png?v=3) center/contain no-repeat;mask:url(../assets/logo3d.png?v=3) center/contain no-repeat;
-  background:linear-gradient(105deg,transparent 35%,rgba(255,255,255,.9) 48%,transparent 60%) no-repeat;
-  background-size:250% 100%;animation:logoSheen 7s ease-in-out infinite}
-@keyframes logoSheen{0%,60%{background-position:120% 0}100%{background-position:-120% 0}}
-@media (prefers-reduced-motion:reduce){.logo .l3d::after{display:none}}
-@media (max-width:560px){.logo .l3d img{height:30px}.logo small{display:none}}
+.logo .spin{--fw:176px;--fh:58px;display:block;width:var(--fw);height:var(--fh);margin:-9px 0;
+  background:url(../assets/logo3d-spin.webp) 0 0/calc(var(--fw)*36) var(--fh) no-repeat}
+.logo:hover .spin{animation:logoSpin 2.4s steps(36) infinite}
+@keyframes logoSpin{to{background-position:calc(var(--fw)*-36) 0}}
+@media (prefers-reduced-motion:reduce){.logo:hover .spin{animation:none}}
+@media (max-width:560px){.logo .spin{--fw:134px;--fh:44px;margin:-6px 0}.logo small{display:none}}
 .clock{white-space:nowrap}@media (max-width:900px){.clock{font-size:11px}}
