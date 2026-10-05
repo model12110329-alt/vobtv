@@ -40,6 +40,26 @@ function youTubeEmbed(yt){
 }
 const ytThumb = id => `https://i.ytimg.com/vi/${id}/hqdefault.jpg`;
 
+/* ---------- 최신 동영상 로테이션: 한 편이 끝나면 다음 편, 마지막 다음은 처음으로 ---------- */
+function rotation(queue, idx){
+  const i = idx % queue.length, v = queue[i];
+  return {id:"yt-"+v.id, type:"youtube", url:`https://youtu.be/${v.id}`, live:false, title:v.title, desc:"", queue, idx:i};
+}
+let ytApi = null;
+function loadYTApi(){
+  return ytApi ||= new Promise(res=>{
+    if(window.YT && YT.Player) return res();
+    window.onYouTubeIframeAPIReady = res;
+    const s = document.createElement("script"); s.src = "https://www.youtube.com/iframe_api"; document.head.appendChild(s);
+  });
+}
+function whenEnded(frame, src, next){
+  loadYTApi().then(()=>{
+    if(current !== src) return;   // 그사이 다른 방송을 골랐으면 무시
+    new YT.Player(frame, {events:{onStateChange:e=>{ if(e.data === YT.PlayerState.ENDED && current === src) next(); }}});
+  });
+}
+
 /* ---------- 플레이어 ---------- */
 const stage = document.getElementById("player");
 let hls = null, raf = 0;
@@ -66,9 +86,10 @@ function play(src){
       notice(`<strong>유튜브 ${src.live?"라이브":"영상"}이 이 자리에 나옵니다</strong><span>미리보기 화면에서는 유튜브 삽입이 막혀 있습니다. 실제 사이트에서는 여기서 바로 재생됩니다.</span><a href="${esc(src.url)}" target="_blank" rel="noopener">유튜브에서 보기 ↗</a>`);
     } else {
       const f = document.createElement("iframe");
-      f.src = youTubeEmbed(yt); f.title = src.title;
+      f.src = youTubeEmbed(yt) + (src.queue ? `&enablejsapi=1&origin=${encodeURIComponent(location.origin)}` : ""); f.title = src.title;
       f.allow = "autoplay; encrypted-media; picture-in-picture; fullscreen"; f.allowFullscreen = true;
       stage.appendChild(f);
+      if(src.queue) whenEnded(f, src, ()=>play(rotation(src.queue, src.idx + 1)));
     }
   }
   else if(src.type==="hls"){
@@ -178,15 +199,36 @@ document.getElementById("shortsRow").addEventListener("click",e=>{
 });
 
 let newsFilter = null;
+/* 기사 썸네일: 대표 이미지가 없으면 분야 색과 제목으로 VoB 썸네일을 그립니다 */
+const SEC_HUE = {"정치":338,"경제":222,"사회":312,"국제":262,"문화":292};
+function newsThumb(n, i){
+  const h = SEC_HUE[n.section] ?? 330, seed = [...String(n.id||i)].reduce((a,c)=>a+c.charCodeAt(0),0);
+  // 회전 각도가 기사마다 다른 3D 정육면체 선화
+  const ay = seed%90/57, ax = .5+seed%37/80, V = [];
+  for(let k=0;k<8;k++){
+    let x=k&1?1:-1, y=k&2?1:-1, z=k&4?1:-1;
+    [x,z] = [x*Math.cos(ay)-z*Math.sin(ay), x*Math.sin(ay)+z*Math.cos(ay)];
+    [y,z] = [y*Math.cos(ax)-z*Math.sin(ax), y*Math.sin(ax)+z*Math.cos(ax)];
+    const f = 3.2/(4.4-z); V.push([(x*f*34+250).toFixed(1),(y*f*34+56).toFixed(1)]);
+  }
+  const E = [[0,1],[2,3],[4,5],[6,7],[0,2],[1,3],[4,6],[5,7],[0,4],[1,5],[2,6],[3,7]];
+  const lines = E.map(([a,b])=>`<line x1="${V[a][0]}" y1="${V[a][1]}" x2="${V[b][0]}" y2="${V[b][1]}"/>`).join("");
+  return `<div class="thumb gen" style="--h:${h}">
+    <svg viewBox="0 0 320 180" aria-hidden="true"><g class="cube">${lines}</g></svg>
+    <span class="k">${esc(n.section||"뉴스")}</span>
+    <b class="hl">${esc(n.title)}</b>
+    <i class="mk">Vo<em>B</em> NEWS</i></div>`;
+}
+
 function renderNews(){
-  const list = newsFilter ? DATA.news.filter(n=>n.section===newsFilter) : DATA.news;
+  const list = (newsFilter ? DATA.news.filter(n=>n.section===newsFilter) : DATA.news).slice(0, 8);
   document.getElementById("newsNote").textContent = DATA.sample ? "예시 기사" : (newsFilter ? `${newsFilter} 기사` : "");
   document.getElementById("news").innerHTML = list.length ? list.map((n,i)=>{
     const href = n.link_url || `article.html?id=${encodeURIComponent(n.id)}`;
     const ext = !!n.link_url;
     const thumb = n.image_url
       ? `<div class="thumb img" style="background-image:url('${esc(n.image_url)}')"><span>${esc(n.section||"")}</span></div>`
-      : `<div class="thumb" style="background:linear-gradient(135deg,hsl(${325+(i*7)%30} 55% 34%),hsl(${i%2?225:335} 55% 22%))"><span>${esc(n.section||"")}</span></div>`;
+      : newsThumb(n, i);
     return `<article class="card"><a href="${esc(href)}"${ext?' target="_blank" rel="noopener"':""}>${thumb}</a>
       <h3><a href="${esc(href)}"${ext?' target="_blank" rel="noopener"':""}>${esc(n.title)}</a></h3>
       ${n.summary?`<p>${esc(n.summary)}</p>`:""}
@@ -227,7 +269,7 @@ async function loadYouTube(){
     const longs = vids.filter(v=>!v.isShort);
     if(!longs.length) return;
     document.getElementById("latest").hidden = false;
-    document.getElementById("videos").innerHTML = longs.slice(0,8).map(v=>`
+    document.getElementById("videos").innerHTML = longs.slice(0,5).map(v=>`
       <button class="vcard" data-v="${esc(v.id)}" data-t="${esc(v.title)}">
         <div class="thumb img" style="background-image:url('${ytThumb(v.id)}')"></div>
         <strong>${esc(v.title)}</strong><small>${ago(v.published)}</small>
@@ -338,9 +380,9 @@ document.addEventListener("pointermove",e=>{
   PROGRAMS = DATA.programs.map(toProgram);
   renderTicker(); renderAds(); renderShorts(); renderNews();
   await loadYouTube();
-  // 첫 화면은 유튜브 채널에 가장 최근 올린 동영상(숏츠 제외)을 기본으로 재생합니다
-  const v = YT_VIDEOS.find(x=>!x.isShort);
-  const first = (v && {id:"yt-"+v.id, type:"youtube", url:`https://youtu.be/${v.id}`, live:false, title:v.title, desc:""})
+  // 첫 화면은 유튜브 채널 최신 동영상(숏츠 제외) 최대 5편을 최근 순으로 이어서 재생합니다
+  const queue = YT_VIDEOS.filter(x=>!x.isShort).slice(0, 5);
+  const first = (queue.length && rotation(queue, 0))
     || PROGRAMS.find(p=>p.main) || PROGRAMS.find(p=>p.live) || PROGRAMS[0]
     || {id:"demo", type:"demo", live:true, main:true, title:"VoB TV 종합뉴스", desc:""};
   play(first);
