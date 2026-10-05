@@ -23,17 +23,25 @@ module.exports = async (req, res) => {
   const channel = String(req.query.channel || process.env.YT_CHANNEL || "@VoBTV1").trim();
   try {
     const channelId = await resolveChannelId(channel);
-    const xml = await (await fetch(`https://www.youtube.com/feeds/videos.xml?channel_id=${channelId}`)).text();
-    const videos = [...xml.matchAll(/<entry>([\s\S]*?)<\/entry>/g)].slice(0, 15).map(m => {
+    // 채널 전체 피드는 최근 15개뿐이라 숏츠가 많으면 동영상이 밀려납니다.
+    // 그래서 '동영상만' 모은 재생목록(UULF…) 피드를 함께 읽어 합칩니다.
+    const feeds = [
+      `https://www.youtube.com/feeds/videos.xml?channel_id=${channelId}`,
+      `https://www.youtube.com/feeds/videos.xml?playlist_id=UULF${channelId.slice(2)}`,
+    ];
+    const xmls = await Promise.all(feeds.map(u => fetch(u).then(r => r.ok ? r.text() : "").catch(() => "")));
+    const seen = new Set();
+    const videos = xmls.flatMap((xml, fi) => [...xml.matchAll(/<entry>([\s\S]*?)<\/entry>/g)].map(m => {
       const e = m[1];
       const get = re => (e.match(re) || [])[1] || "";
       return {
         id: get(/<yt:videoId>([^<]+)<\/yt:videoId>/),
         title: decode(get(/<title>([^<]*)<\/title>/)),
         published: get(/<published>([^<]+)<\/published>/),
-        isShort: /\/shorts\//.test(get(/<link rel="alternate" href="([^"]+)"/)),
+        isShort: fi === 0 && /\/shorts\//.test(get(/<link rel="alternate" href="([^"]+)"/)),
       };
-    }).filter(v => v.id);
+    })).filter(v => v.id && !seen.has(v.id) && seen.add(v.id))
+      .sort((a, b) => new Date(b.published) - new Date(a.published));
     res.setHeader("Cache-Control", "s-maxage=600, stale-while-revalidate=3600");
     res.status(200).json({ channelId, videos });
   } catch (err) {
