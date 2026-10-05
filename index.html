@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>VoB TV</title>
+<meta name="description" content="VoB TV · 바른 시선, 당당한 목소리. 대한민국 시사 저널 방송">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,900&family=Nanum+Myeongjo:wght@700;800&family=IBM+Plex+Sans+KR:wght@400;500;700&family=IBM+Plex+Mono:wght@500&family=Chakra+Petch:wght@500;700&display=swap">
+<link rel="stylesheet" href="css/site.css">
+</head>
+<body>
+<canvas id="bg4d" class="bg4d" aria-hidden="true"></canvas>
+
+
+<header>
+  <div class="wrap bar">
+    <a class="logo" href="#">Vo<b>B</b>&nbsp;TV<small>VOICE OF BROADCAST</small></a>
+    <nav aria-label="분야">
+      <a href="#" aria-current="page">홈</a><a href="#">정치</a><a href="#">경제</a><a href="#">사회</a><a href="#">문화</a><a href="#shorts">숏츠</a><a href="#newsSec">뉴스</a>
+    </nav>
+    <span class="clock" id="clock">--:--:--</span>
+  </div>
+</header>
+
+<main class="wrap">
+  <div class="banner" id="banner" role="img" aria-label="VoB TV 배너">
+    <canvas id="bannerCanvas"></canvas>
+    <div class="copy">
+      <span class="k">AI NEWS BROADCAST</span>
+      <span class="t">Vo<i>B</i> TV</span>
+      <span class="s">AI가 요약하고 자막을 다는 실시간 방송 뉴스</span>
+    </div>
+  </div>
+  <div class="ticker" style="margin-top:16px" role="marquee" aria-label="속보">
+    <b>속보</b>
+    <div class="track"><div class="run" id="ticker"></div></div>
+  </div>
+  <div class="broadcast">
+    <div>
+      <div class="ring"><div class="player" id="player" aria-label="방송 화면"></div></div>
+      <div class="nowinfo">
+        <span class="badge" id="nowBadge">LIVE</span>
+        <h1 id="nowTitle">VoB TV 종합뉴스</h1>
+        <p hidden><span id="nowDesc"></span> <span class="srcline" id="nowSrc"></span></p>
+      </div>
+    </div>
+    <!-- 광고 영역 4칸: 관리자 화면의 '광고' 탭에서 이미지와 링크를 넣으면 여기에 나옵니다 -->
+    <aside class="ads" id="ads" aria-label="광고"></aside>
+  </div>
+
+
+    <div class="ai" style="margin-top:32px" aria-live="polite">
+      <header><span class="chip">AI</span><h2>AI 브리핑 · 지금 방송 3줄 요약</h2><span class="status" id="aiStatus">실시간 분석 중</span><span class="wave" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span></header>
+      <div class="ai-body">
+        <div class="ai-text">
+          <ol id="aiSum"></ol>
+          <div class="cap" id="aiCap"></div>
+        </div>
+        <figure class="ai-core" aria-label="4차원 정육면체가 회전하는 AI 코어 그래픽">
+          <canvas id="aiCore"></canvas>
+          <figcaption>VoB AI CORE · 4D</figcaption>
+        </figure>
+      </div>
+    </div>
+
+  <section class="sched">
+    <div class="sechead"><h2>편성표</h2><span>누르면 위 방송 화면에서 재생됩니다</span></div>
+    <ul class="lineup row" id="lineup"></ul>
+  </section>
+
+  <section id="shorts">
+    <div class="sechead"><h2>VoB 숏츠</h2><span>누르면 위 방송 화면에서 재생됩니다</span></div>
+    <div class="shorts" id="shortsRow"></div>
+  </section>
+
+  <section id="latest" hidden>
+    <div class="sechead"><h2>유튜브 최신 영상</h2><span>@VoBTV1 채널에서 자동으로 가져옵니다</span></div>
+    <div class="videos" id="videos"></div>
+  </section>
+
+  <section id="newsSec">
+    <div class="sechead"><h2>주요 뉴스</h2><span id="newsNote"></span></div>
+    <div class="news" id="news"></div>
+  </section>
+</main>
+
+<footer><div class="wrap">© 2026 VoB TV · 바른 시선, 당당한 목소리</div></footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/hls.js/1.5.13/hls.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+<script src="js/config.js"></script>
+<script src="js/data.js"></script>
+<script src="js/site.js"></script>
+<script src="js/fx3d.js"></script>
+</body>
+</html>

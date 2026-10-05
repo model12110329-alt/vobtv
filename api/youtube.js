@@ -1,0 +1,42 @@
+// Vercel 서버 함수: 유튜브 채널의 최신 영상 목록을 가져옵니다.
+// 사용: /api/youtube?channel=@VoBTV1  (또는 UC로 시작하는 채널 ID)
+// API 키 없이 유튜브 공개 RSS 피드를 읽습니다. 결과는 10분 동안 캐시됩니다.
+
+const decode = s => s
+  .replace(/&amp;/g, "&").replace(/&lt;/g, "<").replace(/&gt;/g, ">")
+  .replace(/&quot;/g, '"').replace(/&#39;/g, "'");
+
+async function resolveChannelId(channel) {
+  if (/^UC[\w-]{22}$/.test(channel)) return channel;
+  const handle = channel.startsWith("@") ? channel : "@" + channel;
+  if (!/^@[\w.\-]{3,30}$/.test(handle)) throw new Error("채널 이름 형식이 올바르지 않습니다");
+  const r = await fetch(`https://www.youtube.com/${handle}`, {
+    headers: { "user-agent": "Mozilla/5.0", "accept-language": "ko-KR,ko;q=0.9" },
+  });
+  const html = await r.text();
+  const m = html.match(/"channelId":"(UC[\w-]{22})"/) || html.match(/"externalId":"(UC[\w-]{22})"/) || html.match(/channel\/(UC[\w-]{22})/);
+  if (!m) throw new Error("유튜브 채널을 찾지 못했습니다");
+  return m[1];
+}
+
+module.exports = async (req, res) => {
+  const channel = String(req.query.channel || process.env.YT_CHANNEL || "@VoBTV1").trim();
+  try {
+    const channelId = await resolveChannelId(channel);
+    const xml = await (await fetch(`https://www.youtube.com/feeds/videos.xml?channel_id=${channelId}`)).text();
+    const videos = [...xml.matchAll(/<entry>([\s\S]*?)<\/entry>/g)].slice(0, 15).map(m => {
+      const e = m[1];
+      const get = re => (e.match(re) || [])[1] || "";
+      return {
+        id: get(/<yt:videoId>([^<]+)<\/yt:videoId>/),
+        title: decode(get(/<title>([^<]*)<\/title>/)),
+        published: get(/<published>([^<]+)<\/published>/),
+        isShort: /\/shorts\//.test(get(/<link rel="alternate" href="([^"]+)"/)),
+      };
+    }).filter(v => v.id);
+    res.setHeader("Cache-Control", "s-maxage=600, stale-while-revalidate=3600");
+    res.status(200).json({ channelId, videos });
+  } catch (err) {
+    res.status(502).json({ error: String((err && err.message) || err) });
+  }
+};

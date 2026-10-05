@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>VoB TV 관리자</title>
+<meta name="robots" content="noindex, nofollow">
+<meta name="description" content="VoB TV · 바른 시선, 당당한 목소리. 대한민국 시사 저널 방송">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,900&family=Nanum+Myeongjo:wght@700;800&family=IBM+Plex+Sans+KR:wght@400;500;700&family=IBM+Plex+Mono:wght@500&family=Chakra+Petch:wght@500;700&display=swap">
+<link rel="stylesheet" href="css/site.css">
+</head>
+<body>
+
+<header>
+  <div class="wrap bar">
+    <a class="logo" href="index.html">Vo<b>B</b>&nbsp;TV<small>VOICE OF BROADCAST</small></a>
+    <nav aria-label="분야">
+      <a href="index.html">홈</a><a href="index.html#newsSec">뉴스</a>
+    </nav>
+    <span class="clock" id="clock">--:--:--</span>
+  </div>
+</header>
+
+<main class="wrap admin">
+  <section id="setup" class="studio" hidden>
+    <div class="sechead" style="margin:0"><h2>먼저 연결이 필요합니다</h2></div>
+    <p>js/config.js 파일에 Supabase 주소와 anon 키를 넣어야 관리자 화면을 쓸 수 있습니다. 자세한 순서는 README.md를 보세요.</p>
+  </section>
+
+  <section id="login" hidden>
+    <form class="studio" id="loginForm">
+      <div class="sechead" style="margin:0"><h2>관리자 로그인</h2></div>
+      <div class="grid2">
+        <div class="field"><label for="email">이메일</label><input type="email" id="email" autocomplete="username" required></div>
+        <div class="field"><label for="pw">비밀번호</label><input type="password" id="pw" autocomplete="current-password" required></div>
+      </div>
+      <div class="inline"><button class="btn" type="submit">들어가기</button></div>
+      <div class="msg" id="loginMsg" role="status"></div>
+    </form>
+  </section>
+
+  <section id="panel" hidden>
+    <div class="admin">
+      <div class="sechead" style="margin:0"><h2>관리자 화면</h2><span><span id="who"></span> · <button class="btn ghost sm" id="logout" type="button">나가기</button></span></div>
+      <div class="tabs" id="tabs" role="tablist"></div>
+      <div class="studio">
+        <div class="sechead" style="margin:0"><h2 id="title"></h2><span>사이트를 새로고침하면 바로 반영됩니다</span></div>
+        <ul class="rows-list" id="list"></ul>
+      </div>
+      <form class="studio" id="form">
+        <div class="sechead" style="margin:0"><h2 id="formTitle">새로 추가</h2></div>
+        <div class="grid2" id="fields"></div>
+        <div class="inline"><button class="btn" type="submit">저장</button><button class="btn ghost" type="button" id="cancel" hidden>그만 고치기</button></div>
+        <div class="msg" id="msg" role="status"></div>
+      </form>
+    </div>
+  </section>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+<script src="js/config.js"></script>
+<script src="js/data.js"></script>
+<script>
+const clock = document.getElementById("clock");
+setInterval(()=>clock.textContent = new Date().toLocaleTimeString("ko-KR",{hour12:false}), 1000);
+</script>
+<script src="js/admin.js"></script>
+</body>
+</html>

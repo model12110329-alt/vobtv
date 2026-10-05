@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>VoB TV 기사</title>
+<meta name="description" content="VoB TV · 바른 시선, 당당한 목소리. 대한민국 시사 저널 방송">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,900&family=Nanum+Myeongjo:wght@700;800&family=IBM+Plex+Sans+KR:wght@400;500;700&family=IBM+Plex+Mono:wght@500&family=Chakra+Petch:wght@500;700&display=swap">
+<link rel="stylesheet" href="css/site.css">
+</head>
+<body>
+
+<header>
+  <div class="wrap bar">
+    <a class="logo" href="index.html">Vo<b>B</b>&nbsp;TV<small>VOICE OF BROADCAST</small></a>
+    <nav aria-label="분야">
+      <a href="index.html">홈</a><a href="index.html#newsSec">뉴스</a>
+    </nav>
+    <span class="clock" id="clock">--:--:--</span>
+  </div>
+</header>
+
+<main class="wrap">
+  <article class="article" id="article">
+    <p class="empty">기사를 불러오는 중입니다.</p>
+  </article>
+</main>
+
+<footer><div class="wrap">© 2026 VoB TV · 바른 시선, 당당한 목소리</div></footer>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+<script src="js/config.js"></script>
+<script src="js/data.js"></script>
+<script>
+const esc = s => String(s ?? "").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const clock = document.getElementById("clock");
+setInterval(()=>clock.textContent = new Date().toLocaleTimeString("ko-KR",{hour12:false}), 1000);
+(async()=>{
+  const box = document.getElementById("article");
+  const id = new URLSearchParams(location.search).get("id");
+  try{
+    const n = id && await VOB.article(id);
+    if(!n){ box.innerHTML = `<p class="empty">기사를 찾지 못했습니다.</p><a class="back" href="index.html">← 첫 화면으로</a>`; return; }
+    document.title = n.title + " · VoB TV";
+    const body = (n.body || n.summary || "").split(/\n{2,}|\r\n\r\n/).map(p=>`<p>${esc(p).replace(/\n/g,"<br>")}</p>`).join("");
+    box.innerHTML = `<div class="meta">${esc(n.section||"")} · ${new Date(n.published_at).toLocaleString("ko-KR",{dateStyle:"long",timeStyle:"short"})}</div>
+      <h1>${esc(n.title)}</h1>
+      ${n.image_url?`<img src="${esc(n.image_url)}" alt="">`:""}
+      <div class="body">${body}</div>
+      <a class="back" href="index.html">← 첫 화면으로</a>`;
+  }catch(e){ box.innerHTML = `<p class="empty">기사를 불러오지 못했습니다. 잠시 후 다시 시도해 주세요.</p>`; }
+})();
+</script>
+</body>
+</html>
