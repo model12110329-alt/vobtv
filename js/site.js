@@ -181,14 +181,17 @@ function renderAds(){
 }
 
 const SHORT_HUES = [224,350,160,28,265,195];
+let SHORT_ART = {};
+fetch("data/shorts_art.json",{cache:"no-cache"}).then(r=>r.ok?r.json():{}).then(j=>{ SHORT_ART = j||{}; if(DATA) renderShorts(); }).catch(()=>{});
 function renderShorts(){
   const row = document.getElementById("shortsRow");
   if(!DATA.shorts.length){ document.getElementById("shorts").hidden = true; return; }
   row.innerHTML = DATA.shorts.map((s,i)=>{
     const yt = s.url && parseYouTube(s.url);
-    const bg = yt && yt.video ? `background-image:linear-gradient(transparent 40%,rgba(0,0,0,.4)),url('${ytThumb(yt.video)}')`
+    const art = yt && yt.video && SHORT_ART[yt.video];   // 매일 만드는 3D 실사풍 숏츠 삽화가 있으면 그것을 씁니다
+    const bg = yt && yt.video ? `background-image:linear-gradient(transparent 40%,rgba(0,0,0,.4)),url('${art || ytThumb(yt.video)}')`
       : `background:linear-gradient(160deg,hsl(${330+(SHORT_HUES[i%6]%30)} 60% 38%),hsl(225 60% ${22+(i%3)*6}%))`;
-    return `<button class="short" data-i="${i}" style="${bg}"><p>${esc(s.title)}</p></button>`;
+    return `<button class="short" data-i="${i}" style="${bg}"><p>${esc(s.title)}</p>${art?`<em class="ai-img">AI 이미지</em>`:""}</button>`;
   }).join("");
 }
 document.getElementById("shortsRow").addEventListener("click",e=>{
