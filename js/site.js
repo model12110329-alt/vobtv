@@ -214,9 +214,18 @@ async function loadYouTube(){
     if(!r.ok) return;
     const j = await r.json();
     CHANNEL_ID = j.channelId || null;
-    if(!j.videos || !j.videos.length) return;
+    const vids = j.videos || [];
+    // 관리자가 숏츠를 따로 등록하지 않았으면 채널의 숏츠를 자동으로 보여줍니다
+    const ytShorts = vids.filter(v=>v.isShort);
+    if(!DATA.shorts.length && ytShorts.length){
+      DATA.shorts = ytShorts.slice(0,12).map(v=>({id:v.id, title:v.title, url:`https://www.youtube.com/shorts/${v.id}`}));
+      document.getElementById("shorts").hidden = false;
+      renderShorts();
+    }
+    const longs = vids.filter(v=>!v.isShort);
+    if(!longs.length) return;
     document.getElementById("latest").hidden = false;
-    document.getElementById("videos").innerHTML = j.videos.slice(0,8).map(v=>`
+    document.getElementById("videos").innerHTML = longs.slice(0,8).map(v=>`
       <button class="vcard" data-v="${esc(v.id)}" data-t="${esc(v.title)}">
         <div class="thumb img" style="background-image:url('${ytThumb(v.id)}')"></div>
         <strong>${esc(v.title)}</strong><small>${ago(v.published)}</small>
