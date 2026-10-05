@@ -20,7 +20,8 @@
       }
     ],
     "published_at": "2026-10-05T20:30:00+09:00",
-    "auto": true
+    "auto": true,
+    "image_url": "assets/news/d-20261005-6.jpg"
   },
   {
     "id": "d-20261005-7",
@@ -43,7 +44,8 @@
       }
     ],
     "published_at": "2026-10-05T20:25:00+09:00",
-    "auto": true
+    "auto": true,
+    "image_url": "assets/news/d-20261005-7.jpg"
   },
   {
     "id": "d-20261005-8",
@@ -62,7 +64,8 @@
       }
     ],
     "published_at": "2026-10-05T20:20:00+09:00",
-    "auto": true
+    "auto": true,
+    "image_url": "assets/news/d-20261005-8.jpg"
   },
   {
     "id": "d-20261005-1",
@@ -81,7 +84,8 @@
         "url": "https://www.mt.co.kr/society/2026/10/05/2026100511113181978"
       }
     ],
-    "auto": true
+    "auto": true,
+    "image_url": "assets/news/d-20261005-1.jpg"
   },
   {
     "id": "d-20261005-2",
@@ -104,7 +108,8 @@
         "url": "https://news.sbs.co.kr/news/endPage.do?news_id=N1008783619"
       }
     ],
-    "auto": true
+    "auto": true,
+    "image_url": "assets/news/d-20261005-2.jpg"
   },
   {
     "id": "d-20261005-3",
@@ -123,7 +128,8 @@
         "url": "https://www.etoday.co.kr/news/view/2632237"
       }
     ],
-    "auto": true
+    "auto": true,
+    "image_url": "assets/news/d-20261005-3.jpg"
   },
   {
     "id": "d-20261005-4",
@@ -142,7 +148,8 @@
         "url": "https://view.asiae.co.kr/article/2026100511255995948"
       }
     ],
-    "auto": true
+    "auto": true,
+    "image_url": "assets/news/d-20261005-4.jpg"
   },
   {
     "id": "d-20261005-5",
@@ -157,6 +164,7 @@
         "url": "https://www.kado.net/news/articleView.html?idxno=2076285"
       }
     ],
-    "auto": true
+    "auto": true,
+    "image_url": "assets/news/d-20261005-5.jpg"
   }
 ]

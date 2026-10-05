@@ -46,7 +46,7 @@ setInterval(()=>clock.textContent = new Date().toLocaleTimeString("ko-KR",{hour1
     const body = (n.body || n.summary || "").split(/\n{2,}|\r\n\r\n/).map(p=>`<p>${esc(p).replace(/\n/g,"<br>")}</p>`).join("");
     box.innerHTML = `<div class="meta">${esc(n.section||"")} · ${new Date(n.published_at).toLocaleString("ko-KR",{dateStyle:"long",timeStyle:"short"})}</div>
       <h1>${esc(n.title)}</h1>
-      ${n.image_url?`<img src="${esc(n.image_url)}" alt="">`:""}
+      ${n.image_url?`<figure class="art-img"><img src="${esc(n.image_url)}" alt="">${n.auto?`<figcaption>AI로 생성한 이미지입니다</figcaption>`:""}</figure>`:""}
       <div class="body">${body}</div>
       ${(n.sources||[]).length?`<p class="sources">참고: ${esc([...new Set(n.sources.map(x=>x.name).filter(Boolean))].join(", "))}</p>`:""}
       <a class="back" href="index.html">← 첫 화면으로</a>`;

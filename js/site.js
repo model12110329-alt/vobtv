@@ -227,7 +227,7 @@ function renderNews(){
     const href = n.link_url || `article.html?id=${encodeURIComponent(n.id)}`;
     const ext = !!n.link_url;
     const thumb = n.image_url
-      ? `<div class="thumb img" style="background-image:url('${esc(n.image_url)}')"><span>${esc(n.section||"")}</span></div>`
+      ? `<div class="thumb img" style="background-image:url('${esc(n.image_url)}')"><span>${esc(n.section||"")}</span>${n.auto?`<em class="ai-img">AI 이미지</em>`:""}</div>`
       : newsThumb(n, i);
     return `<article class="card"><a href="${esc(href)}"${ext?' target="_blank" rel="noopener"':""}>${thumb}</a>
       <h3><a href="${esc(href)}"${ext?' target="_blank" rel="noopener"':""}>${esc(n.title)}</a></h3>
