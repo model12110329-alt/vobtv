@@ -298,3 +298,28 @@ a.adslot img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;b
 .thumb .ai-img,.short .ai-img{position:absolute;z-index:2;top:8px;right:8px;font:600 10px var(--mono);font-style:normal;padding:2px 6px;border-radius:10px;background:rgba(0,0,0,.45);color:rgba(255,255,255,.85)}
 .art-img{margin:0 0 20px}.art-img img{width:100%;border-radius:10px;display:block}
 .art-img figcaption{font-size:12px;color:var(--muted);margin-top:6px}
+
+/* 3D 로고: 은빛 금속 면 + 버건디 두께(층층이 쌓은 그림자) + 천천히 흔들리는 입체 회전 */
+.logo{perspective:600px}
+.logo .l3d{display:inline-flex;align-items:baseline;gap:2px;transform-style:preserve-3d;
+  transform:rotateX(var(--rx,8deg)) rotateY(var(--ry,-12deg));transition:transform .25s ease-out;animation:logoSway 7s ease-in-out infinite}
+.logo .l3d{--face:#fff5fa;--bface:#ff6aa8;
+  --e1:#c0457f;--e2:#a63a6e;--e3:#8c305d;--e4:#73274d;--e5:#5a1e3c;
+  --b1:#6f8cf0;--b2:#5a75d8;--b3:#475fbe;--b4:#374aa0;--b5:#283780;--glow:rgba(239,90,156,.35)}
+@media (prefers-color-scheme: light){:root:not([data-theme="dark"]) .logo .l3d{--face:#7a1d4b;--bface:#d0306f;
+  --e1:#e9a9c7;--e2:#dc95b8;--e3:#cf82a9;--e4:#c06f99;--e5:#b05d89;
+  --b1:#a9bdf5;--b2:#93aaee;--b3:#7d96e4;--b4:#6883d8;--b5:#5470cb;--glow:rgba(122,29,75,.18)}}
+:root[data-theme="light"] .logo .l3d{--face:#7a1d4b;--bface:#d0306f;
+  --e1:#e9a9c7;--e2:#dc95b8;--e3:#cf82a9;--e4:#c06f99;--e5:#b05d89;
+  --b1:#a9bdf5;--b2:#93aaee;--b3:#7d96e4;--b4:#6883d8;--b5:#5470cb;--glow:rgba(122,29,75,.18)}
+.logo .l3d{color:var(--face);
+  text-shadow:0 -1px 0 rgba(255,255,255,.55),1px 1px 0 var(--e1),2px 2px 0 var(--e2),3px 3px 0 var(--e3),4px 4px 0 var(--e4),5px 5px 0 var(--e5),
+              7px 9px 12px rgba(0,0,0,.45),0 0 22px var(--glow)}
+.logo .l3d b{color:var(--bface);
+  text-shadow:0 -1px 0 rgba(255,255,255,.6),1px 1px 0 var(--b1),2px 2px 0 var(--b2),3px 3px 0 var(--b3),4px 4px 0 var(--b4),5px 5px 0 var(--b5),
+              7px 9px 12px rgba(0,0,0,.45),0 0 24px rgba(92,140,245,.4)}
+.logo:hover .l3d{animation:none}
+@keyframes logoSway{0%,100%{--rx:8deg;--ry:-12deg}50%{--rx:4deg;--ry:12deg}}
+@property --rx{syntax:"<angle>";inherits:true;initial-value:8deg}
+@property --ry{syntax:"<angle>";inherits:true;initial-value:-12deg}
+@media (prefers-reduced-motion:reduce){.logo .l3d{animation:none}}

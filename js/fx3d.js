@@ -111,6 +111,15 @@
   });
   document.addEventListener("pointerleave", ()=>{ if(tilted){ tilted.style.transform = ""; tilted = null; } });
 
+  /* 로고: 마우스 위치에 따라 입체 회전 */
+  const logo = document.querySelector(".logo");
+  if(logo && !REDUCED) logo.addEventListener("pointermove", e=>{
+    const r = logo.getBoundingClientRect(), l = logo.querySelector(".l3d");
+    l.style.setProperty("--ry", `${((e.clientX-r.left)/r.width-.5)*36}deg`);
+    l.style.setProperty("--rx", `${(.5-(e.clientY-r.top)/r.height)*24}deg`);
+  });
+  if(logo) logo.addEventListener("pointerleave", ()=>{ const l = logo.querySelector(".l3d"); l.style.removeProperty("--ry"); l.style.removeProperty("--rx"); });
+
   const core = document.getElementById("aiCore");
   if(core) tesseract(core);
   const bg = document.getElementById("bg4d");
