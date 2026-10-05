@@ -304,13 +304,13 @@ a.adslot img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;b
 .logo .l3d{position:relative;display:inline-block;line-height:0;
   transform:rotateX(var(--rx,0deg)) rotateY(var(--ry,0deg));transition:transform .4s ease-out;
   filter:drop-shadow(0 6px 10px rgba(0,0,0,.35)) drop-shadow(0 0 14px rgba(160,20,80,.4))}
-.logo .spin{--fw:195px;--fh:58px;display:block;width:var(--fw);height:var(--fh);margin:6px 0 -9px;
-  background:url(../assets/logo3d-spin.webp?v=4) 0 0/calc(var(--fw)*36) var(--fh) no-repeat}
+.logo .spin{--fw:236px;--fh:58px;display:block;width:var(--fw);height:var(--fh);margin:6px 0 -9px;
+  background:url(../assets/logo3d-spin.webp?v=5) 0 0/calc(var(--fw)*36) var(--fh) no-repeat}
 .logo .spin{position:relative}
 /* 형광빛 줄기가 글자 위로 좌우로 스르륵 오갑니다 (로고 모양으로만 보이게 같은 스프라이트로 가림) */
 .logo .spin::after{content:"";position:absolute;inset:0;pointer-events:none;mix-blend-mode:screen;
-  -webkit-mask:url(../assets/logo3d-spin.webp?v=4) 0 0/calc(var(--fw)*36) var(--fh) no-repeat;
-          mask:url(../assets/logo3d-spin.webp?v=4) 0 0/calc(var(--fw)*36) var(--fh) no-repeat;
+  -webkit-mask:url(../assets/logo3d-spin.webp?v=5) 0 0/calc(var(--fw)*36) var(--fh) no-repeat;
+          mask:url(../assets/logo3d-spin.webp?v=5) 0 0/calc(var(--fw)*36) var(--fh) no-repeat;
   background:linear-gradient(100deg,transparent 30%,rgba(120,255,240,.0) 36%,rgba(140,255,235,.55) 44%,rgba(255,255,255,.95) 50%,rgba(255,120,220,.55) 56%,rgba(255,120,220,0) 64%,transparent 70%) no-repeat;
   background-size:300% 100%;animation:logoSheen 3.6s ease-in-out infinite alternate}
 @keyframes logoSheen{from{background-position:100% 0}to{background-position:0 0}}
@@ -319,5 +319,5 @@ a.adslot img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;b
 .logo:hover .spin::after{opacity:0}
 @keyframes logoSpin{to{background-position:calc(var(--fw)*-36) 0}}
 @media (prefers-reduced-motion:reduce){.logo:hover .spin,.logo .spin::after,.logo:hover .spin::after{animation:none}}
-@media (max-width:560px){.logo .spin{--fw:148px;--fh:44px;margin:5px 0 -6px}.logo small{display:none}}
+@media (max-width:560px){.logo .spin{--fw:179px;--fh:44px;margin:5px 0 -6px}.logo small{display:none}}
 .clock{white-space:nowrap}@media (max-width:900px){.clock{font-size:11px}}
