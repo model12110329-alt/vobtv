@@ -130,7 +130,7 @@ function demo(){
     ctx.fillStyle="#fff"; ctx.textAlign="center"; ctx.textBaseline="middle";
     ctx.font=`900 ${150*s}px "Playfair Display", Georgia, serif`; ctx.fillText("VoB TV", W/2, H*0.40);
     ctx.font=`500 ${22*s}px "IBM Plex Mono", monospace`; ctx.globalAlpha=.75;
-    ctx.fillText("VOICE OF BROADCAST · 바른 시선, 당당한 목소리", W/2, H*0.40+105*s); ctx.globalAlpha=1;
+    ctx.fillText("VICTORY BEGINS WITH OUR VOICE · 바른 시선, 당당한 목소리", W/2, H*0.40+105*s); ctx.globalAlpha=1;
     const ly=H-150*s;
     ctx.fillStyle="#8e1a52"; ctx.fillRect(48*s,ly,120*s,54*s);
     ctx.fillStyle="#fff"; ctx.fillRect(168*s,ly,W-216*s,54*s);

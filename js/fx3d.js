@@ -115,8 +115,8 @@
   const logo = document.querySelector(".logo");
   if(logo && !REDUCED) logo.addEventListener("pointermove", e=>{
     const r = logo.getBoundingClientRect(), l = logo.querySelector(".l3d");
-    l.style.setProperty("--ry", `${((e.clientX-r.left)/r.width-.5)*36}deg`);
-    l.style.setProperty("--rx", `${(.5-(e.clientY-r.top)/r.height)*24}deg`);
+    l.style.setProperty("--ry", `${((e.clientX-r.left)/r.width-.5)*14}deg`);
+    l.style.setProperty("--rx", `${(.5-(e.clientY-r.top)/r.height)*10}deg`);
   });
   if(logo) logo.addEventListener("pointerleave", ()=>{ const l = logo.querySelector(".l3d"); l.style.removeProperty("--ry"); l.style.removeProperty("--rx"); });
 
