@@ -312,7 +312,11 @@ function renderAI(src){
 
 /* ---------- 시계 ---------- */
 const clock = document.getElementById("clock");
-setInterval(()=>clock.textContent = new Date().toLocaleTimeString("ko-KR",{hour12:false}), 1000);
+// 한국 시간 기준: 2026년 10월 5일 (월) 21시 12분 54초
+const fmtClock = new Intl.DateTimeFormat("ko-KR",{timeZone:"Asia/Seoul",year:"numeric",month:"long",day:"numeric",weekday:"short",hour:"2-digit",minute:"2-digit",second:"2-digit",hourCycle:"h23"});
+const tick = ()=>{ const p = Object.fromEntries(fmtClock.formatToParts(new Date()).map(x=>[x.type,x.value]));
+  clock.textContent = `${p.year}년 ${p.month} ${p.day}일 (${p.weekday}) ${p.hour}시 ${p.minute}분 ${p.second}초`; };
+tick(); setInterval(tick, 1000);
 
 /* ---------- 상단 배너: 이미지 위로 흐르는 입체 그래프 ---------- */
 (function(){
