@@ -338,8 +338,8 @@ document.addEventListener("pointermove",e=>{
   PROGRAMS = DATA.programs.map(toProgram);
   renderTicker(); renderAds(); renderShorts(); renderNews();
   await loadYouTube();
-  // 첫 화면은 유튜브 채널에 가장 최근 올린 영상을 기본으로 재생합니다
-  const v = YT_VIDEOS[0];
+  // 첫 화면은 유튜브 채널에 가장 최근 올린 동영상(숏츠 제외)을 기본으로 재생합니다
+  const v = YT_VIDEOS.find(x=>!x.isShort);
   const first = (v && {id:"yt-"+v.id, type:"youtube", url:`https://youtu.be/${v.id}`, live:false, title:v.title, desc:""})
     || PROGRAMS.find(p=>p.main) || PROGRAMS.find(p=>p.live) || PROGRAMS[0]
     || {id:"demo", type:"demo", live:true, main:true, title:"VoB TV 종합뉴스", desc:""};
