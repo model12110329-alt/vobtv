@@ -79,7 +79,14 @@
   }
 
   // ARI 프로젝트: 관리자가 올린 소설·영상 (표가 아직 없으면 빈 목록)
-  async function ari(id){
+  // + 매주 자동 연재되는 소설 (저장소의 data/ari.json)
+  let ariCache = null;
+  async function ariAuto(){
+    if(ariCache) return ariCache;
+    try{ const r = await fetch("data/ari.json", {cache:"no-cache"}); ariCache = r.ok ? await r.json() : []; }catch(e){ ariCache = []; }
+    return ariCache;
+  }
+  async function ariDb(id){
     if(!db) return id ? null : [];
     try{
       if(id){
@@ -89,6 +96,11 @@
       const {data, error} = await db.from("ari_works").select("id,kind,title,series,episode,summary,cover_url,video_url,published_at").order("published_at",{ascending:false});
       return error ? [] : data;
     }catch(e){ return id ? null : []; }
+  }
+  async function ari(id){
+    const auto = await ariAuto();
+    if(id) return auto.find(w=>w.id===id) || (/^a-/.test(id) ? null : await ariDb(id));
+    return auto.concat(await ariDb()).sort(byDate);
   }
 
   window.VOB = {db, ready, load, article, ari, SAMPLE, config:C};
