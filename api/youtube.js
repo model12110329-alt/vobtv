@@ -1,5 +1,6 @@
 // Vercel 서버 함수: 유튜브 채널의 최신 영상 목록을 가져옵니다.
 // 사용: /api/youtube?channel=@VoBTV1  (또는 UC로 시작하는 채널 ID)
+//       /api/youtube?playlist=PL…      (재생목록 하나만, 예: ARI 프로젝트)
 // API 키 없이 유튜브 공개 RSS 피드를 읽습니다. 결과는 10분 동안 캐시됩니다.
 
 const decode = s => s
@@ -20,6 +21,21 @@ async function resolveChannelId(channel) {
 }
 
 module.exports = async (req, res) => {
+  const playlist = String(req.query.playlist || "").trim();
+  if (playlist) {
+    if (!/^[\w-]{10,64}$/.test(playlist)) return res.status(400).json({ error: "재생목록 주소 형식이 올바르지 않습니다" });
+    try {
+      const xml = await fetch(`https://www.youtube.com/feeds/videos.xml?playlist_id=${playlist}`).then(r => r.ok ? r.text() : "");
+      const videos = [...xml.matchAll(/<entry>([\s\S]*?)<\/entry>/g)].map(m => {
+        const get = re => (m[1].match(re) || [])[1] || "";
+        return { id: get(/<yt:videoId>([^<]+)<\/yt:videoId>/), title: decode(get(/<title>([^<]*)<\/title>/)), published: get(/<published>([^<]+)<\/published>/) };
+      }).filter(v => v.id);
+      res.setHeader("Cache-Control", "s-maxage=600, stale-while-revalidate=3600");
+      return res.status(200).json({ playlist, videos });
+    } catch (err) {
+      return res.status(502).json({ error: String((err && err.message) || err) });
+    }
+  }
   const channel = String(req.query.channel || process.env.YT_CHANNEL || "@VoBTV1").trim();
   try {
     const channelId = await resolveChannelId(channel);

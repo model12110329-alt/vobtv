@@ -1,4 +1,4 @@
-// VoB TV 관리자 화면: 로그인한 관리자만 방송·기사·숏츠·광고·속보·AI 브리핑을 고칠 수 있습니다.
+// VoB TV 관리자 화면: 로그인한 관리자만 방송·기사·숏츠·광고·속보·ARI 프로젝트·AI 브리핑을 고칠 수 있습니다.
 const db = VOB.db;
 const $ = id => document.getElementById(id);
 const esc = s => String(s ?? "").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
@@ -43,6 +43,18 @@ const TABLES = {
     {k:"sort", l:"순서", t:"number"},
     {k:"active", l:"보이기", t:"check", def:true},
   ], row:r=>[r.text, r.active?"보이는 중":"숨김"] },
+  ari_works: { label:"ARI 프로젝트", order:["published_at",false], fields:[
+    {k:"kind", l:"종류", t:"select", o:[["novel","소설"],["video","영상"]]},
+    {k:"title", l:"제목", t:"text", req:true},
+    {k:"series", l:"연재 제목 (선택)", t:"text", help:"같은 작품의 회차를 묶어 '이전 화 / 다음 화'로 이어집니다."},
+    {k:"episode", l:"회차 (선택)", t:"number"},
+    {k:"summary", l:"소개 (목록에 보이는 두 줄)", t:"text"},
+    {k:"body", l:"소설 본문", t:"textarea", help:"빈 줄로 문단을 나눕니다. 영상이면 비워 두세요."},
+    {k:"cover_url", l:"표지 이미지 (선택)", t:"text", upload:"image/*"},
+    {k:"video_url", l:"유튜브 주소 (영상일 때)", t:"text", ph:"https://youtu.be/…",
+      help:"유튜브에 올린 영상 주소를 넣으세요. 제목에 'ARI'가 들어간 채널 영상은 따로 등록하지 않아도 자동으로 보입니다."},
+    {k:"published_at", l:"게시 시각", t:"datetime"},
+  ], row:r=>[r.title, `${r.kind==="video"?"영상":"소설"}${r.series?" · "+r.series:""}${r.episode?" "+r.episode+"화":""} · ${new Date(r.published_at).toLocaleDateString("ko-KR")}`] },
   briefing: { label:"AI 브리핑", single:true },
 };
 
@@ -92,7 +104,11 @@ async function load(){
   $("title").textContent = T.label;
   if(T.single) return renderBriefing();
   const { data, error } = await db.from(tab).select("*").order(T.order[0], {ascending:T.order[1]});
-  if(error){ msg("불러오지 못했습니다: " + error.message, true); return; }
+  if(error){
+    const missing = tab==="ari_works" && /ari_works/.test(error.message||"");
+    msg(missing ? "ARI 프로젝트 표가 아직 없습니다. Supabase SQL Editor에서 supabase/ari.sql 내용을 한 번 실행해 주세요." : "불러오지 못했습니다: " + error.message, true);
+    rows = []; renderList(); renderForm(); return;
+  }
   rows = data; renderList(); renderForm();
 }
 function renderList(){
@@ -158,7 +174,7 @@ $("form").addEventListener("submit", async e=>{
   for(const f of T.fields){
     const el = $("f_"+f.k);
     if(f.t==="check") rec[f.k] = el.checked;
-    else if(f.t==="number") rec[f.k] = el.value==="" ? 0 : Number(el.value);
+    else if(f.t==="number") rec[f.k] = el.value==="" ? (f.k==="episode" ? null : 0) : Number(el.value);
     else if(f.t==="datetime") rec[f.k] = el.value ? new Date(el.value).toISOString() : new Date().toISOString();
     else if(f.k==="slot") rec[f.k] = Number(el.value);
     else rec[f.k] = el.value.trim() || null;

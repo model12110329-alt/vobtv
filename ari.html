@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>VoB TV 기사</title>
+<title>ARI 프로젝트 · VoB TV</title>
 <meta name="description" content="VoB TV · 바른 시선, 당당한 목소리. 대한민국 시사 저널 방송">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,900&family=Nanum+Myeongjo:wght@700;800&family=IBM+Plex+Sans+KR:wght@400;500;700&family=IBM+Plex+Mono:wght@500&family=Chakra+Petch:wght@500;700&display=swap">
@@ -15,16 +15,33 @@
   <div class="wrap bar">
     <a class="logo" href="index.html"><span class="l3d"><i class="spin" role="img" aria-label="VoB TV"></i></span><small>Victory Begins with Our Voice</small></a>
     <nav aria-label="분야">
-      <a href="index.html">홈</a><a href="index.html#newsSec">뉴스</a><a href="ari.html">ARI 프로젝트</a>
+      <a href="index.html">홈</a><a href="index.html#newsSec">뉴스</a><a href="ari.html" aria-current="page">ARI 프로젝트</a>
     </nav>
     <span class="clock" id="clock">--:--:--</span>
   </div>
 </header>
 
 <main class="wrap">
-  <article class="article" id="article">
-    <p class="empty">기사를 불러오는 중입니다.</p>
-  </article>
+  <div id="ariPage" data-show="all">
+    <section class="ari-hero">
+      <span class="chip">ARI PROJECT</span>
+      <h1>ARI 프로젝트</h1>
+      <p>VoB TV가 쓰고 만드는 이야기. 소설을 읽고, 영상으로 만나 보세요.</p>
+      <div class="ari-tabs" role="tablist"><button type="button" data-f="all" aria-selected="true">전체</button><button type="button" data-f="novel" aria-selected="false">소설</button><button type="button" data-f="video" aria-selected="false">영상</button></div>
+    </section>
+    <section class="ari-stage" id="ariStage" hidden>
+      <div class="ring"><div class="frame"></div></div>
+      <h2></h2>
+    </section>
+    <section class="ari-sec ari-novel">
+      <div class="sechead"><h2>소설</h2><span>누르면 바로 읽을 수 있습니다</span></div>
+      <div class="ari-grid" id="ariNovels"><p class="empty">불러오는 중입니다.</p></div>
+    </section>
+    <section class="ari-sec ari-video">
+      <div class="sechead"><h2>영상</h2><span>VoB TV 유튜브에서 자동으로 가져옵니다</span></div>
+      <div class="ari-grid wide" id="ariVideos"><p class="empty">불러오는 중입니다.</p></div>
+    </section>
+  </div>
 </main>
 
 <footer><div class="wrap">© 2026 VoB TV · 바른 시선, 당당한 목소리</div></footer>
@@ -40,22 +57,8 @@ const fmtClock = new Intl.DateTimeFormat("ko-KR",{timeZone:"Asia/Seoul",year:"nu
 const tick = ()=>{ const p = Object.fromEntries(fmtClock.formatToParts(new Date()).map(x=>[x.type,x.value]));
   clock.textContent = `${p.year}년 ${p.month} ${p.day}일 (${p.weekday}) ${p.hour}시 ${p.minute}분 ${p.second}초`; };
 tick(); setInterval(tick, 1000);
-(async()=>{
-  const box = document.getElementById("article");
-  const id = new URLSearchParams(location.search).get("id");
-  try{
-    const n = id && await VOB.article(id);
-    if(!n){ box.innerHTML = `<p class="empty">기사를 찾지 못했습니다.</p><a class="back" href="index.html">← 첫 화면으로</a>`; return; }
-    document.title = n.title + " · VoB TV";
-    const body = (n.body || n.summary || "").split(/\n{2,}|\r\n\r\n/).map(p=>`<p>${esc(p).replace(/\n/g,"<br>")}</p>`).join("");
-    box.innerHTML = `<div class="meta">${esc(n.section||"")} · ${new Date(n.published_at).toLocaleString("ko-KR",{dateStyle:"long",timeStyle:"short"})}</div>
-      <h1>${esc(n.title)}</h1>
-      ${n.image_url?`<figure class="art-img"><img src="${esc(n.image_url)}" alt="">${n.auto?`<figcaption>AI로 생성한 이미지입니다</figcaption>`:""}</figure>`:""}
-      <div class="body">${body}</div>
-      ${(n.sources||[]).length?`<p class="sources">참고: ${esc([...new Set(n.sources.map(x=>x.name).filter(Boolean))].join(", "))}</p>`:""}
-      <a class="back" href="index.html">← 첫 화면으로</a>`;
-  }catch(e){ box.innerHTML = `<p class="empty">기사를 불러오지 못했습니다. 잠시 후 다시 시도해 주세요.</p>`; }
-})();
+
 </script>
+<script src="js/ari.js"></script>
 </body>
 </html>

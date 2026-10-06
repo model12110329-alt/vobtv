@@ -4,5 +4,9 @@
 window.VOB_CONFIG = {
   supabaseUrl: "https://hirfliklqlqazqtcwiqr.supabase.co",
   supabaseAnonKey: "sb_publishable_yBuqvNJrWGSdgmBGbO8Olw_xB-Aqt-j", // Publishable 키 (공개되어도 괜찮은 키입니다)
-  youtubeChannel: "@VoBTV1" // 최신 영상과 채널 라이브를 가져올 유튜브 채널
+  youtubeChannel: "@VoBTV1", // 최신 영상과 채널 라이브를 가져올 유튜브 채널
+  // ARI 프로젝트 영상: 유튜브 재생목록 ID(PL…)를 넣으면 그 재생목록을 자동으로 보여줍니다.
+  // 비워두면 채널 영상 중 제목에 아래 단어가 들어간 영상을 보여줍니다.
+  ariPlaylist: "",
+  ariKeyword: "ARI"
 };

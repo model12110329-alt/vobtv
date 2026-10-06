@@ -78,5 +78,18 @@
     return data;
   }
 
-  window.VOB = {db, ready, load, article, SAMPLE, config:C};
+  // ARI 프로젝트: 관리자가 올린 소설·영상 (표가 아직 없으면 빈 목록)
+  async function ari(id){
+    if(!db) return id ? null : [];
+    try{
+      if(id){
+        const {data, error} = await db.from("ari_works").select("*").eq("id",id).maybeSingle();
+        return error ? null : data;
+      }
+      const {data, error} = await db.from("ari_works").select("id,kind,title,series,episode,summary,cover_url,video_url,published_at").order("published_at",{ascending:false});
+      return error ? [] : data;
+    }catch(e){ return id ? null : []; }
+  }
+
+  window.VOB = {db, ready, load, article, ari, SAMPLE, config:C};
 })();

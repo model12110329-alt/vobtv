@@ -73,11 +73,25 @@ create table if not exists briefing (
 );
 insert into briefing (id) values (1) on conflict (id) do nothing;
 
+-- ARI 프로젝트 (소설·영상)
+create table if not exists ari_works (
+  id uuid primary key default gen_random_uuid(),
+  kind text not null default 'novel' check (kind in ('novel','video')),
+  title text not null,
+  series text,
+  episode int,
+  summary text,
+  body text,
+  cover_url text,
+  video_url text,
+  published_at timestamptz not null default now()
+);
+
 -- 보안 규칙: 누구나 읽기, 관리자만 쓰기
 do $$
 declare t text;
 begin
-  foreach t in array array['programs','news','shorts','ads','ticker','briefing'] loop
+  foreach t in array array['programs','news','shorts','ads','ticker','briefing','ari_works'] loop
     execute format('alter table %I enable row level security', t);
     execute format('drop policy if exists "누구나 읽기" on %I', t);
     execute format('create policy "누구나 읽기" on %I for select using (true)', t);
