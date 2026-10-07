@@ -16,7 +16,8 @@
 <header>
   <div class="wrap bar">
     <a class="logo" href="#"><span class="l3d"><i class="spin" role="img" aria-label="VoB TV"></i></span><small>Victory Begins with Our Voice</small></a>
-    <nav aria-label="분야">
+    <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="siteNav" hidden><span aria-hidden="true">☰</span> 메뉴</button>
+    <nav id="siteNav" aria-label="분야">
       <a href="#" aria-current="page">홈</a><a href="#">정치</a><a href="#">경제</a><a href="#">사회</a><a href="#">문화</a><a href="#shorts">숏츠</a><a href="#newsSec">뉴스</a><a href="ari.html">ARI 프로젝트</a>
     </nav>
     <span class="clock" id="clock">--:--:--</span>
@@ -94,6 +95,7 @@
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/hls.js/1.5.13/hls.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.2/dist/umd/supabase.js"></script>
+<script src="js/nav.js"></script>
 <script src="js/config.js"></script>
 <script src="js/data.js"></script>
 <script src="js/site.js"></script>
