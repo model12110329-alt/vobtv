@@ -115,7 +115,7 @@ def slides(art):
         else:
             f = font(64)
             d.text((70, 1080), "전체 기사는", font=f, fill=WHITE)
-            d.text((70, 1170), "vobtv.vercel.app", font=font(78), fill=(255, 170, 210), stroke_width=1, stroke_fill=(255, 170, 210))
+            d.text((70, 1170), "vobtv.kr", font=font(78), fill=(255, 170, 210), stroke_width=1, stroke_fill=(255, 170, 210))
             refs = ", ".join(s["name"] for s in art.get("sources", []))
             y = 1330
             for line in wrap(d, f"참고: {refs}", font(40), W - 140)[:3]:
