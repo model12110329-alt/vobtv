@@ -359,3 +359,56 @@ a.adslot img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;b
 .sechead .more{font-size:13px;color:var(--brand);text-decoration:none}
 @media (prefers-reduced-motion:reduce){.ari-cover{transition:none}}
 .ari-read img{max-height:560px;object-fit:cover;object-position:center 30%}
+
+/* Mobile layout: compact masthead, touch navigation, fluid content. */
+.menu-toggle{display:none}
+body>header .bar{column-gap:18px;row-gap:8px;padding-block:10px}
+body>header .logo small{display:none}
+body>header .clock{margin-left:auto}
+main section[id]{scroll-margin-top:110px}
+.article .body,.article h1,.card h3,.nowinfo h1{overflow-wrap:anywhere}
+.article .body img,.article .body video,.article .body iframe{max-width:100%}
+@media (max-width:760px){
+  .wrap{padding-inline:max(16px,env(safe-area-inset-left));padding-right:max(16px,env(safe-area-inset-right))}
+  body>header .bar{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:6px 12px;min-height:0;padding-block:10px 8px}
+  body>header .logo{min-width:0;width:fit-content}
+  body>header .logo .spin{--fw:156px;--fh:38px;margin:0}
+  body>header .clock{grid-column:1/-1;grid-row:3;margin:0;font-size:11px;line-height:1.4;white-space:normal}
+  body>header nav{grid-column:1/-1;grid-row:2;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:4px;margin:2px 0 4px}
+  body>header nav a{display:flex;align-items:center;justify-content:center;min-height:44px;padding:8px 4px;font-size:14px;line-height:1.35;text-align:center;overflow-wrap:anywhere;border-radius:6px}
+  body>header nav a[aria-current]{background:color-mix(in srgb,var(--brand) 18%,transparent)}
+  body>header nav a::after{bottom:3px;left:12px;right:12px}
+  .nav-ready .menu-toggle{display:flex;align-items:center;justify-content:center;gap:7px;grid-column:2;grid-row:1;min-height:44px;padding:8px 12px;border:1px solid var(--line);border-radius:8px;background:var(--surface);cursor:pointer;font-size:14px}
+  .nav-ready .menu-toggle[aria-expanded="false"]+nav{display:none}
+  .banner{margin-top:14px}
+  .broadcast{gap:20px;padding-block:16px}
+  .broadcast>div{min-width:0}
+  .nowinfo{gap:8px;padding-top:12px}
+  .nowinfo h1{font-size:clamp(20px,5.5vw,26px);line-height:1.4}
+  .badge{font-size:11px;line-height:1.5;margin-top:4px}
+  .ticker b{padding:8px 12px;font-size:14px}
+  aside.ads{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+  .adslot strong{font-size:15px}
+  .adslot small,.adslot em{font-size:11px}
+  section{padding-block:22px}
+  .sechead{flex-wrap:wrap;gap:4px 10px}
+  .sechead h2{font-size:20px}
+  .sechead span{font-size:12px}
+  .shorts{grid-auto-columns:minmax(140px,42%);scroll-snap-type:x proximity}
+  .short{scroll-snap-align:start}
+  .videos{grid-template-columns:repeat(2,minmax(0,1fr));gap:16px 12px}
+  .article{padding-block:24px}
+  .article h1{font-size:clamp(24px,6.5vw,32px)}
+  .article .body{font-size:17px;line-height:1.85}
+  .ari-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:16px 12px}
+  .ari-grid.wide,#ariTeaser{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .ari-tabs button{min-height:44px;box-sizing:border-box;display:flex;align-items:center}
+  .ari-hero{padding-top:24px}
+  .ari-eps{flex-wrap:wrap}
+  body{background-attachment:scroll}
+  body::before{animation:none;filter:none}
+  .ai,.adslot,.lineup.row button{backdrop-filter:none;-webkit-backdrop-filter:none}
+}
+@media (max-width:380px){
+  aside.ads,.videos,.ari-grid.wide,#ariTeaser{grid-template-columns:1fr}
+}
