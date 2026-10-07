@@ -14,7 +14,8 @@
 <header>
   <div class="wrap bar">
     <a class="logo" href="index.html"><span class="l3d"><i class="spin" role="img" aria-label="VoB TV"></i></span><small>Victory Begins with Our Voice</small></a>
-    <nav aria-label="분야">
+    <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="siteNav" hidden><span aria-hidden="true">☰</span> 메뉴</button>
+    <nav id="siteNav" aria-label="분야">
       <a href="index.html">홈</a><a href="index.html#newsSec">뉴스</a><a href="ari.html">ARI 프로젝트</a>
     </nav>
     <span class="clock" id="clock">--:--:--</span>
@@ -30,6 +31,7 @@
 <footer><div class="wrap">© 2026 VoB TV · 바른 시선, 당당한 목소리</div></footer>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.2/dist/umd/supabase.js"></script>
+<script src="js/nav.js"></script>
 <script src="js/config.js"></script>
 <script src="js/data.js"></script>
 <script>
