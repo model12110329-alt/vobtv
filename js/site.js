@@ -45,7 +45,7 @@ function youTubeEmbed(yt){
 const ytThumb = id => `https://i.ytimg.com/vi/${id}/hqdefault.jpg`;
 
 /* ---------- 최신 동영상 로테이션: 한 편이 끝나면 다음 편, 마지막 다음은 처음으로 ---------- */
-function mainRotation(news, ari){
+function mainRotation(news, ari, ariNews){
   function pickTwo(){
     const pool = news.slice();
     for(let i=pool.length-1;i>0;i--){
@@ -54,8 +54,19 @@ function mainRotation(news, ari){
     }
     return pool.slice(0,2);
   }
-  const queue = ari.length ? ari.flatMap(v=>pickTwo().concat(v)) : pickTwo();
-  queue.refresh = ()=>mainRotation(news, ari);
+  const newsEpisode = Array.isArray(ariNews) && ariNews.length ? ariNews[0] : null;
+  const queue = [];
+  if(ari.length){
+    ari.forEach((v,i)=>{
+      queue.push(...pickTwo());
+      if(i===0 && newsEpisode) queue.push(newsEpisode);
+      queue.push(v);
+    });
+  }else{
+    queue.push(...pickTwo());
+    if(newsEpisode) queue.push(newsEpisode);
+  }
+  queue.refresh = ()=>mainRotation(news, ari, ariNews);
   return queue;
 }
 function rotation(queue, idx){
@@ -65,7 +76,7 @@ function rotation(queue, idx){
     idx = 0;
   }
   const i = idx % queue.length, v = queue[i];
-  return {id:"yt-"+v.id+"-"+i, type:"youtube", url:`https://youtu.be/${v.id}`, live:false, title:v.title, desc:v.summary||"", isAri:!!v.isAri, queue, idx:i};
+  return {id:"yt-"+v.id+"-"+i, type:"youtube", url:"https://youtu.be/"+v.id, live:false, title:v.title, desc:v.summary||"", isAri:!!v.isAri, isAriNews:!!v.isAriNews, queue, idx:i};
 }
 let ytApi = null;
 function loadYTApi(){
@@ -351,8 +362,17 @@ async function loadYouTube(){
     // Shorts와 ARI 뉴스가 같은 영상을 중복해서 보여주지 않도록 ARI 영상 ID를 먼저 제외합니다.
     let ariVideos = [];
     let projectWorks = [];
+    let ariNewsVideos = [];
     try{
       projectWorks = await VOB.ariProjectVideos();
+    }catch(e){}
+    try{
+      ariNewsVideos = await VOB.ariNewsVideos();
+      ariNewsVideos = (ariNewsVideos || [])
+        .filter(v=>v.yt)
+        .sort((a,b)=>(Date.parse(b.published_at)||0)-(Date.parse(a.published_at)||0))
+        .slice(0,1)
+        .map(v=>({...v, isAriNews:true}));
     }catch(e){}
     const ariProjectIds = new Set(projectWorks.map(v=>v.yt || v.id).filter(Boolean));
     const ariKeyword = String((window.VOB_CONFIG||{}).ariKeyword || "ARI").toLowerCase();
@@ -383,9 +403,14 @@ async function loadYouTube(){
     }catch(e){}
     const newsQueue = longs.slice(0,5);
     // 최신 5편 중 중복 없는 무작위 2편 뒤 아리 다음 회차를 재생합니다.
-    const queue = mainRotation(newsQueue, ariVideos);
+    const queue = mainRotation(newsQueue, ariVideos, ariNewsVideos);
     ROTATION_VIDEOS = queue;
-    PROGRAMS = queue.map((v,i)=>({...rotation(queue,i), time:v.isAri?"아리":"뉴스", desc:v.isAri?"아리 프로젝트 · 회차순 순환 재생":"", main:i===0})).filter((p,i,all)=>all.findIndex(x=>x.url===p.url)===i).concat(PROGRAMS.filter(p=>p.type!=="demo" && !p.id.startsWith("yt-")));
+    PROGRAMS = queue.map((v,i)=>({
+      ...rotation(queue,i),
+      time:v.isAriNews?"ARI 뉴스":(v.isAri?"아리":"뉴스"),
+      desc:v.isAri?"아리 프로젝트 · 회차순 순환 재생":"",
+      main:i===0
+    })).filter((p,i,all)=>all.findIndex(x=>x.url===p.url)===i).concat(PROGRAMS.filter(p=>p.type!=="demo" && !p.id.startsWith("yt-")));
     renderLineup();
     document.getElementById("latest").hidden = false;
     document.getElementById("videos").innerHTML = longs.map(v=>`
