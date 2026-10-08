@@ -1,0 +1,38 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64">
+<title>VoB TV 4D cube</title>
+<rect width="64" height="64" rx="12" fill="#201023"/>
+<g stroke-linecap="round" stroke-linejoin="round">
+<path d="M9 21L22.34 26.8" stroke="#84d9ff" stroke-width="1.7"/>
+<path d="M41 21L35.78 26.8" stroke="#84d9ff" stroke-width="1.7"/>
+<path d="M41 55L35.78 41.08" stroke="#84d9ff" stroke-width="1.7"/>
+<path d="M9 55L22.34 41.08" stroke="#84d9ff" stroke-width="1.7"/>
+<path d="M23 7L28.22 20.92" stroke="#84d9ff" stroke-width="1.7"/>
+<path d="M55 7L41.66 20.92" stroke="#84d9ff" stroke-width="1.7"/>
+<path d="M55 41L41.66 35.2" stroke="#84d9ff" stroke-width="1.7"/>
+<path d="M23 41L28.22 35.2" stroke="#84d9ff" stroke-width="1.7"/>
+<path d="M9 21L41 21" stroke="#ff70bb" stroke-width="3.2"/>
+<path d="M41 21L41 55" stroke="#ff70bb" stroke-width="3.2"/>
+<path d="M41 55L9 55" stroke="#ff70bb" stroke-width="3.2"/>
+<path d="M9 55L9 21" stroke="#ff70bb" stroke-width="3.2"/>
+<path d="M23 7L55 7" stroke="#ff70bb" stroke-width="3.2"/>
+<path d="M55 7L55 41" stroke="#ff70bb" stroke-width="3.2"/>
+<path d="M55 41L23 41" stroke="#ff70bb" stroke-width="3.2"/>
+<path d="M23 41L23 7" stroke="#ff70bb" stroke-width="3.2"/>
+<path d="M9 21L23 7" stroke="#ff70bb" stroke-width="3.2"/>
+<path d="M41 21L55 7" stroke="#ff70bb" stroke-width="3.2"/>
+<path d="M41 55L55 41" stroke="#ff70bb" stroke-width="3.2"/>
+<path d="M9 55L23 41" stroke="#ff70bb" stroke-width="3.2"/>
+<path d="M22.34 26.8L35.78 26.8" stroke="#fff5fc" stroke-width="2.4"/>
+<path d="M35.78 26.8L35.78 41.08" stroke="#fff5fc" stroke-width="2.4"/>
+<path d="M35.78 41.08L22.34 41.08" stroke="#fff5fc" stroke-width="2.4"/>
+<path d="M22.34 41.08L22.34 26.8" stroke="#fff5fc" stroke-width="2.4"/>
+<path d="M28.22 20.92L41.66 20.92" stroke="#fff5fc" stroke-width="2.4"/>
+<path d="M41.66 20.92L41.66 35.2" stroke="#fff5fc" stroke-width="2.4"/>
+<path d="M41.66 35.2L28.22 35.2" stroke="#fff5fc" stroke-width="2.4"/>
+<path d="M28.22 35.2L28.22 20.92" stroke="#fff5fc" stroke-width="2.4"/>
+<path d="M22.34 26.8L28.22 20.92" stroke="#fff5fc" stroke-width="2.4"/>
+<path d="M35.78 26.8L41.66 20.92" stroke="#fff5fc" stroke-width="2.4"/>
+<path d="M35.78 41.08L41.66 35.2" stroke="#fff5fc" stroke-width="2.4"/>
+<path d="M22.34 41.08L28.22 35.2" stroke="#fff5fc" stroke-width="2.4"/>
+</g>
+</svg>
