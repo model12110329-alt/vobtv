@@ -147,7 +147,12 @@
       .filter(v=>v.yt)
       .sort((a,b)=>(Date.parse(b.published_at)||0)-(Date.parse(a.published_at)||0))
       .slice(0,7);
-    if(!items.length) return;
+    const section=document.getElementById("ariNewsHome");
+    if(!items.length){
+      box.innerHTML = '<p class="empty">현재 등록된 ARI 뉴스 영상이 없습니다.</p>';
+      if(section) section.hidden=false;
+      return;
+    }
     box.innerHTML = items.map(w=>{
       const thumb = ytThumb(w.yt);
       return `<article class="ari-news-home-card">
@@ -159,7 +164,6 @@
         <button class="short-title ari-news-home-title" type="button" data-ari-home-yt="${esc(w.yt)}" data-ari-home-title="${esc(w.title)}" title="${esc(w.title)}">${esc(w.title)}</button>
       </article>`;
     }).join("");
-    const section=document.getElementById("ariNewsHome");
     if(section) section.hidden=false;
   }
 
