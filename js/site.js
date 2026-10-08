@@ -351,8 +351,8 @@ async function loadYouTube(){
     // Shorts와 ARI 뉴스가 같은 영상을 중복해서 보여주지 않도록 ARI 영상 ID를 먼저 제외합니다.
     let ariVideos = [];
     try{
-      const works = await VOB.ariVideos();
-      const ariIds = new Set(works.map(v=>v.id).filter(Boolean));
+      const works = await VOB.ariProjectVideos();
+      const ariIds = new Set(works.map(v=>v.yt || v.id).filter(Boolean));
       const ytShorts = vids
         .filter(v=>v.isShort && !ariIds.has(v.id))
         .sort((a,b)=>(Date.parse(b.published)||0) - (Date.parse(a.published)||0));
