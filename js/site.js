@@ -340,7 +340,7 @@ function newsThumb(n, i){
 }
 
 function renderNews(){
-  const list = (newsFilter ? DATA.news.filter(n=>n.section===newsFilter) : DATA.news).slice(0, 8);
+  const list = (newsFilter ? DATA.news.filter(n=>n.section===newsFilter) : DATA.news).slice(0, 4);
   document.getElementById("newsNote").textContent = DATA.sample ? "예시 기사" : (newsFilter ? `${newsFilter} 기사` : "");
   document.getElementById("news").innerHTML = list.length ? list.map((n,i)=>{
     const href = n.link_url || `article.html?id=${encodeURIComponent(n.id)}`;
