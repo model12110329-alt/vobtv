@@ -11,16 +11,18 @@
   // 표지가 없을 때: 제목 첫 글자로 만든 버건디-청색 표지
   const coverStyle = w => w.cover_url ? `background-image:url('${esc(w.cover_url)}')` : "";
 
-  // 유튜브의 ARI 영상: 재생목록이 있으면 그것, 없으면 채널 영상 중 제목에 키워드가 든 것
-  async function ytVideos(){
+  // ARI 뉴스 전용 YouTube 피드: ARI 프로젝트 재생목록과 분리합니다.
+  async function ytNewsVideos(){
     if(location.protocol === "file:") return [];
     try{
-      const q = C.ariPlaylist ? `playlist=${encodeURIComponent(C.ariPlaylist)}` : `channel=${encodeURIComponent(C.youtubeChannel || "@VoBTV1")}`;
-      const r = await fetch(`/api/youtube?${q}`, {signal:AbortSignal.timeout(6000)}); if(!r.ok) return [];
+      const channel = C.youtubeChannel || "@VoBTV1";
+      const r = await fetch(`/api/youtube?channel=${encodeURIComponent(channel)}`, {signal:AbortSignal.timeout(6000)});
+      if(!r.ok) return [];
       const vids = (await r.json()).videos || [];
-      const kw = (C.ariKeyword || "ARI").toLowerCase();
-      return (C.ariPlaylist ? vids : vids.filter(v => v.title.toLowerCase().includes(kw)))
-        .map(v => ({id:"yt-"+v.id, kind:"video", yt:v.id, title:v.title, published_at:v.published}));
+      const kw = String(C.ariKeyword || "ARI").toLowerCase();
+      return vids
+        .filter(v => String(v.title || "").toLowerCase().includes(kw))
+        .map(v => ({id:"yt-"+v.id, kind:"news", yt:v.id, title:v.title, published_at:v.published}));
     }catch(e){ return []; }
   }
   let everythingPromise = null;
@@ -37,7 +39,7 @@
 
   // Separate APIs: ARI Project is managed from ari_works; ARI News comes from YouTube.
   VOB.ariProjectVideos = async () => (await everything()).videos;
-  VOB.ariNewsVideos = async () => await ytVideos();
+  VOB.ariNewsVideos = async () => await ytNewsVideos();
 
   const novelCard = w => `<a class="ari-card novel" href="ari.html?id=${esc(w.id)}">
       <div class="ari-cover${w.cover_url?" img":""}" style="${coverStyle(w)}"><span class="kind">소설</span>${w.cover_url?"":`<b>${esc(w.title.slice(0,1))}</b>`}</div>
@@ -46,28 +48,8 @@
       <div class="ari-cover img wide" style="background-image:url('${esc(w.cover_url || ytThumb(w.yt))}')"><span class="kind">영상</span><i class="play" aria-hidden="true"></i></div>
       <small>${esc(epLabel(w) || day(w.published_at))}</small><strong>${esc(w.title)}</strong></button>`;
 
-  /* ---------- 메인 ARI 뉴스 선반 ---------- */
-  async function teaser(box){
-    const videos = await ytVideos();
-    const items = videos
-      .filter(v=>v.yt)
-      .sort((a,b)=>(Date.parse(b.published_at)||0)-(Date.parse(a.published_at)||0))
-      .slice(0,7);
-    if(!items.length) return;
-    box.innerHTML = items.map(w=>{
-      const thumb = ytThumb(w.yt);
-      return `<article class="ari-short-card">
-        <button class="ari-short" type="button" data-ari-news-yt="${esc(w.yt)}" data-ari-news-title="${esc(w.title)}" aria-label="${esc(w.title)} ARI 뉴스">
-          <img src="${esc(thumb)}" alt="" loading="lazy" referrerpolicy="no-referrer" onerror="this.style.display='none'">
-          <span class="short-play" aria-hidden="true">▶</span>
-          <span class="ari-short-badge">ARI NEWS</span>
-        </button>
-        <button class="ari-short-title" type="button" data-ari-news-yt="${esc(w.yt)}" data-ari-news-title="${esc(w.title)}" title="${esc(w.title)}">${esc(w.title)}</button>
-      </article>`;
-    }).join("");
-  }
+  /* ---------- ARI 프로젝트 메인 페이지 ---------- */
 
-  /* ---------- 메인 ARI 프로젝트 ---------- */
   async function projectTeaser(box){
     const {novels, videos} = await everything();
     const items = novels.map(w=>({w,t:"n"}))
@@ -109,6 +91,22 @@
   async function list(page){
     const {novels, videos} = await everything();
     const stage = document.getElementById("ariStage");
+    const newsShelf = page.querySelector("#ariNewsShelf");
+    if(newsShelf){
+      const news = (await ytNewsVideos())
+        .sort((a,b)=>(Date.parse(b.published_at)||0)-(Date.parse(a.published_at)||0))
+        .slice(0,7);
+      newsShelf.innerHTML = news.map(v=>`
+        <article class="short-card">
+          <button class="short" type="button" data-yt="${esc(v.yt)}" data-t="${esc(v.title)}" aria-label="${esc(v.title)} ARI 뉴스">
+            <img src="${esc(ytThumb(v.yt))}" alt="" loading="lazy" referrerpolicy="no-referrer" onerror="this.style.display='none'">
+            <span class="short-play" aria-hidden="true">▶</span>
+            <span class="short-badge">ARI NEWS</span>
+          </button>
+          <button class="short-title" type="button" data-yt="${esc(v.yt)}" data-t="${esc(v.title)}" title="${esc(v.title)}">${esc(v.title)}</button>
+        </article>`).join("");
+      newsShelf.closest(".ari-news-sec").hidden = !news.length;
+    }
     page.querySelector("#ariNovels").innerHTML = novels.length ? novels.map(novelCard).join("") : `<p class="empty">곧 첫 소설이 올라옵니다.</p>`;
     page.querySelector("#ariVideos").innerHTML = videos.length ? videos.map(videoCard).join("") : `<p class="empty">곧 첫 영상이 올라옵니다.</p>`;
     const show = (yt, title, auto) => {
