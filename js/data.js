@@ -82,29 +82,6 @@
     };
   }
 
-  async function news(){
-    const auto = (await daily()).slice().sort(byDate);
-    if(!db){
-      return auto.length ? auto.slice(0,12) : SAMPLE.news.slice().sort(byDate).slice(0,12);
-    }
-    try{
-      const controller = new AbortController();
-      const timer = setTimeout(()=>controller.abort(), 5000);
-      try{
-        const {data:rows, error} = await db.from("news")
-          .select("id,section,title,summary,image_url,link_url,published_at")
-          .order("published_at",{ascending:false})
-          .limit(12)
-          .abortSignal(controller.signal);
-        if(error) return auto.slice(0,12);
-        return Array.from(new Map((rows||[]).concat(auto).map(n=>[n.id,n])).values())
-          .sort(byDate).slice(0,12);
-      }finally{ clearTimeout(timer); }
-    }catch(e){
-      return auto.slice(0,12);
-    }
-  }
-
   async function article(id){
     const auto = (await daily()).find(n=>n.id===id);
     if(auto) return auto;
@@ -142,5 +119,5 @@
     return auto.concat(await ariDb()).sort(byDate);
   }
 
-  window.VOB = {db, ready, load, news, article, ari, SAMPLE, config:C};
+  window.VOB = {db, ready, load, article, ari, SAMPLE, config:C};
 })();
