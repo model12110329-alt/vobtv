@@ -16,14 +16,16 @@
     if(location.protocol === "file:") return [];
     try{
       const q = C.ariPlaylist ? `playlist=${encodeURIComponent(C.ariPlaylist)}` : `channel=${encodeURIComponent(C.youtubeChannel || "@VoBTV1")}`;
-      const r = await fetch(`/api/youtube?${q}`); if(!r.ok) return [];
+      const r = await fetch(`/api/youtube?${q}`, {signal:AbortSignal.timeout(6000)}); if(!r.ok) return [];
       const vids = (await r.json()).videos || [];
       const kw = (C.ariKeyword || "ARI").toLowerCase();
       return (C.ariPlaylist ? vids : vids.filter(v => v.title.toLowerCase().includes(kw)))
         .map(v => ({id:"yt-"+v.id, kind:"video", yt:v.id, title:v.title, published_at:v.published}));
     }catch(e){ return []; }
   }
-  async function everything(){
+  let everythingPromise = null;
+  function everything(){ return everythingPromise ||= collectEverything(); }
+  async function collectEverything(){
     const [works, yts] = await Promise.all([VOB.ari(), ytVideos()]);
     const seen = new Set();
     const vids = works.filter(w=>w.kind==="video").map(w=>({...w, yt:ytId(w.video_url||"")}))
@@ -32,6 +34,8 @@
     const byDate = (a,b)=>new Date(b.published_at)-new Date(a.published_at);
     return {novels:novels.sort(byDate), videos:vids.sort(byDate)};
   }
+
+  VOB.ariVideos = async () => (await everything()).videos;
 
   const novelCard = w => `<a class="ari-card novel" href="ari.html?id=${esc(w.id)}">
       <div class="ari-cover${w.cover_url?" img":""}" style="${coverStyle(w)}"><span class="kind">소설</span>${w.cover_url?"":`<b>${esc(w.title.slice(0,1))}</b>`}</div>

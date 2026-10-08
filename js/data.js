@@ -101,14 +101,17 @@
   }
   async function ariDb(id){
     if(!db) return id ? null : [];
+    const controller = new AbortController();
+    const timer = setTimeout(()=>controller.abort(), 5000);
     try{
       if(id){
-        const {data, error} = await db.from("ari_works").select("*").eq("id",id).maybeSingle();
+        const {data, error} = await db.from("ari_works").select("*").eq("id",id).maybeSingle().abortSignal(controller.signal);
         return error ? null : data;
       }
-      const {data, error} = await db.from("ari_works").select("id,kind,title,series,episode,summary,cover_url,video_url,published_at").order("published_at",{ascending:false});
+      const {data, error} = await db.from("ari_works").select("id,kind,title,series,episode,summary,cover_url,video_url,published_at").order("published_at",{ascending:false}).abortSignal(controller.signal);
       return error ? [] : data;
     }catch(e){ return id ? null : []; }
+    finally{ clearTimeout(timer); }
   }
   async function ari(id){
     const auto = await ariAuto();

@@ -44,7 +44,7 @@ const ytThumb = id => `https://i.ytimg.com/vi/${id}/hqdefault.jpg`;
 /* ---------- 최신 동영상 로테이션: 한 편이 끝나면 다음 편, 마지막 다음은 처음으로 ---------- */
 function rotation(queue, idx){
   const i = idx % queue.length, v = queue[i];
-  return {id:"yt-"+v.id, type:"youtube", url:`https://youtu.be/${v.id}`, live:false, title:v.title, desc:v.summary||"", isAri:!!v.isAri, queue, idx:i};
+  return {id:"yt-"+v.id+"-"+i, type:"youtube", url:`https://youtu.be/${v.id}`, live:false, title:v.title, desc:v.summary||"", isAri:!!v.isAri, queue, idx:i};
 }
 let ytApi = null;
 function loadYTApi(){
@@ -154,7 +154,7 @@ function toProgram(p){
 }
 function renderLineup(){
   document.getElementById("lineup").innerHTML = PROGRAMS.length ? PROGRAMS.map(s=>`
-    <li><button data-id="${esc(s.id)}" aria-pressed="${!!current && current.id===s.id}">
+    <li><button data-id="${esc(s.id)}" aria-pressed="${!!current && (current.url && current.url===s.url || current.id===s.id)}">
       <time>${esc(s.time)}</time>
       <div><strong>${s.live?"":`<span class="tag vod">VOD</span>`}${esc(s.title)}</strong><span>${esc(s.desc)}</span></div>
     </button></li>`).join("") : `<li class="empty">편성된 방송이 없습니다.</li>`;
@@ -274,16 +274,21 @@ async function loadYouTube(){
     if(!longs.length) return;
     let ariVideos = [];
     try{
-      const response = await fetch("data/ari.json", {cache:"no-cache", signal:AbortSignal.timeout(5000)});
-      const works = response.ok ? await response.json() : [];
-      ariVideos = works.filter(w=>w.kind==="video" && w.video_url)
-        .sort((a,b)=>(Date.parse(b.published_at)||0)-(Date.parse(a.published_at)||0))
-        .map(w=>({id:parseYouTube(w.video_url)?.video,title:w.title,summary:w.summary||"",isAri:true}))
-        .filter(v=>v.id).slice(0,1);
+      const works = await VOB.ariVideos();
+      const episode = w => Number(w.episode) || Number((w.title.match(/(\d+)\s*화/)||[])[1]) || Infinity;
+      const seen = new Set();
+      ariVideos = works.slice().sort((a,b)=>{
+        const difference = episode(a)-episode(b);
+        return (Number.isNaN(difference)?0:difference)
+          || (Date.parse(a.published_at)||0)-(Date.parse(b.published_at)||0);
+      }).map(w=>({id:w.yt||parseYouTube(w.video_url||"")?.video,title:w.title,summary:w.summary||"",isAri:true}))
+        .filter(v=>v.id && !seen.has(v.id) && seen.add(v.id));
     }catch(e){}
-    const queue = longs.slice(0,3).concat(ariVideos);
+    const newsQueue = longs.slice(0,3);
+    // 뉴스 3편 사이에 아리 영상을 회차순으로 한 편씩 넣습니다.
+    const queue = ariVideos.length ? ariVideos.flatMap(v=>newsQueue.concat(v)) : newsQueue;
     ROTATION_VIDEOS = queue;
-    PROGRAMS = queue.map((v,i)=>({...rotation(queue,i), time:`${i+1}번째`, desc:v.isAri?"아리 프로젝트 · 매 순환 1회":"최신 뉴스 영상 · 3편 뒤 아리 프로젝트", main:i===0})).concat(PROGRAMS.filter(p=>p.type!=="demo" && !p.id.startsWith("yt-")));
+    PROGRAMS = queue.map((v,i)=>({...rotation(queue,i), time:v.isAri?"아리":"뉴스", desc:v.isAri?"아리 프로젝트 · 회차순 순환 재생":"최신 뉴스 3편 뒤 아리 다음 회차", main:i===0})).filter((p,i,all)=>all.findIndex(x=>x.url===p.url)===i).concat(PROGRAMS.filter(p=>p.type!=="demo" && !p.id.startsWith("yt-")));
     renderLineup();
     document.getElementById("latest").hidden = false;
     document.getElementById("videos").innerHTML = longs.slice(0,3).map(v=>`
@@ -303,7 +308,7 @@ document.getElementById("videos").addEventListener("click",e=>{
 let capTimer=0, typeTimer=0;
 function aiFor(src){
   const b = DATA.briefing || {};
-  if(src.isAri) return {sum:[src.title,src.desc||"아리 프로젝트 영상입니다.","최신 뉴스 3편에 이어 아리 프로젝트를 한 편씩 재생합니다."],cap:[src.title]};
+  if(src.isAri) return {sum:[src.title,src.desc||"아리 프로젝트 영상입니다.","최신 뉴스 3편에 이어 아리 프로젝트를 회차순으로 한 편씩 재생합니다."],cap:[src.title]};
   if(src.type === "youtube" && DATA.news.length) return {sum:DATA.news.slice(0,3).map(n=>n.summary || n.title), cap:[src.title]};
   if(src.main && b.lines && b.lines.length) return {sum:b.lines, cap:(b.captions&&b.captions.length)?b.captions:[src.title]};
   const kind = src.live ? "라이브" : "녹화 영상";
@@ -414,7 +419,7 @@ document.addEventListener("pointermove",e=>{
   const initial = current;
   await loadYouTube();
   if(current !== initial) return;
-  // 최신 뉴스 3편과 아리 영상 1편을 차례대로 반복합니다.
+  // 최신 뉴스 3편 사이에 모든 아리 영상을 회차순으로 한 편씩 재생합니다.
   const queue = ROTATION_VIDEOS;
   const first = (queue.length && rotation(queue, 0))
     || PROGRAMS.find(p=>p.main) || PROGRAMS.find(p=>p.live) || PROGRAMS[0]
