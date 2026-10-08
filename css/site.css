@@ -79,11 +79,14 @@ section{padding-block:28px}
 .sechead span{font-size:13px;color:var(--muted)}
 
 /* 숏츠 */
-.shorts{display:grid;grid-auto-flow:column;grid-auto-columns:minmax(150px,180px);gap:12px;overflow-x:auto;padding-bottom:8px}
-.short{all:unset;cursor:pointer;aspect-ratio:9/16;border-radius:8px;position:relative;overflow:hidden;display:flex;align-items:flex-end;padding:12px;color:#fff;max-width:100%}
-.short::after{content:"";position:absolute;inset:0;background:linear-gradient(transparent 45%,rgba(0,0,0,.72))}
-.short p{position:relative;z-index:1;margin:0;font-weight:700;line-height:1.35;font-size:14px}
-.short .len{position:absolute;top:10px;left:10px;z-index:1;font:500 11px var(--mono);background:rgba(0,0,0,.5);padding:1px 6px;border-radius:3px}
+.shorts{display:grid;grid-auto-flow:column;grid-auto-columns:minmax(156px,190px);gap:14px;overflow-x:auto;padding:2px 2px 10px;scrollbar-width:thin}
+.short{position:relative;cursor:pointer;aspect-ratio:9/16;border-radius:12px;overflow:hidden;display:flex;align-items:flex-end;padding:14px;color:#fff;max-width:100%;text-decoration:none;background-size:cover;background-position:center;box-shadow:0 12px 28px -16px rgba(0,0,0,.65);transition:transform .22s ease,box-shadow .22s ease}
+.short::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,.02) 25%,rgba(0,0,0,.22) 48%,rgba(0,0,0,.86) 100%);pointer-events:none}
+.short:hover{transform:translateY(-4px);box-shadow:0 18px 36px -14px rgba(0,0,0,.75)}
+.short:focus-visible{outline:2px solid var(--brand);outline-offset:3px}
+.short p{position:relative;z-index:1;margin:0;padding:0 0 18px;font-weight:700;line-height:1.4;font-size:14px;text-shadow:0 2px 10px rgba(0,0,0,.65);display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.short-play{position:absolute;z-index:2;top:12px;right:12px;width:36px;height:36px;border-radius:50%;display:grid;place-items:center;background:rgba(0,0,0,.62);border:1px solid rgba(255,255,255,.55);font-size:13px;padding-left:2px;box-sizing:border-box}
+.short-source{position:absolute;z-index:2;left:12px;bottom:10px;font:600 9px var(--mono);font-style:normal;letter-spacing:.08em;color:rgba(255,255,255,.85);text-transform:uppercase}
 
 /* 기사 */
 .news{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:20px}
