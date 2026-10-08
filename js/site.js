@@ -3,6 +3,7 @@
 const PREVIEW = window.VOB_PREVIEW === true;
 const BANNER_IMG = "assets/banner.jpg";
 const REDUCED = matchMedia("(prefers-reduced-motion: reduce)").matches;
+const DEFAULT_VOLUME = 30; // 메인 영상 기본 음량 (%)
 
 let DATA = null;          // 불러온 사이트 데이터
 let PROGRAMS = [];        // 편성표 (재생 가능한 방송)
@@ -34,7 +35,8 @@ function parseYouTube(raw){
   return null;
 }
 function youTubeEmbed(yt){
-  const q = "autoplay=1&mute=1&playsinline=1&rel=0";
+  // API에서 음량을 먼저 설정한 뒤 재생해 시작 순간에도 30%를 유지합니다.
+  const q = `autoplay=0&mute=0&playsinline=1&rel=0&enablejsapi=1&origin=${encodeURIComponent(location.origin)}`;
   return yt.channel
     ? `https://www.youtube-nocookie.com/embed/live_stream?channel=${yt.channel}&${q}`
     : `https://www.youtube-nocookie.com/embed/${yt.video}?${q}`;
@@ -54,10 +56,18 @@ function loadYTApi(){
     const s = document.createElement("script"); s.src = "https://www.youtube.com/iframe_api"; document.head.appendChild(s);
   });
 }
-function whenEnded(frame, src, next){
+function bindYouTubePlayer(frame, src, next){
   loadYTApi().then(()=>{
     if(current !== src) return;   // 그사이 다른 방송을 골랐으면 무시
-    new YT.Player(frame, {events:{onStateChange:e=>{ if(e.data === YT.PlayerState.ENDED && current === src) next(); }}});
+    new YT.Player(frame, {events:{
+      onReady:e=>{
+        if(current !== src) return;
+        e.target.setVolume(DEFAULT_VOLUME);
+        e.target.unMute();
+        e.target.playVideo();
+      },
+      onStateChange:e=>{ if(next && e.data === YT.PlayerState.ENDED && current === src) next(); }
+    }});
   });
 }
 
@@ -73,7 +83,7 @@ function stop(){
 function notice(html){ const d=document.createElement("div"); d.className="notice"; d.innerHTML=html; stage.appendChild(d); }
 function videoEl(){
   const v = document.createElement("video");
-  Object.assign(v,{controls:true,autoplay:true,muted:true,playsInline:true});
+  Object.assign(v,{controls:true,autoplay:true,muted:false,volume:DEFAULT_VOLUME / 100,playsInline:true});
   v.addEventListener("error",()=>{ stop(); notice("<strong>영상을 불러오지 못했습니다</strong><span>주소가 맞는지, 영상이 공개 상태인지 확인해 주세요.</span>"); });
   stage.appendChild(v); return v;
 }
@@ -87,10 +97,10 @@ function play(src){
       notice(`<strong>유튜브 ${src.live?"라이브":"영상"}이 이 자리에 나옵니다</strong><span>미리보기 화면에서는 유튜브 삽입이 막혀 있습니다. 실제 사이트에서는 여기서 바로 재생됩니다.</span><a href="${esc(src.url)}" target="_blank" rel="noopener">유튜브에서 보기 ↗</a>`);
     } else {
       const f = document.createElement("iframe");
-      f.src = youTubeEmbed(yt) + (src.queue ? `&enablejsapi=1&origin=${encodeURIComponent(location.origin)}&loop=1&playlist=${src.queue.map(v=>v.id).join(",")}` : ""); f.title = src.title;
+      f.src = youTubeEmbed(yt) + (src.queue ? `&loop=1&playlist=${src.queue.map(v=>v.id).join(",")}` : ""); f.title = src.title;
       f.allow = "autoplay; encrypted-media; picture-in-picture; fullscreen"; f.allowFullscreen = true;
       stage.appendChild(f);
-      if(src.queue) whenEnded(f, src, ()=>play(rotation(src.queue, src.idx + 1)));
+      bindYouTubePlayer(f, src, src.queue ? ()=>play(rotation(src.queue, src.idx + 1)) : null);
     }
   }
   else if(src.type==="hls"){
