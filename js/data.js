@@ -44,28 +44,41 @@
   }
   const byDate = (a,b)=>new Date(b.published_at)-new Date(a.published_at);
 
-  async function load(){
+  async function load(onUpdate){
     const auto = await daily();
     if(!db){
       const s = Object.assign({sample:true}, SAMPLE);
       if(auto.length){ s.news = auto.slice().sort(byDate).slice(0,12); s.sample = false; }
       return s;
     }
+    // 저장된 기사는 외부 표가 느리거나 실패해도 먼저 표시합니다.
+    const base = {
+      sample:false, programs:[], news:auto.slice().sort(byDate).slice(0,12),
+      shorts:[], ads:[], ticker:[], briefing:{lines:[], captions:[]}
+    };
+    if(onUpdate) onUpdate(base);
+    async function query(request, fallback){
+      const controller = new AbortController();
+      const timer = setTimeout(()=>controller.abort(), 5000);
+      try{
+        const result = await request.abortSignal(controller.signal);
+        if(result.error) { console.warn("VoB 데이터 일부를 불러오지 못했습니다", result.error); return fallback; }
+        return result.data ?? fallback;
+      }catch(e){ return fallback; }
+      finally{ clearTimeout(timer); }
+    }
     const [programs, news, shorts, ads, ticker, briefing] = await Promise.all([
-      db.from("programs").select("*").order("sort").order("created_at"),
-      db.from("news").select("id,section,title,summary,image_url,link_url,published_at").order("published_at",{ascending:false}).limit(12),
-      db.from("shorts").select("*").order("sort"),
-      db.from("ads").select("*").eq("active",true).order("slot"),
-      db.from("ticker").select("*").eq("active",true).order("sort"),
-      db.from("briefing").select("*").eq("id",1).maybeSingle(),
+      query(db.from("programs").select("*").order("sort").order("created_at"), []),
+      query(db.from("news").select("id,section,title,summary,image_url,link_url,published_at").order("published_at",{ascending:false}).limit(12), []),
+      query(db.from("shorts").select("*").order("sort"), []),
+      query(db.from("ads").select("*").eq("active",true).order("slot"), []),
+      query(db.from("ticker").select("*").eq("active",true).order("sort"), []),
+      query(db.from("briefing").select("*").eq("id",1).maybeSingle(), base.briefing),
     ]);
-    const bad = [programs, news, shorts, ads, ticker, briefing].find(r=>r.error);
-    if(bad) throw bad.error;
+    const merged = Array.from(new Map(news.concat(auto).map(n=>[n.id,n])).values());
     return {
-      sample:false,
-      programs: programs.data, news: news.data.concat(auto).sort(byDate).slice(0,12), shorts: shorts.data, ads: ads.data,
-      ticker: ticker.data.map(t=>t.text),
-      briefing: briefing.data || {lines:[], captions:[]},
+      sample:false, programs, news:merged.sort(byDate).slice(0,12), shorts, ads,
+      ticker:ticker.map(t=>t.text), briefing,
     };
   }
 
