@@ -76,7 +76,8 @@ function rotation(queue, idx){
     idx = 0;
   }
   const i = idx % queue.length, v = queue[i];
-  return {id:"yt-"+v.id+"-"+i, type:"youtube", url:"https://youtu.be/"+v.id, live:false, title:v.title, desc:v.summary||"", isAri:!!v.isAri, isAriNews:!!v.isAriNews, queue, idx:i};
+  const videoId = v.yt || v.id;
+  return {id:"yt-"+videoId+"-"+i, type:"youtube", url:"https://youtu.be/"+videoId, live:false, title:v.title, desc:v.summary||"", isAri:!!v.isAri, isAriNews:!!v.isAriNews, queue, idx:i};
 }
 let ytApi = null;
 function loadYTApi(){
