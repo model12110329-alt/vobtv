@@ -501,7 +501,51 @@ document.addEventListener("pointermove",e=>{
 });
 
 /* ---------- 시작 ---------- */
-(async function boot(){
+(async /* ---------- 주요 뉴스 실시간 갱신 ---------- */
+let newsRefreshBusy = false;
+let newsRealtimeChannel = null;
+
+async function refreshNews(){
+  if(!DATA || !window.VOB || typeof VOB.news !== "function" || newsRefreshBusy) return;
+  newsRefreshBusy = true;
+  try{
+    const latest = await VOB.news();
+    const before = JSON.stringify((DATA.news || []).map(n => [n.id,n.title,n.published_at]));
+    const after = JSON.stringify((latest || []).map(n => [n.id,n.title,n.published_at]));
+    DATA.news = latest || [];
+    DATA.sample = false;
+    if(before !== after){
+      renderNews();
+      if(!DATA.ticker?.length){
+        DATA.ticker = DATA.news.slice(0,5).map(n=>n.title);
+        renderTicker();
+      }
+    }
+  }catch(e){
+    console.warn("주요 뉴스 자동 갱신 실패", e);
+  }finally{
+    newsRefreshBusy = false;
+  }
+}
+
+function startNewsLiveRefresh(){
+  // 10초마다 확인하되, 데이터가 바뀐 경우에만 화면을 다시 그립니다.
+  setInterval(refreshNews, 10000);
+
+  // Supabase Realtime이 사용 가능하면 기사 등록/수정/삭제를 즉시 감지합니다.
+  const db = window.VOB?.db;
+  if(db && typeof db.channel === "function"){
+    try{
+      newsRealtimeChannel = db.channel("vob-news-live")
+        .on("postgres_changes", {event:"*", schema:"public", table:"news"}, refreshNews)
+        .subscribe();
+    }catch(e){
+      console.warn("뉴스 실시간 구독을 시작하지 못했습니다", e);
+    }
+  }
+}
+
+function boot(){
   function show(data){
     DATA = data;
     PROGRAMS = DATA.programs.filter(p=>p.type !== "demo").map(toProgram);
@@ -515,6 +559,7 @@ document.addEventListener("pointermove",e=>{
   // 유튜브 응답을 기다리는 동안에도 편성표와 방송 화면을 표시합니다.
   play(PROGRAMS.find(p=>p.main) || PROGRAMS.find(p=>p.live) || PROGRAMS[0]
     || {id:"demo", type:"demo", live:true, title:"VoB TV 종합뉴스", desc:""});
+  startNewsLiveRefresh();
   const initial = current;
   await loadYouTube();
   if(current !== initial) return;
