@@ -362,19 +362,24 @@ async function loadYouTube(){
     // Shorts와 ARI 뉴스가 같은 영상을 중복해서 보여주지 않도록 ARI 영상 ID를 먼저 제외합니다.
     let ariVideos = [];
     let projectWorks = [];
-    let ariNewsVideos = [];
     try{
       projectWorks = await VOB.ariProjectVideos();
     }catch(e){}
-    try{
-      ariNewsVideos = await VOB.ariNewsVideos();
-      ariNewsVideos = (ariNewsVideos || [])
-        .filter(v=>v.yt)
-        .sort((a,b)=>(Date.parse(b.published_at)||0)-(Date.parse(a.published_at)||0))
-        .slice(0,1)
-        .map(v=>({...v, isAriNews:true}));
-    }catch(e){}
     const ariProjectIds = new Set(projectWorks.map(v=>v.yt || v.id).filter(Boolean));
+    const ariNewsVideos = vids
+      .filter(v=>{
+        const title = String(v.title || "").toLowerCase();
+        return (title.includes("ari 뉴스") || title.includes("ari news"));
+      })
+      .sort((a,b)=>(Date.parse(b.published)||0)-(Date.parse(a.published)||0))
+      .slice(0,1)
+      .map(v=>({
+        id:"yt-"+v.id,
+        yt:v.id,
+        title:v.title,
+        published_at:v.published,
+        isAriNews:true
+      }));
     const ariKeyword = String((window.VOB_CONFIG||{}).ariKeyword || "ARI").toLowerCase();
     const ariNewsIds = new Set(
       vids.filter(v=>String(v.title||"").toLowerCase().includes(ariKeyword)).map(v=>v.id)
