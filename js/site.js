@@ -229,14 +229,33 @@ function renderShorts(){
     const bg = thumb
       ? `background-image:linear-gradient(180deg,rgba(0,0,0,0) 35%,rgba(0,0,0,.82) 100%),url('${thumb}')`
       : `background:linear-gradient(160deg,var(--brand),#241327 62%,#0e1831)`;
-    const href = shortUrl(s);
-    return `<a class="short" href="${esc(href)}" target="_blank" rel="noopener noreferrer" aria-label="${esc(s.title)} YouTube Shorts">
+    return `<button class="short" type="button" data-i="${i}" aria-label="${esc(s.title)} YouTube Shorts">
       <span class="short-play" aria-hidden="true">▶</span>
       <p>${esc(s.title)}</p>
       <em class="short-source">YouTube Shorts</em>
-    </a>`;
+    </button>`;
   }).join("");
 }
+
+document.getElementById("shortsRow").addEventListener("click",e=>{
+  const b = e.target.closest(".short[data-i]");
+  if(!b) return;
+  const s = DATA.shorts[Number(b.dataset.i)];
+  const yt = s?.url && parseYouTube(s.url);
+  if(!yt?.video){
+    play({id:"short-"+(s?.id||Date.now()), type:"demo", live:false, title:s?.title||"VoB Shorts"});
+    window.scrollTo({top:0,behavior:"smooth"});
+    return;
+  }
+  play({
+    id:"short-"+yt.video,
+    type:"youtube",
+    url:`https://www.youtube.com/shorts/${yt.video}`,
+    live:false,
+    title:s.title
+  });
+  window.scrollTo({top:0,behavior:"smooth"});
+});
 
 
 let newsFilter = null;
