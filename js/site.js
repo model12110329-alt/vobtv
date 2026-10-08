@@ -205,15 +205,33 @@ function toProgram(p){
   return {id:String(p.id), title:p.title, desc:p.description||"", type:p.type, url:p.url, live:!!p.is_live, time:p.time_label||"", main:!!p.is_main};
 }
 function renderLineup(){
-  document.getElementById("lineup").innerHTML = PROGRAMS.length ? PROGRAMS.map(s=>`
-    <li><button data-id="${esc(s.id)}" aria-pressed="${!!current && (current.url && current.url===s.url || current.id===s.id)}">
+  document.getElementById("lineup").innerHTML = PROGRAMS.length ? PROGRAMS.map(s=>{
+    const yt = s.isAriNews ? (parseYouTube(s.url)?.video || "") : "";
+    return `
+    <li><button data-id="${esc(s.id)}"${yt ? ` data-ari-news-yt="${esc(yt)}"` : ""} aria-pressed="${!!current && (current.url && current.url===s.url || current.id===s.id)}">
       <time>${esc(s.time)}</time>
       <div><strong>${s.live?"":`<span class="tag vod">VOD</span>`}${esc(s.title)}</strong><span>${esc(s.desc)}</span></div>
-    </button></li>`).join("") : `<li class="empty">편성된 방송이 없습니다.</li>`;
+    </button></li>`;
+  }).join("") : `<li class="empty">편성된 방송이 없습니다.</li>`;
 }
 document.getElementById("lineup").addEventListener("click",e=>{
   const b = e.target.closest("button[data-id]"); if(!b) return;
-  const s = PROGRAMS.find(x=>x.id===b.dataset.id); if(s) play(s);
+  const s = PROGRAMS.find(x=>x.id===b.dataset.id); if(!s) return;
+
+  const ariYt = b.getAttribute("data-ari-news-yt");
+  if(ariYt){
+    play({
+      id:"ari-news-"+ariYt,
+      type:"youtube",
+      url:"https://youtu.be/"+ariYt,
+      live:false,
+      title:s.title,
+      isAriNews:true
+    });
+    window.scrollTo({top:0,behavior:"smooth"});
+    return;
+  }
+  play(s);
 });
 
 function renderTicker(){
