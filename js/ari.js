@@ -44,13 +44,24 @@
       <div class="ari-cover img wide" style="background-image:url('${esc(w.cover_url || ytThumb(w.yt))}')"><span class="kind">영상</span><i class="play" aria-hidden="true"></i></div>
       <small>${esc(epLabel(w) || day(w.published_at))}</small><strong>${esc(w.title)}</strong></button>`;
 
-  /* ---------- 첫 화면 미리보기 ---------- */
+  /* ---------- 메인 ARI 뉴스 선반 ---------- */
   async function teaser(box){
-    const {novels, videos} = await everything();
-    const items = novels.map(w=>({w, t:"n"})).concat(videos.map(w=>({w, t:"v"})))
-      .sort((a,b)=>new Date(b.w.published_at)-new Date(a.w.published_at)).slice(0,4);
+    const {videos} = await everything();
+    const items = videos.filter(v=>v.yt)
+      .sort((a,b)=>(Date.parse(b.published_at)||0)-(Date.parse(a.published_at)||0))
+      .slice(0,7);
     if(!items.length) return;
-    box.innerHTML = items.map(({w,t}) => t==="n" ? novelCard(w) : videoCard(w).replace("<button","<a href=\"ari.html#v="+esc(w.yt)+"\"").replace(" type=\"button\"","").replace("</button>","</a>")).join("");
+    box.innerHTML = items.map(w=>{
+      const thumb = w.cover_url || ytThumb(w.yt);
+      return `<article class="ari-short-card">
+        <button class="ari-short" type="button" data-ari-yt="${esc(w.yt)}" data-ari-title="${esc(w.title)}" aria-label="${esc(w.title)} ARI 영상">
+          <img src="${esc(thumb)}" alt="" loading="lazy" referrerpolicy="no-referrer" onerror="this.style.display='none'">
+          <span class="short-play" aria-hidden="true">▶</span>
+          <span class="ari-short-badge">ARI</span>
+        </button>
+        <button class="ari-short-title" type="button" data-ari-yt="${esc(w.yt)}" data-ari-title="${esc(w.title)}" title="${esc(w.title)}">${esc(w.title)}</button>
+      </article>`;
+    }).join("");
     document.getElementById("ariSec").hidden = false;
   }
 
@@ -99,7 +110,20 @@
   }
 
   const teaserBox = document.getElementById("ariTeaser");
-  if(teaserBox) teaser(teaserBox);
+  if(teaserBox){
+    teaserBox.addEventListener("click", e=>{
+      const b=e.target.closest("[data-ari-yt]");
+      if(!b) return;
+      const yt=b.getAttribute("data-ari-yt");
+      const title=b.getAttribute("data-ari-title")||"ARI 뉴스";
+      if(typeof play==="function"){
+        play({id:"ari-"+yt,type:"youtube",url:`https://youtu.be/${yt}`,live:false,title,isAri:true});
+        window.scrollTo({top:0,behavior:"smooth"});
+      }
+    });
+    teaser(teaserBox);
+  }
+
   const page = document.getElementById("ariPage");
   if(page){
     const id = new URLSearchParams(location.search).get("id");
