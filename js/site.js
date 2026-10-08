@@ -62,9 +62,9 @@ function whenEnded(frame, src, next){
 
 /* ---------- 플레이어 ---------- */
 const stage = document.getElementById("player");
-let hls = null, raf = 0, newsTimer = 0;
+let hls = null, raf = 0;
 function stop(){
-  cancelAnimationFrame(raf); clearInterval(newsTimer);
+  cancelAnimationFrame(raf);
   if(hls){ hls.destroy(); hls = null; }
   stage.querySelectorAll("video").forEach(v=>{ v.pause(); v.removeAttribute("src"); v.load(); });
   stage.innerHTML = "";
@@ -78,19 +78,7 @@ function videoEl(){
 }
 function play(src){
   current = src; stop();
-  if(src.type==="news"){
-    const articles = src.articles || [];
-    let index = 0;
-    function slide(){
-      const n = articles[index++ % articles.length];
-      if(!n || current !== src) return;
-      stage.innerHTML = `<div class="notice"><strong>${esc(n.title)}</strong><span>${esc(n.summary || "")}</span><a href="article.html?id=${encodeURIComponent(n.id)}">기사 전문 보기 →</a><small>기사 브리핑 · ${index % articles.length || articles.length}/${articles.length}</small></div>`;
-      raf = 0;
-    }
-    slide();
-    clearInterval(newsTimer); newsTimer = setInterval(slide, 12000);
-  }
-  else if(src.type==="demo") demo();
+  if(src.type==="demo") demo();
   else if(src.type==="youtube"){
     const yt = parseYouTube(src.url);
     if(!yt || yt.handle){ notice("<strong>유튜브 주소를 인식하지 못했습니다</strong><span>관리자 화면에서 주소를 확인해 주세요.</span>"); }
@@ -98,7 +86,7 @@ function play(src){
       notice(`<strong>유튜브 ${src.live?"라이브":"영상"}이 이 자리에 나옵니다</strong><span>미리보기 화면에서는 유튜브 삽입이 막혀 있습니다. 실제 사이트에서는 여기서 바로 재생됩니다.</span><a href="${esc(src.url)}" target="_blank" rel="noopener">유튜브에서 보기 ↗</a>`);
     } else {
       const f = document.createElement("iframe");
-      f.src = youTubeEmbed(yt) + (src.queue ? `&enablejsapi=1&origin=${encodeURIComponent(location.origin)}` : ""); f.title = src.title;
+      f.src = youTubeEmbed(yt) + (src.queue ? `&enablejsapi=1&origin=${encodeURIComponent(location.origin)}&loop=1&playlist=${src.queue.map(v=>v.id).join(",")}` : ""); f.title = src.title;
       f.allow = "autoplay; encrypted-media; picture-in-picture; fullscreen"; f.allowFullscreen = true;
       stage.appendChild(f);
       if(src.queue) whenEnded(f, src, ()=>play(rotation(src.queue, src.idx + 1)));
@@ -118,7 +106,7 @@ function play(src){
     else { videoEl().src = src.url; }
   }
   const badge = document.getElementById("nowBadge");
-  badge.textContent = src.type === "news" ? "기사 브리핑" : src.live ? "LIVE" : "다시보기";
+  badge.textContent = src.live ? "LIVE" : "다시보기";
   badge.className = "badge" + (src.live ? "" : " vod");
   document.getElementById("nowTitle").textContent = src.title;
   renderLineup();
@@ -167,7 +155,7 @@ function renderLineup(){
   document.getElementById("lineup").innerHTML = PROGRAMS.length ? PROGRAMS.map(s=>`
     <li><button data-id="${esc(s.id)}" aria-pressed="${!!current && current.id===s.id}">
       <time>${esc(s.time)}</time>
-      <div><strong>${s.type==="news"?`<span class="tag vod">뉴스</span>`:s.live?"":`<span class="tag vod">VOD</span>`}${esc(s.title)}</strong><span>${esc(s.desc)}</span></div>
+      <div><strong>${s.live?"":`<span class="tag vod">VOD</span>`}${esc(s.title)}</strong><span>${esc(s.desc)}</span></div>
     </button></li>`).join("") : `<li class="empty">편성된 방송이 없습니다.</li>`;
 }
 document.getElementById("lineup").addEventListener("click",e=>{
@@ -272,7 +260,7 @@ async function loadYouTube(){
     if(!r.ok) return;
     const j = await r.json();
     CHANNEL_ID = j.channelId || null;
-    const vids = (j.videos || []).slice().sort((a,b)=>new Date(b.published) - new Date(a.published));
+    const vids = (j.videos || []).slice().sort((a,b)=>(Date.parse(b.published)||0) - (Date.parse(a.published)||0));
     YT_VIDEOS = vids;
     // 관리자가 숏츠를 따로 등록하지 않았으면 채널의 숏츠를 자동으로 보여줍니다
     const ytShorts = vids.filter(v=>v.isShort);
@@ -283,11 +271,14 @@ async function loadYouTube(){
     }
     const longs = vids.filter(v=>!v.isShort);
     if(!longs.length) return;
+    const queue = longs.slice(0,3);
+    PROGRAMS = queue.map((v,i)=>({...rotation(queue,i), time:`${i+1}번째`, desc:"최신 영상 3편 순환 재생", main:i===0})).concat(PROGRAMS.filter(p=>p.type!=="demo" && !p.id.startsWith("yt-")));
+    renderLineup();
     document.getElementById("latest").hidden = false;
-    document.getElementById("videos").innerHTML = longs.slice(0,5).map(v=>`
+    document.getElementById("videos").innerHTML = longs.slice(0,3).map(v=>`
       <button class="vcard" data-v="${esc(v.id)}" data-t="${esc(v.title)}">
         <div class="thumb img" style="background-image:url('${ytThumb(v.id)}')"></div>
-        <strong>${esc(v.title)}</strong><small>${ago(v.published)}</small>
+        <strong>${esc(v.title)}</strong><small>${esc(v.publishedLabel || (v.published ? ago(v.published) : "채널 최신 영상"))}</small>
       </button>`).join("");
   }catch(e){ /* 최신 영상은 없어도 사이트는 정상 동작 */ }
 }
@@ -301,7 +292,7 @@ document.getElementById("videos").addEventListener("click",e=>{
 let capTimer=0, typeTimer=0;
 function aiFor(src){
   const b = DATA.briefing || {};
-  if(src.type === "news") return {sum:src.articles.slice(0,3).map(n=>n.summary || n.title), cap:src.articles.map(n=>n.title)};
+  if(src.type === "youtube" && DATA.news.length) return {sum:DATA.news.slice(0,3).map(n=>n.summary || n.title), cap:[src.title]};
   if(src.main && b.lines && b.lines.length) return {sum:b.lines, cap:(b.captions&&b.captions.length)?b.captions:[src.title]};
   const kind = src.live ? "라이브" : "녹화 영상";
   return {sum:[`'${src.title}' ${kind}입니다.`, src.desc || "방송 내용을 정리하고 있습니다.", "VoB TV 유튜브 채널 @VoBTV1에서도 함께 볼 수 있습니다."], cap:[src.title]};
@@ -316,7 +307,7 @@ function renderAI(src){
   const a = aiFor(src);
   document.getElementById("aiSum").innerHTML = a.sum.slice(0,3).map((x,k)=>`<li style="--d:${k*0.35}s">${esc(x)}</li>`).join("");
   const st=document.getElementById("aiStatus"); st.textContent="분석 완료"; st.classList.remove("busy");
-  st.textContent = src.type === "news" ? "기사 기반 요약" : "방송 안내";
+  st.textContent = DATA.news.length ? "주요 기사 요약" : "방송 안내";
   clearInterval(capTimer); let i=0;
   const cap=document.getElementById("aiCap");
   const show=()=>typeInto(cap,"AI 자막",a.cap[i++%a.cap.length]);
@@ -398,14 +389,6 @@ document.addEventListener("pointermove",e=>{
   function show(data){
     DATA = data;
     PROGRAMS = DATA.programs.filter(p=>p.type !== "demo").map(toProgram);
-    if(DATA.news.length){
-      const groups = [{id:"news-all",title:"VoB 주요 뉴스 브리핑",items:DATA.news}];
-      for(const section of ["정치","경제","사회","문화"]){
-        const items = DATA.news.filter(n=>n.section===section);
-        if(items.length) groups.push({id:"news-"+section,title:section+" 뉴스 브리핑",items});
-      }
-      PROGRAMS.push(...groups.map(g=>({id:g.id,type:"news",title:g.title,desc:`등록 기사 ${g.items.length}건 · 12초마다 다음 기사`,articles:g.items,live:false,time:"상시",main:g.id==="news-all"})));
-    }
     if(!DATA.ticker.length) DATA.ticker = DATA.news.slice(0,5).map(n=>n.title);
     renderTicker(); renderAds(); renderShorts(); renderNews(); renderLineup();
     if(!current && PROGRAMS.length) play(PROGRAMS.find(p=>p.main) || PROGRAMS[0]);
@@ -419,8 +402,8 @@ document.addEventListener("pointermove",e=>{
   const initial = current;
   await loadYouTube();
   if(current !== initial) return;
-  // 첫 화면은 유튜브 채널 최신 동영상(숏츠 제외) 최대 5편을 최근 순으로 이어서 재생합니다
-  const queue = YT_VIDEOS.filter(x=>!x.isShort).slice(0, 5);
+  // 첫 화면은 유튜브 채널 최신 동영상(숏츠 제외) 3편을 최근 순으로 이어서 재생합니다
+  const queue = YT_VIDEOS.filter(x=>!x.isShort).slice(0, 3);
   const first = (queue.length && rotation(queue, 0))
     || PROGRAMS.find(p=>p.main) || PROGRAMS.find(p=>p.live) || PROGRAMS[0]
     || {id:"demo", type:"demo", live:true, main:true, title:"VoB TV 종합뉴스", desc:""};
