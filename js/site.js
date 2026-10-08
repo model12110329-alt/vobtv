@@ -352,9 +352,13 @@ async function loadYouTube(){
     let ariVideos = [];
     try{
       const works = await VOB.ariProjectVideos();
-      const ariIds = new Set(works.map(v=>v.yt || v.id).filter(Boolean));
+      const ariProjectIds = new Set(works.map(v=>v.yt || v.id).filter(Boolean));
+      const ariKeyword = String((window.VOB_CONFIG||{}).ariKeyword || "ARI").toLowerCase();
+      const ariNewsIds = new Set(
+        vids.filter(v=>String(v.title||"").toLowerCase().includes(ariKeyword)).map(v=>v.id)
+      );
       const ytShorts = vids
-        .filter(v=>v.isShort && !ariIds.has(v.id))
+        .filter(v=>v.isShort && !ariProjectIds.has(v.id) && !ariNewsIds.has(v.id))
         .sort((a,b)=>(Date.parse(b.published)||0) - (Date.parse(a.published)||0));
       DATA.shorts = ytShorts.slice(0,7).map(v=>({
         id:v.id,
