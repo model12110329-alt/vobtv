@@ -209,26 +209,35 @@ function renderAds(){
   }).join("");
 }
 
-const SHORT_HUES = [224,350,160,28,265,195];
-let SHORT_ART = {};
-fetch("data/shorts_art.json",{cache:"no-cache"}).then(r=>r.ok?r.json():{}).then(j=>{ SHORT_ART = j||{}; if(DATA) renderShorts(); }).catch(()=>{});
+function shortUrl(s){
+  const yt = s?.url && parseYouTube(s.url);
+  return yt?.video ? `https://www.youtube.com/shorts/${yt.video}` : (s?.url || "https://www.youtube.com/@VoBTV1/shorts");
+}
 function renderShorts(){
+  const section = document.getElementById("shorts");
   const row = document.getElementById("shortsRow");
-  if(!DATA.shorts.length){ document.getElementById("shorts").hidden = true; return; }
-  row.innerHTML = DATA.shorts.map((s,i)=>{
+  const shorts = Array.isArray(DATA?.shorts) ? DATA.shorts.filter(Boolean) : [];
+  if(!shorts.length){
+    section.hidden = true;
+    return;
+  }
+  section.hidden = false;
+  row.innerHTML = shorts.map((s,i)=>{
     const yt = s.url && parseYouTube(s.url);
-    const art = yt && yt.video && SHORT_ART[yt.video];   // 매일 만드는 3D 실사풍 숏츠 삽화가 있으면 그것을 씁니다
-    const bg = yt && yt.video ? `background-image:linear-gradient(transparent 40%,rgba(0,0,0,.4)),url('${art || ytThumb(yt.video)}')`
-      : `background:linear-gradient(160deg,hsl(${330+(SHORT_HUES[i%6]%30)} 60% 38%),hsl(225 60% ${22+(i%3)*6}%))`;
-    return `<button class="short" data-i="${i}" style="${bg}"><p>${esc(s.title)}</p>${art?`<em class="ai-img">AI 이미지</em>`:""}</button>`;
+    const id = yt?.video || "";
+    const thumb = id ? ytThumb(id) : "";
+    const bg = thumb
+      ? `background-image:linear-gradient(180deg,rgba(0,0,0,0) 35%,rgba(0,0,0,.82) 100%),url('${thumb}')`
+      : `background:linear-gradient(160deg,var(--brand),#241327 62%,#0e1831)`;
+    const href = shortUrl(s);
+    return `<a class="short" href="${esc(href)}" target="_blank" rel="noopener noreferrer" aria-label="${esc(s.title)} YouTube Shorts">
+      <span class="short-play" aria-hidden="true">▶</span>
+      <p>${esc(s.title)}</p>
+      <em class="short-source">YouTube Shorts</em>
+    </a>`;
   }).join("");
 }
-document.getElementById("shortsRow").addEventListener("click",e=>{
-  const b = e.target.closest(".short"); if(!b) return;
-  const s = DATA.shorts[b.dataset.i];
-  play(s.url ? {id:"short-"+s.id, type:"youtube", url:s.url, live:false, title:s.title} : {id:"short-"+s.id, type:"demo", live:false, title:s.title});
-  window.scrollTo({top:0,behavior:"smooth"});
-});
+
 
 let newsFilter = null;
 /* 기사 썸네일: 대표 이미지가 없으면 분야 색과 제목으로 VoB 썸네일을 그립니다 */
@@ -291,11 +300,14 @@ async function loadYouTube(){
     CHANNEL_ID = j.channelId || null;
     const vids = (j.videos || []).slice().sort((a,b)=>(Date.parse(b.published)||0) - (Date.parse(a.published)||0));
     YT_VIDEOS = vids;
-    // 관리자가 숏츠를 따로 등록하지 않았으면 채널의 숏츠를 자동으로 보여줍니다
+    // Shorts는 YouTube 채널에서 직접 가져와 항상 최신 순으로 보여줍니다.
     const ytShorts = vids.filter(v=>v.isShort);
-    if(!DATA.shorts.length && ytShorts.length){
-      DATA.shorts = ytShorts.slice(0,12).map(v=>({id:v.id, title:v.title, url:`https://www.youtube.com/shorts/${v.id}`}));
-      document.getElementById("shorts").hidden = false;
+    if(ytShorts.length){
+      DATA.shorts = ytShorts.slice(0,12).map(v=>({
+        id:v.id,
+        title:v.title,
+        url:`https://www.youtube.com/shorts/${v.id}`
+      }));
       renderShorts();
     }
     const longs = vids.filter(v=>!v.isShort);
