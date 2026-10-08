@@ -348,11 +348,24 @@ async function loadYouTube(){
     CHANNEL_ID = j.channelId || null;
     const vids = (j.videos || []).slice().sort((a,b)=>(Date.parse(b.published)||0) - (Date.parse(a.published)||0));
     YT_VIDEOS = vids;
-    // Shorts는 YouTube 채널에서 직접 가져와 항상 최신 순으로 보여줍니다.
-    const ytShorts = vids
-      .filter(v=>v.isShort)
-      .sort((a,b)=>(Date.parse(b.published)||0) - (Date.parse(a.published)||0));
-    if(ytShorts.length){
+    // Shorts와 ARI 뉴스가 같은 영상을 중복해서 보여주지 않도록 ARI 영상 ID를 먼저 제외합니다.
+    let ariVideos = [];
+    try{
+      const works = await VOB.ariVideos();
+      const ariIds = new Set(works.map(v=>v.id).filter(Boolean));
+      const ytShorts = vids
+        .filter(v=>v.isShort && !ariIds.has(v.id))
+        .sort((a,b)=>(Date.parse(b.published)||0) - (Date.parse(a.published)||0));
+      DATA.shorts = ytShorts.slice(0,7).map(v=>({
+        id:v.id,
+        title:v.title,
+        url:`https://www.youtube.com/shorts/${v.id}`
+      }));
+      renderShorts();
+    }catch(e){
+      const ytShorts = vids
+        .filter(v=>v.isShort)
+        .sort((a,b)=>(Date.parse(b.published)||0) - (Date.parse(a.published)||0));
       DATA.shorts = ytShorts.slice(0,7).map(v=>({
         id:v.id,
         title:v.title,
@@ -362,9 +375,7 @@ async function loadYouTube(){
     }
     const longs = vids.filter(v=>!v.isShort);
     if(!longs.length) return;
-    let ariVideos = [];
     try{
-      const works = await VOB.ariVideos();
       const episode = w => Number(w.episode) || Number((w.title.match(/(\d+)\s*화/)||[])[1]) || Infinity;
       const seen = new Set();
       ariVideos = works.slice().sort((a,b)=>{
