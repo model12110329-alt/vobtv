@@ -142,6 +142,44 @@
     teaser(teaserBox);
   }
 
+  async function homeNewsTeaser(box){
+    const items = (await ytNewsVideos())
+      .filter(v=>v.yt)
+      .sort((a,b)=>(Date.parse(b.published_at)||0)-(Date.parse(a.published_at)||0))
+      .slice(0,7);
+    if(!items.length) return;
+    box.innerHTML = items.map(w=>{
+      const thumb = ytThumb(w.yt);
+      return `<article class="ari-news-home-card">
+        <button class="short ari-news-home-short" type="button" data-ari-home-yt="${esc(w.yt)}" data-ari-home-title="${esc(w.title)}" aria-label="${esc(w.title)} ARI 뉴스">
+          <img src="${esc(thumb)}" alt="" loading="lazy" referrerpolicy="no-referrer" onerror="this.style.display='none'">
+          <span class="short-play" aria-hidden="true">▶</span>
+          <span class="short-badge">ARI NEWS</span>
+        </button>
+        <button class="short-title ari-news-home-title" type="button" data-ari-home-yt="${esc(w.yt)}" data-ari-home-title="${esc(w.title)}" title="${esc(w.title)}">${esc(w.title)}</button>
+      </article>`;
+    }).join("");
+    const section=document.getElementById("ariNewsHome");
+    if(section) section.hidden=false;
+  }
+
+  const homeNewsBox = document.getElementById("ariNewsHomeRow");
+  if(homeNewsBox){
+    homeNewsBox.addEventListener("click", e=>{
+      const b=e.target.closest("[data-ari-home-yt]");
+      if(!b) return;
+      const yt=b.getAttribute("data-ari-home-yt");
+      const title=b.getAttribute("data-ari-home-title")||"ARI 뉴스";
+      if(typeof play==="function"){
+        play({id:"ari-home-news-"+yt,type:"youtube",url:`https://youtu.be/${yt}`,live:false,title});
+        window.scrollTo({top:0,behavior:"smooth"});
+      } else {
+        location.href=`ari.html#news=${encodeURIComponent(yt)}`;
+      }
+    });
+    homeNewsTeaser(homeNewsBox);
+  }
+
   const projectBox = document.getElementById("ariProjectTeaser");
   if(projectBox) projectTeaser(projectBox);
 
