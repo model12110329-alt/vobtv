@@ -26,16 +26,18 @@
   let everythingPromise = null;
   function everything(){ return everythingPromise ||= collectEverything(); }
   async function collectEverything(){
-    const [works, yts] = await Promise.all([VOB.ari(), ytVideos()]);
-    const seen = new Set();
-    const vids = works.filter(w=>w.kind==="video").map(w=>({...w, yt:ytId(w.video_url||"")}))
-      .concat(yts).filter(v => v.yt && !seen.has(v.yt) && seen.add(v.yt));
+    const works = await VOB.ari();
+    const vids = works.filter(w=>w.kind==="video")
+      .map(w=>({...w, yt:ytId(w.video_url||"")}))
+      .filter(v=>v.yt);
     const novels = works.filter(w=>w.kind==="novel");
     const byDate = (a,b)=>new Date(b.published_at)-new Date(a.published_at);
     return {novels:novels.sort(byDate), videos:vids.sort(byDate)};
   }
 
-  VOB.ariVideos = async () => (await everything()).videos;
+  // Separate APIs: ARI Project is managed from ari_works; ARI News comes from YouTube.
+  VOB.ariProjectVideos = async () => (await everything()).videos;
+  VOB.ariNewsVideos = async () => await ytVideos();
 
   const novelCard = w => `<a class="ari-card novel" href="ari.html?id=${esc(w.id)}">
       <div class="ari-cover${w.cover_url?" img":""}" style="${coverStyle(w)}"><span class="kind">소설</span>${w.cover_url?"":`<b>${esc(w.title.slice(0,1))}</b>`}</div>
@@ -46,8 +48,9 @@
 
   /* ---------- 메인 ARI 뉴스 선반 ---------- */
   async function teaser(box){
-    const {videos} = await everything();
-    const items = videos.filter(v=>v.yt)
+    const videos = await ytVideos();
+    const items = videos
+      .filter(v=>v.yt)
       .sort((a,b)=>(Date.parse(b.published_at)||0)-(Date.parse(a.published_at)||0))
       .slice(0,7);
     if(!items.length) return;
