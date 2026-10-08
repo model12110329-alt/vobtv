@@ -19,9 +19,12 @@
       const r = await fetch(`/api/youtube?channel=${encodeURIComponent(channel)}`, {signal:AbortSignal.timeout(6000)});
       if(!r.ok) return [];
       const vids = (await r.json()).videos || [];
-      const kw = String(C.ariKeyword || "ARI").toLowerCase();
+      const keyword = String(C.ariKeyword || "ARI").toLowerCase();
       return vids
-        .filter(v => String(v.title || "").toLowerCase().includes(kw))
+        .filter(v => {
+          const title = String(v.title || "").toLowerCase();
+          return title.includes(keyword + " 뉴스") || title.includes(keyword + " news");
+        })
         .map(v => ({id:"yt-"+v.id, kind:"news", yt:v.id, title:v.title, published_at:v.published}));
     }catch(e){ return []; }
   }
