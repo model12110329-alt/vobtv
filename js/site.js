@@ -351,7 +351,7 @@ async function loadYouTube(){
     // Shorts는 YouTube 채널에서 직접 가져와 항상 최신 순으로 보여줍니다.
     const ytShorts = vids.filter(v=>v.isShort);
     if(ytShorts.length){
-      DATA.shorts = ytShorts.slice(0,12).map(v=>({
+      DATA.shorts = ytShorts.slice(0,7).map(v=>({
         id:v.id,
         title:v.title,
         url:`https://www.youtube.com/shorts/${v.id}`
