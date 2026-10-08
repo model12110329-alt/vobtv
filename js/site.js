@@ -319,7 +319,7 @@ async function loadYouTube(){
     PROGRAMS = queue.map((v,i)=>({...rotation(queue,i), time:v.isAri?"아리":"뉴스", desc:v.isAri?"아리 프로젝트 · 회차순 순환 재생":"무작위 뉴스 2편 뒤 아리 다음 회차", main:i===0})).filter((p,i,all)=>all.findIndex(x=>x.url===p.url)===i).concat(PROGRAMS.filter(p=>p.type!=="demo" && !p.id.startsWith("yt-")));
     renderLineup();
     document.getElementById("latest").hidden = false;
-    document.getElementById("videos").innerHTML = longs.slice(0,5).map(v=>`
+    document.getElementById("videos").innerHTML = longs.map(v=>`
       <button class="vcard" data-v="${esc(v.id)}" data-t="${esc(v.title)}">
         <div class="thumb img" style="background-image:url('${ytThumb(v.id)}')"></div>
         <strong>${esc(v.title)}</strong><small>${esc(v.publishedLabel || (v.published ? ago(v.published) : "채널 최신 영상"))}</small>
