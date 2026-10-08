@@ -385,7 +385,7 @@ async function loadYouTube(){
     // 최신 5편 중 중복 없는 무작위 2편 뒤 아리 다음 회차를 재생합니다.
     const queue = mainRotation(newsQueue, ariVideos);
     ROTATION_VIDEOS = queue;
-    PROGRAMS = queue.map((v,i)=>({...rotation(queue,i), time:v.isAri?"아리":"뉴스", desc:v.isAri?"아리 프로젝트 · 회차순 순환 재생":"무작위 뉴스 2편 뒤 아리 다음 회차", main:i===0})).filter((p,i,all)=>all.findIndex(x=>x.url===p.url)===i).concat(PROGRAMS.filter(p=>p.type!=="demo" && !p.id.startsWith("yt-")));
+    PROGRAMS = queue.map((v,i)=>({...rotation(queue,i), time:v.isAri?"아리":"뉴스", desc:v.isAri?"아리 프로젝트 · 회차순 순환 재생":"", main:i===0})).filter((p,i,all)=>all.findIndex(x=>x.url===p.url)===i).concat(PROGRAMS.filter(p=>p.type!=="demo" && !p.id.startsWith("yt-")));
     renderLineup();
     document.getElementById("latest").hidden = false;
     document.getElementById("videos").innerHTML = longs.map(v=>`
