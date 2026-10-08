@@ -55,17 +55,34 @@
       .slice(0,7);
     if(!items.length) return;
     box.innerHTML = items.map(w=>{
-      const thumb = w.cover_url || ytThumb(w.yt);
+      const thumb = ytThumb(w.yt);
       return `<article class="ari-short-card">
-        <button class="ari-short" type="button" data-ari-yt="${esc(w.yt)}" data-ari-title="${esc(w.title)}" aria-label="${esc(w.title)} ARI 영상">
+        <button class="ari-short" type="button" data-ari-news-yt="${esc(w.yt)}" data-ari-news-title="${esc(w.title)}" aria-label="${esc(w.title)} ARI 뉴스">
           <img src="${esc(thumb)}" alt="" loading="lazy" referrerpolicy="no-referrer" onerror="this.style.display='none'">
           <span class="short-play" aria-hidden="true">▶</span>
-          <span class="ari-short-badge">ARI</span>
+          <span class="ari-short-badge">ARI NEWS</span>
         </button>
-        <button class="ari-short-title" type="button" data-ari-yt="${esc(w.yt)}" data-ari-title="${esc(w.title)}" title="${esc(w.title)}">${esc(w.title)}</button>
+        <button class="ari-short-title" type="button" data-ari-news-yt="${esc(w.yt)}" data-ari-news-title="${esc(w.title)}" title="${esc(w.title)}">${esc(w.title)}</button>
       </article>`;
     }).join("");
-    document.getElementById("ariSec").hidden = false;
+  }
+
+  /* ---------- 메인 ARI 프로젝트 ---------- */
+  async function projectTeaser(box){
+    const {novels, videos} = await everything();
+    const items = novels.map(w=>({w,t:"n"}))
+      .concat(videos.map(w=>({w,t:"v"})))
+      .sort((a,b)=>new Date(b.w.published_at)-new Date(a.w.published_at))
+      .slice(0,4);
+    if(!items.length) return;
+    box.innerHTML = items.map(({w,t})=>{
+      if(t==="n") return novelCard(w);
+      return videoCard(w)
+        .replace("<button","<a href=\"ari.html#v="+esc(w.yt)+"\"")
+        .replace(" type=\"button\"","")
+        .replace("</button>","</a>");
+    }).join("");
+    document.getElementById("ariProjectSec").hidden = false;
   }
 
   /* ---------- 소설 읽기 ---------- */
@@ -115,17 +132,20 @@
   const teaserBox = document.getElementById("ariTeaser");
   if(teaserBox){
     teaserBox.addEventListener("click", e=>{
-      const b=e.target.closest("[data-ari-yt]");
+      const b=e.target.closest("[data-ari-news-yt]");
       if(!b) return;
-      const yt=b.getAttribute("data-ari-yt");
-      const title=b.getAttribute("data-ari-title")||"ARI 뉴스";
+      const yt=b.getAttribute("data-ari-news-yt");
+      const title=b.getAttribute("data-ari-news-title")||"ARI 뉴스";
       if(typeof play==="function"){
-        play({id:"ari-"+yt,type:"youtube",url:`https://youtu.be/${yt}`,live:false,title,isAri:true});
+        play({id:"ari-news-"+yt,type:"youtube",url:`https://youtu.be/${yt}`,live:false,title});
         window.scrollTo({top:0,behavior:"smooth"});
       }
     });
     teaser(teaserBox);
   }
+
+  const projectBox = document.getElementById("ariProjectTeaser");
+  if(projectBox) projectTeaser(projectBox);
 
   const page = document.getElementById("ariPage");
   if(page){
