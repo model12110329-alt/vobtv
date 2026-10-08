@@ -1,0 +1,11 @@
+{
+  "functions": {
+    "api/article.js": {
+      "includeFiles": "article.html"
+    }
+  },
+  "routes": [
+    { "src": "/article\\.html", "dest": "/api/article" },
+    { "handle": "filesystem" }
+  ]
+}
