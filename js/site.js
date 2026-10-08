@@ -35,8 +35,9 @@ function parseYouTube(raw){
   return null;
 }
 function youTubeEmbed(yt){
-  // API에서 음량을 먼저 설정한 뒤 재생해 시작 순간에도 30%를 유지합니다.
-  const q = `autoplay=0&mute=0&playsinline=1&rel=0&enablejsapi=1&origin=${encodeURIComponent(location.origin)}`;
+  // 클릭한 영상은 iframe이 준비되는 즉시 시작되도록 autoplay를 켭니다.
+  // 초기에는 음소거로 시작하고 YouTube IFrame API가 볼륨을 30%로 맞춘 뒤 음소거를 해제합니다.
+  const q = `autoplay=1&mute=1&playsinline=1&rel=0&enablejsapi=1&origin=${encodeURIComponent(location.origin)}`;
   return yt.channel
     ? `https://www.youtube-nocookie.com/embed/live_stream?channel=${yt.channel}&${q}`
     : `https://www.youtube-nocookie.com/embed/${yt.video}?${q}`;
@@ -112,7 +113,18 @@ function play(src){
     const yt = parseYouTube(src.url);
     if(!yt || yt.handle){ notice("<strong>유튜브 주소를 인식하지 못했습니다</strong><span>관리자 화면에서 주소를 확인해 주세요.</span>"); }
     else if(PREVIEW){
-      notice(`<strong>유튜브 ${src.live?"라이브":"영상"}이 이 자리에 나옵니다</strong><span>미리보기 화면에서는 유튜브 삽입이 막혀 있습니다. 실제 사이트에서는 여기서 바로 재생됩니다.</span><a href="${esc(src.url)}" target="_blank" rel="noopener">유튜브에서 보기 ↗</a>`);
+      const previewId = yt.video;
+      const previewThumb = previewId ? ytThumb(previewId) : "";
+      stage.innerHTML = previewThumb
+        ? `<button class="yt-preview" type="button" data-youtube-preview="${esc(src.url)}" aria-label="${esc(src.title)} YouTube 미리보기">
+            <img src="${esc(previewThumb)}" alt="">
+            <span class="yt-preview-shade"></span>
+            <span class="yt-preview-play">▶</span>
+            <strong>${esc(src.title)}</strong>
+            <small>YouTube Shorts · 실제 사이트에서 위 영상창 재생</small>
+          </button>`
+        : "";
+      if(!stage.innerHTML) notice(`<strong>유튜브 영상을 미리 볼 수 없습니다</strong><span>실제 사이트에서는 위 영상창에서 바로 재생됩니다.</span>`);
     } else {
       const f = document.createElement("iframe");
       f.src = youTubeEmbed(yt) + (src.queue ? `&loop=1&playlist=${src.queue.map(v=>v.id).join(",")}` : ""); f.title = src.title;
@@ -236,6 +248,22 @@ function renderShorts(){
     </button>`;
   }).join("");
 }
+
+document.getElementById("player").addEventListener("click",e=>{
+  const b = e.target.closest("[data-youtube-preview]");
+  if(!b || !PREVIEW) return;
+  const url = b.getAttribute("data-youtube-preview");
+  const yt = parseYouTube(url);
+  if(yt?.video){
+    stage.innerHTML = "";
+    const f = document.createElement("iframe");
+    f.src = youTubeEmbed(yt);
+    f.title = "YouTube Preview";
+    f.allow = "autoplay; encrypted-media; picture-in-picture; fullscreen";
+    f.allowFullscreen = true;
+    stage.appendChild(f);
+  }
+});
 
 document.getElementById("shortsRow").addEventListener("click",e=>{
   const b = e.target.closest(".short[data-i]");
