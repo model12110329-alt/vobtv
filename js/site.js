@@ -193,11 +193,13 @@ function toProgram(p){
   return {id:String(p.id), title:p.title, desc:p.description||"", type:p.type, url:p.url, live:!!p.is_live, time:p.time_label||"", main:!!p.is_main};
 }
 function renderLineup(){
-  document.getElementById("lineup").innerHTML = PROGRAMS.length ? PROGRAMS.map(s=>`
-    <li><button data-id="${esc(s.id)}" aria-pressed="${!!current && (current.url && current.url===s.url || current.id===s.id)}">
-      <time>${esc(s.time)}</time>
-      <div><strong>${s.live?"":`<span class="tag vod">VOD</span>`}${esc(s.title)}</strong><span>${esc(s.desc)}</span></div>
-    </button></li>`).join("") : `<li class="empty">편성된 방송이 없습니다.</li>`;
+  document.getElementById("lineup").innerHTML = PROGRAMS.length ? PROGRAMS.map(s=>{
+    const active = !!current && (current.url && current.url===s.url || current.id===s.id);
+    const content = s.live
+      ? `<time>${esc(s.time)}</time><div><strong>${esc(s.title)}</strong><span>${esc(s.desc)}</span></div>`
+      : `<div class="vod-only-title"><strong>${esc(s.title)}</strong></div>`;
+    return `<li><button data-id="${esc(s.id)}" aria-pressed="${active}">${content}</button></li>`;
+  }).join("") : `<li class="empty">편성된 방송이 없습니다.</li>`;
 }
 document.getElementById("lineup").addEventListener("click",e=>{
   const b = e.target.closest("button[data-id]"); if(!b) return;
