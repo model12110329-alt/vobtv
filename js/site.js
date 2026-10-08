@@ -349,7 +349,9 @@ async function loadYouTube(){
     const vids = (j.videos || []).slice().sort((a,b)=>(Date.parse(b.published)||0) - (Date.parse(a.published)||0));
     YT_VIDEOS = vids;
     // Shorts는 YouTube 채널에서 직접 가져와 항상 최신 순으로 보여줍니다.
-    const ytShorts = vids.filter(v=>v.isShort);
+    const ytShorts = vids
+      .filter(v=>v.isShort)
+      .sort((a,b)=>(Date.parse(b.published)||0) - (Date.parse(a.published)||0));
     if(ytShorts.length){
       DATA.shorts = ytShorts.slice(0,7).map(v=>({
         id:v.id,
