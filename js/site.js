@@ -238,10 +238,9 @@ function renderShorts(){
     const yt = s.url && parseYouTube(s.url);
     const id = yt?.video || "";
     const thumb = id ? ytThumb(id) : "";
-    const bg = thumb
-      ? `background-image:linear-gradient(180deg,rgba(0,0,0,0) 35%,rgba(0,0,0,.82) 100%),url('${thumb}')`
-      : `background:linear-gradient(160deg,var(--brand),#241327 62%,#0e1831)`;
-    return `<button class="short" type="button" data-i="${i}" aria-label="${esc(s.title)} YouTube Shorts">
+    const fallbackStyle = !thumb ? ` style="background:linear-gradient(160deg,var(--brand),#241327 62%,#0e1831)"` : "";
+    return `<button class="short" type="button" data-i="${i}" aria-label="${esc(s.title)} YouTube Shorts"${fallbackStyle}>
+      ${thumb ? `<img src="${esc(thumb)}" alt="" loading="lazy" referrerpolicy="no-referrer" onerror="this.style.display='none'">` : ""}
       <span class="short-play" aria-hidden="true">▶</span>
       <p>${esc(s.title)}</p>
       <em class="short-source">YouTube Shorts</em>
