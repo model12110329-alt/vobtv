@@ -7,6 +7,7 @@ const REDUCED = matchMedia("(prefers-reduced-motion: reduce)").matches;
 let DATA = null;          // 불러온 사이트 데이터
 let PROGRAMS = [];        // 편성표 (재생 가능한 방송)
 let CHANNEL_ID = null;    // 유튜브 채널 ID (최신 영상 API에서 받아옴)
+let ROTATION_VIDEOS = [];
 let YT_VIDEOS = [];       // 채널 영상, 최근 업로드 순
 let current = null;
 
@@ -43,7 +44,7 @@ const ytThumb = id => `https://i.ytimg.com/vi/${id}/hqdefault.jpg`;
 /* ---------- 최신 동영상 로테이션: 한 편이 끝나면 다음 편, 마지막 다음은 처음으로 ---------- */
 function rotation(queue, idx){
   const i = idx % queue.length, v = queue[i];
-  return {id:"yt-"+v.id, type:"youtube", url:`https://youtu.be/${v.id}`, live:false, title:v.title, desc:"", queue, idx:i};
+  return {id:"yt-"+v.id, type:"youtube", url:`https://youtu.be/${v.id}`, live:false, title:v.title, desc:v.summary||"", isAri:!!v.isAri, queue, idx:i};
 }
 let ytApi = null;
 function loadYTApi(){
@@ -271,8 +272,18 @@ async function loadYouTube(){
     }
     const longs = vids.filter(v=>!v.isShort);
     if(!longs.length) return;
-    const queue = longs.slice(0,3);
-    PROGRAMS = queue.map((v,i)=>({...rotation(queue,i), time:`${i+1}번째`, desc:"최신 영상 3편 순환 재생", main:i===0})).concat(PROGRAMS.filter(p=>p.type!=="demo" && !p.id.startsWith("yt-")));
+    let ariVideos = [];
+    try{
+      const response = await fetch("data/ari.json", {cache:"no-cache", signal:AbortSignal.timeout(5000)});
+      const works = response.ok ? await response.json() : [];
+      ariVideos = works.filter(w=>w.kind==="video" && w.video_url)
+        .sort((a,b)=>(Date.parse(b.published_at)||0)-(Date.parse(a.published_at)||0))
+        .map(w=>({id:parseYouTube(w.video_url)?.video,title:w.title,summary:w.summary||"",isAri:true}))
+        .filter(v=>v.id).slice(0,1);
+    }catch(e){}
+    const queue = longs.slice(0,3).concat(ariVideos);
+    ROTATION_VIDEOS = queue;
+    PROGRAMS = queue.map((v,i)=>({...rotation(queue,i), time:`${i+1}번째`, desc:v.isAri?"아리 프로젝트 · 매 순환 1회":"최신 뉴스 영상 · 3편 뒤 아리 프로젝트", main:i===0})).concat(PROGRAMS.filter(p=>p.type!=="demo" && !p.id.startsWith("yt-")));
     renderLineup();
     document.getElementById("latest").hidden = false;
     document.getElementById("videos").innerHTML = longs.slice(0,3).map(v=>`
@@ -292,6 +303,7 @@ document.getElementById("videos").addEventListener("click",e=>{
 let capTimer=0, typeTimer=0;
 function aiFor(src){
   const b = DATA.briefing || {};
+  if(src.isAri) return {sum:[src.title,src.desc||"아리 프로젝트 영상입니다.","최신 뉴스 3편에 이어 아리 프로젝트를 한 편씩 재생합니다."],cap:[src.title]};
   if(src.type === "youtube" && DATA.news.length) return {sum:DATA.news.slice(0,3).map(n=>n.summary || n.title), cap:[src.title]};
   if(src.main && b.lines && b.lines.length) return {sum:b.lines, cap:(b.captions&&b.captions.length)?b.captions:[src.title]};
   const kind = src.live ? "라이브" : "녹화 영상";
@@ -402,8 +414,8 @@ document.addEventListener("pointermove",e=>{
   const initial = current;
   await loadYouTube();
   if(current !== initial) return;
-  // 첫 화면은 유튜브 채널 최신 동영상(숏츠 제외) 3편을 최근 순으로 이어서 재생합니다
-  const queue = YT_VIDEOS.filter(x=>!x.isShort).slice(0, 3);
+  // 최신 뉴스 3편과 아리 영상 1편을 차례대로 반복합니다.
+  const queue = ROTATION_VIDEOS;
   const first = (queue.length && rotation(queue, 0))
     || PROGRAMS.find(p=>p.main) || PROGRAMS.find(p=>p.live) || PROGRAMS[0]
     || {id:"demo", type:"demo", live:true, main:true, title:"VoB TV 종합뉴스", desc:""};
