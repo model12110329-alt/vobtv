@@ -79,7 +79,8 @@ section{padding-block:28px}
 .sechead span{font-size:13px;color:var(--muted)}
 
 /* 숏츠 */
-.shorts{display:grid;grid-auto-flow:column;grid-auto-columns:minmax(162px,188px);gap:16px;overflow-x:auto;padding:2px 2px 12px;scrollbar-width:thin;scroll-snap-type:x proximity}
+.shorts{display:grid;grid-auto-flow:column;grid-auto-columns:minmax(162px,188px);gap:16px;overflow-x:auto;padding:2px 2px 12px;scrollbar-width:none;-ms-overflow-style:none;scroll-snap-type:x proximity}
+.shorts::-webkit-scrollbar{display:none}
 .short-card{min-width:0;scroll-snap-align:start}
 .short{position:relative;display:block;width:100%;padding:0;border:0;border-radius:10px;overflow:hidden;cursor:pointer;aspect-ratio:9/16;color:#fff;background-size:cover;background-position:center;box-shadow:0 1px 3px rgba(0,0,0,.16);transition:transform .18s ease,box-shadow .18s ease}
 .short img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center;display:block}
