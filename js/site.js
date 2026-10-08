@@ -195,10 +195,10 @@ function toProgram(p){
 function renderLineup(){
   document.getElementById("lineup").innerHTML = PROGRAMS.length ? PROGRAMS.map(s=>{
     const active = !!current && (current.url && current.url===s.url || current.id===s.id);
-    const content = s.live
-      ? `<time>${esc(s.time)}</time><div><strong>${esc(s.title)}</strong><span>${esc(s.desc)}</span></div>`
-      : `<div class="vod-only-title"><strong>${esc(s.title)}</strong></div>`;
-    return `<li><button data-id="${esc(s.id)}" aria-pressed="${active}">${content}</button></li>`;
+    return `<li><button data-id="${esc(s.id)}" aria-pressed="${active}">
+      <time${s.live ? "" : " aria-hidden=\"true\""}>${s.live ? esc(s.time) : ""}</time>
+      <div><strong>${esc(s.title)}</strong>${s.live ? `<span>${esc(s.desc)}</span>` : ""}</div>
+    </button></li>`;
   }).join("") : `<li class="empty">편성된 방송이 없습니다.</li>`;
 }
 document.getElementById("lineup").addEventListener("click",e=>{
