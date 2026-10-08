@@ -350,39 +350,31 @@ async function loadYouTube(){
     YT_VIDEOS = vids;
     // Shorts와 ARI 뉴스가 같은 영상을 중복해서 보여주지 않도록 ARI 영상 ID를 먼저 제외합니다.
     let ariVideos = [];
+    let projectWorks = [];
     try{
-      const works = await VOB.ariProjectVideos();
-      const ariProjectIds = new Set(works.map(v=>v.yt || v.id).filter(Boolean));
-      const ariKeyword = String((window.VOB_CONFIG||{}).ariKeyword || "ARI").toLowerCase();
-      const ariNewsIds = new Set(
-        vids.filter(v=>String(v.title||"").toLowerCase().includes(ariKeyword)).map(v=>v.id)
-      );
-      const ytShorts = vids
-        .filter(v=>v.isShort && !ariProjectIds.has(v.id) && !ariNewsIds.has(v.id))
-        .sort((a,b)=>(Date.parse(b.published)||0) - (Date.parse(a.published)||0));
-      DATA.shorts = ytShorts.slice(0,7).map(v=>({
-        id:v.id,
-        title:v.title,
-        url:`https://www.youtube.com/shorts/${v.id}`
-      }));
-      renderShorts();
-    }catch(e){
-      const ytShorts = vids
-        .filter(v=>v.isShort)
-        .sort((a,b)=>(Date.parse(b.published)||0) - (Date.parse(a.published)||0));
-      DATA.shorts = ytShorts.slice(0,7).map(v=>({
-        id:v.id,
-        title:v.title,
-        url:`https://www.youtube.com/shorts/${v.id}`
-      }));
-      renderShorts();
-    }
+      projectWorks = await VOB.ariProjectVideos();
+    }catch(e){}
+    const ariProjectIds = new Set(projectWorks.map(v=>v.yt || v.id).filter(Boolean));
+    const ariKeyword = String((window.VOB_CONFIG||{}).ariKeyword || "ARI").toLowerCase();
+    const ariNewsIds = new Set(
+      vids.filter(v=>String(v.title||"").toLowerCase().includes(ariKeyword)).map(v=>v.id)
+    );
+    const ytShorts = vids
+      .filter(v=>v.isShort && !ariProjectIds.has(v.id) && !ariNewsIds.has(v.id))
+      .sort((a,b)=>(Date.parse(b.published)||0) - (Date.parse(a.published)||0));
+    DATA.shorts = ytShorts.slice(0,7).map(v=>({
+      id:v.id,
+      title:v.title,
+      url:`https://www.youtube.com/shorts/${v.id}`
+    }));
+    renderShorts();
+
     const longs = vids.filter(v=>!v.isShort);
     if(!longs.length) return;
     try{
       const episode = w => Number(w.episode) || Number((w.title.match(/(\d+)\s*화/)||[])[1]) || Infinity;
       const seen = new Set();
-      ariVideos = works.slice().sort((a,b)=>{
+      ariVideos = projectWorks.slice().sort((a,b)=>{
         const difference = episode(a)-episode(b);
         return (Number.isNaN(difference)?0:difference)
           || (Date.parse(a.published_at)||0)-(Date.parse(b.published_at)||0);
