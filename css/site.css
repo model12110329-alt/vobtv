@@ -130,6 +130,10 @@ section{padding-block:28px}
 .btn.ghost{background:transparent;border:1px solid var(--line);color:var(--ink)}
 .msg{font-size:13px;min-height:1.4em;color:var(--muted)}
 footer{border-top:1px solid var(--line);padding-block:24px;color:var(--muted);font-size:13px;margin-top:20px}
+.footer-wrap{position:relative;display:flex;align-items:center;justify-content:space-between;gap:16px}
+.footer-admin{margin-left:auto;color:var(--muted);font-size:12px;text-decoration:none;opacity:.72;transition:opacity .18s ease,color .18s ease}
+.footer-admin:hover,.footer-admin:focus-visible{color:var(--ink);opacity:1;text-decoration:underline}
+@media (max-width:760px){.footer-wrap{align-items:flex-end}.footer-admin{font-size:11px}}
 
 /* AI 배너 */
 .banner{position:relative;border-radius:10px;overflow:hidden;margin-top:16px;aspect-ratio:2560/450;max-width:100%;background:#05070d;border:1px solid var(--line)}
