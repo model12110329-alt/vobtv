@@ -11,20 +11,22 @@
   // 표지가 없을 때: 제목 첫 글자로 만든 버건디-청색 표지
   const coverStyle = w => w.cover_url ? `background-image:url('${esc(w.cover_url)}')` : "";
 
-  // ARI 뉴스 전용 YouTube 피드: ARI 프로젝트 재생목록과 분리합니다.
+  // VoB 뉴스: 유튜브 전용 재생목록이 있으면 전체 사용, 없으면 채널 제목으로 자동 분류합니다.
+  // 기존 ARI 뉴스 제목도 호환하여 개편 전 영상을 잃지 않습니다.
+  const isVoBNewsTitle = title => /(?:vob\s*(?:tv\s*)?(?:뉴스|news)|ari\s*(?:뉴스|news)|아리\s*뉴스)/i.test(String(title || ""));
   async function ytNewsVideos(){
     if(location.protocol === "file:") return [];
     try{
-      const channel = C.youtubeChannel || "@VoBTV1";
-      const r = await fetch(`/api/youtube?channel=${encodeURIComponent(channel)}`, {signal:AbortSignal.timeout(6000)});
+      const playlist = String(C.newsPlaylist || "").trim();
+      const source = playlist
+        ? `/api/youtube?playlist=${encodeURIComponent(playlist)}`
+        : `/api/youtube?channel=${encodeURIComponent(C.youtubeChannel || "@VoBTV1")}`;
+      const r = await fetch(source, {signal:AbortSignal.timeout(10000)});
       if(!r.ok) return [];
       const vids = (await r.json()).videos || [];
-      const keyword = String(C.ariKeyword || "ARI").toLowerCase();
       return vids
-        .filter(v => {
-          const title = String(v.title || "").toLowerCase();
-          return title.includes(keyword + " 뉴스") || title.includes(keyword + " news");
-        })
+        .filter(v => v && v.id && (playlist || isVoBNewsTitle(v.title)))
+        .sort((a,b)=>(Date.parse(b.published)||0)-(Date.parse(a.published)||0))
         .map(v => ({id:"yt-"+v.id, kind:"news", yt:v.id, title:v.title, published_at:v.published}));
     }catch(e){ return []; }
   }

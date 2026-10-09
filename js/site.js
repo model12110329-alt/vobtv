@@ -404,11 +404,9 @@ async function loadYouTube(){
       projectWorks = await VOB.ariProjectVideos();
     }catch(e){}
     const ariProjectIds = new Set(projectWorks.map(v=>v.yt || v.id).filter(Boolean));
+    const isVoBNewsTitle = title => /(?:vob\s*(?:tv\s*)?(?:뉴스|news)|ari\s*(?:뉴스|news)|아리\s*뉴스)/i.test(String(title || ""));
     const ariNewsVideos = vids
-      .filter(v=>{
-        const title = String(v.title || "").toLowerCase();
-        return (title.includes("ari 뉴스") || title.includes("ari news"));
-      })
+      .filter(v=>isVoBNewsTitle(v.title))
       .sort((a,b)=>(Date.parse(b.published)||0)-(Date.parse(a.published)||0))
       .slice(0,1)
       .map(v=>({
@@ -420,7 +418,7 @@ async function loadYouTube(){
       }));
     const ariKeyword = String((window.VOB_CONFIG||{}).ariKeyword || "ARI").toLowerCase();
     const ariNewsIds = new Set(
-      vids.filter(v=>String(v.title||"").toLowerCase().includes(ariKeyword)).map(v=>v.id)
+      vids.filter(v=>isVoBNewsTitle(v.title) || String(v.title||"").toLowerCase().includes(ariKeyword)).map(v=>v.id)
     );
     const ytShorts = vids
       .filter(v=>v.isShort && !ariProjectIds.has(v.id) && !ariNewsIds.has(v.id))
