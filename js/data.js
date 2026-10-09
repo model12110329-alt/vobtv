@@ -131,5 +131,21 @@
     return auto.concat(await ariDb()).sort(byDate);
   }
 
-  window.VOB = {db, ready, load, article, ari, SAMPLE, config:C};
+  // 공개 데이터에서 숨긴 유튜브 ID 목록. 방문자에게도 같은 숨김 상태가 적용됩니다.
+  let hiddenPromise = null;
+  async function hiddenYoutubeIds(){
+    if(!db) return new Set();
+    if(!hiddenPromise) hiddenPromise = (async()=>{
+      const controller=new AbortController();
+      const timer=setTimeout(()=>controller.abort(),5000);
+      try{
+        const {data,error}=await db.from("hidden_youtube_videos").select("video_id").abortSignal(controller.signal);
+        if(error) return new Set();
+        return new Set((data||[]).map(row=>row.video_id));
+      }catch(e){return new Set()}
+      finally{clearTimeout(timer)}
+    })();
+    return hiddenPromise;
+  }
+  window.VOB = {db, ready, load, article, ari, hiddenYoutubeIds, SAMPLE, config:C};
 })();

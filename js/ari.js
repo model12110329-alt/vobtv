@@ -24,8 +24,9 @@
       const r = await fetch(source, {signal:AbortSignal.timeout(10000)});
       if(!r.ok) return [];
       const vids = (await r.json()).videos || [];
+      const hiddenIds = await VOB.hiddenYoutubeIds();
       return vids
-        .filter(v => v && v.id && (playlist || isVoBNewsTitle(v.title)))
+        .filter(v => v && v.id && !hiddenIds.has(v.id) && (playlist || isVoBNewsTitle(v.title)))
         .sort((a,b)=>(Date.parse(b.published)||0)-(Date.parse(a.published)||0))
         .map(v => ({id:"yt-"+v.id, kind:"news", yt:v.id, title:v.title, published_at:v.published}));
     }catch(e){ return []; }

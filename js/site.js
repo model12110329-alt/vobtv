@@ -395,7 +395,8 @@ async function loadYouTube(){
     if(!r.ok) return;
     const j = await r.json();
     CHANNEL_ID = j.channelId || null;
-    const vids = (j.videos || []).slice().sort((a,b)=>(Date.parse(b.published)||0) - (Date.parse(a.published)||0));
+    const hiddenIds = await VOB.hiddenYoutubeIds();
+    const vids = (j.videos || []).filter(v=>!hiddenIds.has(v.id)).slice().sort((a,b)=>(Date.parse(b.published)||0) - (Date.parse(a.published)||0));
     YT_VIDEOS = vids;
     // Shorts와 ARI 뉴스가 같은 영상을 중복해서 보여주지 않도록 ARI 영상 ID를 먼저 제외합니다.
     let ariVideos = [];

@@ -17,6 +17,7 @@ const TABLES = {
     {k:"description", l:"설명", t:"text"},
     {k:"sort", l:"순서 (작을수록 앞)", t:"number"},
   ], row:r=>[r.title, `${r.is_live?"라이브":"녹화"}${r.time_label?" · "+r.time_label:""}${r.is_main?" · 첫 화면":""}`] },
+  video_management: {label:"영상 관리", custom:true},
   news: { label:"기사", order:["published_at",false], fields:[
     {k:"section", l:"분야", t:"select", o:SECTIONS},
     {k:"title", l:"제목", t:"text", req:true},
@@ -102,6 +103,8 @@ $("tabs").addEventListener("click", e=>{
 async function load(){
   const T = TABLES[tab];
   $("title").textContent = T.label;
+  $("form").hidden = !!T.custom;
+  if(T.custom) return loadVideoManagement();
   if(T.single) return renderBriefing();
   const { data, error } = await db.from(tab).select("*").order(T.order[0], {ascending:T.order[1]});
   if(error){
@@ -122,6 +125,11 @@ function renderList(){
   }).join("") : `<li class="empty">아직 없습니다. 아래에서 추가하세요.</li>`;
 }
 $("list").addEventListener("click", async e=>{
+  if(tab==="video_management"){
+    const toggle=e.target.closest("button[data-video]");
+    if(toggle) await toggleVideoVisibility(toggle);
+    return;
+  }
   const ed = e.target.closest("[data-edit]"), del = e.target.closest("[data-del]");
   if(ed){ editing = rows.find(r=>r.id===ed.dataset.edit); confirmId=null; renderList(); renderForm(); $("form").scrollIntoView({behavior:"smooth"}); }
   if(del){
@@ -133,6 +141,70 @@ $("list").addEventListener("click", async e=>{
     msg("지웠습니다."); if(editing && editing.id===id) editing=null; load();
   }
 });
+
+
+/* ---------- 유튜브 영상 관리: 홈페이지 숨기기 / 다시 표시 ---------- */
+let managedVideos = [], hiddenVideoIds = new Set(), videoFilter = "all";
+const isNewsVideo = title => /(?:vob\s*(?:tv\s*)?(?:뉴스|news)|ari\s*(?:뉴스|news)|아리\s*뉴스)/i.test(String(title || ""));
+async function loadVideoManagement(){
+  $("list").innerHTML = '<li class="empty">유튜브 영상 및 숨김 설정을 불러오는 중입니다…</li>';
+  try{
+    const channel=(VOB.config||{}).youtubeChannel || "@VoBTV1";
+    const [response, hidden] = await Promise.all([
+      fetch("/api/youtube?channel="+encodeURIComponent(channel)),
+      db.from("hidden_youtube_videos").select("video_id")
+    ]);
+    if(hidden.error){
+      $("list").innerHTML = '<li class="empty"><strong>영상 관리 데이터베이스 설정이 필요합니다.</strong><p>Supabase SQL Editor에서 <code>supabase/video-management.sql</code> 파일을 한 번 실행해 주세요. 완료 후 이 탭을 다시 열면 사용할 수 있습니다.</p></li>';
+      return;
+    }
+    if(!response.ok) throw new Error("유튜브 목록을 불러오지 못했습니다.");
+    const payload=await response.json();
+    const seen=new Set();
+    managedVideos=(payload.videos||[]).filter(v=>v && /^[\w-]{11}$/.test(v.id) && !seen.has(v.id) && seen.add(v.id));
+    hiddenVideoIds=new Set((hidden.data||[]).map(v=>v.video_id));
+    renderVideoManagement();
+  }catch(err){
+    $("list").innerHTML='<li class="empty">'+esc(err.message || "영상 목록을 불러오지 못했습니다.")+' 잠시 후 다시 시도해 주세요.</li>';
+  }
+}
+function renderVideoManagement(){
+  const items=managedVideos.filter(v=>{
+    if(videoFilter==="hidden") return hiddenVideoIds.has(v.id);
+    if(videoFilter==="news") return isNewsVideo(v.title);
+    if(videoFilter==="shorts") return !!v.isShort && !isNewsVideo(v.title);
+    return true;
+  });
+  const filterOptions=[["all","전체"],["news","VoB 뉴스"],["shorts","Shorts"],["hidden","숨긴 영상"]];
+  const select='<label for="videoFilter">표시할 영상: </label><select id="videoFilter">'+filterOptions.map(([val,label])=>'<option value="'+val+'"'+(videoFilter===val?' selected':'')+'>'+label+'</option>').join("")+'</select>';
+  const intro='<li class="empty">유튜브 채널 영상을 홈페이지에서 숨기거나 복원할 수 있습니다. 유튜브 원본은 삭제되지 않습니다. 숨김 '+hiddenVideoIds.size+'개 · 전체 '+managedVideos.length+'개<div style="margin-top:10px">'+select+'</div></li>';
+  const body=items.map(v=>{
+    const hidden=hiddenVideoIds.has(v.id), id=esc(v.id), name=esc(v.title||"제목 없음");
+    return '<li class="video-manage-row"><img src="https://i.ytimg.com/vi/'+id+'/mqdefault.jpg" alt="" loading="lazy" style="width:110px;max-width:25%;aspect-ratio:16/9;object-fit:cover;border-radius:8px;margin-right:12px"><div style="min-width:0;flex:1"><strong>'+name+'</strong><small>'+(v.isShort?'Shorts · ':'')+(isNewsVideo(v.title)?'VoB 뉴스 · ':'')+(hidden?'홈페이지에서 숨김':'현재 표시 중')+'</small></div><span class="act"><button type="button" class="btn '+(hidden?'ghost':'danger')+' sm" data-video="'+id+'" data-hidden="'+hidden+'">'+(hidden?'다시 표시':'숨기기')+'</button></span></li>';
+  }).join("");
+  $("list").innerHTML=intro+(body||'<li class="empty">해당하는 영상이 없습니다.</li>');
+  const control=$("videoFilter");
+  control.addEventListener("change",e=>{videoFilter=e.target.value;renderVideoManagement()});
+}
+async function toggleVideoVisibility(button){
+  const id=button.dataset.video;
+  if(!/^[\w-]{11}$/.test(id)) return;
+  const wasHidden=hiddenVideoIds.has(id);
+  button.disabled=true; button.textContent="처리 중…";
+  const video=managedVideos.find(v=>v.id===id);
+  const request=wasHidden
+    ? db.from("hidden_youtube_videos").delete().eq("video_id",id).select("video_id")
+    : db.from("hidden_youtube_videos").upsert({video_id:id,title:video?.title||""},{onConflict:"video_id"}).select("video_id");
+  const {data,error}=await request;
+  if(error || !data?.length){
+    button.disabled=false;
+    button.textContent=wasHidden?"다시 표시":"숨기기";
+    alert("저장에 실패했습니다. 관리자 권한 및 데이터베이스 설정을 확인해 주세요.");
+    return;
+  }
+  if(wasHidden) hiddenVideoIds.delete(id); else hiddenVideoIds.add(id);
+  renderVideoManagement();
+}
 
 /* ---------- 입력 폼 ---------- */
 const toLocal = iso => { const d = iso ? new Date(iso) : new Date(); d.setMinutes(d.getMinutes()-d.getTimezoneOffset()); return d.toISOString().slice(0,16); };
