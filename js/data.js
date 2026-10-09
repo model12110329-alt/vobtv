@@ -96,7 +96,19 @@
   let ariCache = null;
   async function ariAuto(){
     if(ariCache) return ariCache;
-    try{ const r = await fetch("data/ari.json", {cache:"no-cache"}); ariCache = r.ok ? await r.json() : []; }catch(e){ ariCache = []; }
+    let paths = ["data/ari.json"];
+    try {
+      const manifest = await fetch("data/ari-manifest.json", {cache:"no-cache"});
+      if(manifest.ok){
+        const list = await manifest.json();
+        if(Array.isArray(list) && list.length) paths = list.filter(p => typeof p === "string" && p.startsWith("data/ari") && p.endsWith(".json") && !p.includes(".."));
+      }
+    } catch(e) {}
+    const lists = await Promise.all(paths.map(async p => {
+      try { const r = await fetch(p, {cache:"no-cache"}); return r.ok ? await r.json() : []; }
+      catch(e){ return []; }
+    }));
+    ariCache = lists.flat().filter(w => w && w.id);
     return ariCache;
   }
   async function ariDb(id){

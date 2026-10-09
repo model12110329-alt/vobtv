@@ -82,11 +82,13 @@
       nav = `<nav class="ari-eps" aria-label="회차">${prev?`<a href="ari.html?id=${esc(prev.id)}">← ${esc(epLabel(prev)||prev.title)}</a>`:"<span></span>"}${next?`<a href="ari.html?id=${esc(next.id)}">${esc(epLabel(next)||next.title)} →</a>`:""}</nav>`;
     }
     const body = (w.body || w.summary || "").split(/\n{2,}|\r\n\r\n/).map(p=>`<p>${esc(p).replace(/\n/g,"<br>")}</p>`).join("");
+    const panels = Array.isArray(w.comic_panels) ? w.comic_panels.filter(p => p && p.image_url) : [];
+    const comic = panels.length ? `<section class="ari-comic" aria-label="주요 장면 만화" style="margin:40px 0;padding-top:20px;border-top:1px solid #d9c8c3"><h2>주요 장면 만화</h2><div class="ari-comic-grid" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(270px,1fr));gap:16px">${panels.map((p,i)=>`<figure style="margin:0;background:#151927;border-radius:12px;overflow:hidden"><img style="display:block;width:100%;aspect-ratio:16/9;object-fit:cover" src="${esc(p.image_url)}" alt="${esc(p.caption || "아리with 만화 "+(i+1))}" loading="lazy"><figcaption style="padding:12px 14px;color:#fff3df;font-size:15px">${esc(p.caption || "장면 "+(i+1))}</figcaption></figure>`).join("")}</div></section>` : "";
     page.innerHTML = `<article class="article ari-read">
       <div class="meta">ARI 프로젝트 · 소설${epLabel(w)?" · "+esc(epLabel(w)):""} · ${day(w.published_at)}</div>
       <h1>${esc(w.title)}</h1>
       ${w.cover_url?`<img src="${esc(w.cover_url)}" alt="">`:""}
-      <div class="body">${body}</div>${nav}
+      <div class="body">${body}</div>${comic}${nav}
       <a class="back" href="ari.html">← ARI 프로젝트</a></article>`;
   }
 
