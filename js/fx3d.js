@@ -97,7 +97,7 @@
   }
 
   /* ---------- 카드 3D 기울기 ---------- */
-  const TILT = ".adslot,.lineup.row button,.short,.vcard,.card";
+  const TILT = ".lineup.row button,.short,.vcard,.card";
   let tilted = null;
   document.addEventListener("pointermove", e=>{
     if(REDUCED || e.pointerType === "touch") return;

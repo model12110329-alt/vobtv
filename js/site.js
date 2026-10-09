@@ -34,10 +34,9 @@ function parseYouTube(raw){
   if(p[0] && p[0].startsWith("@") && p[1]==="live") return CHANNEL_ID ? {channel:CHANNEL_ID, live:true} : {handle:p[0], live:true};
   return null;
 }
-function youTubeEmbed(yt){
-  // 클릭한 영상은 iframe이 준비되는 즉시 시작되도록 autoplay를 켭니다.
-  // 초기에는 음소거로 시작하고 YouTube IFrame API가 볼륨을 30%로 맞춘 뒤 음소거를 해제합니다.
-  const q = `autoplay=1&mute=1&playsinline=1&rel=0&enablejsapi=1&origin=${encodeURIComponent(location.origin)}`;
+function youTubeEmbed(yt, userInitiated=false){
+  // 자동재생 영상만 무음으로 시작하고, 직접 선택한 영상은 소리가 나오도록 설정합니다.
+  const q = `autoplay=1&mute=${userInitiated?0:1}&playsinline=1&rel=0&enablejsapi=1&origin=${encodeURIComponent(location.origin)}`;
   return yt.channel
     ? `https://www.youtube-nocookie.com/embed/live_stream?channel=${yt.channel}&${q}`
     : `https://www.youtube-nocookie.com/embed/${yt.video}?${q}`;
@@ -87,14 +86,20 @@ function loadYTApi(){
     const s = document.createElement("script"); s.src = "https://www.youtube.com/iframe_api"; document.head.appendChild(s);
   });
 }
-function bindYouTubePlayer(frame, src, next){
+function bindYouTubePlayer(frame, src, next, userInitiated=false){
   loadYTApi().then(()=>{
-    if(current !== src) return;   // 그사이 다른 방송을 골랐으면 무시
-    new YT.Player(frame, {events:{
+    if(current !== src) return;
+    ytPlayer = new YT.Player(frame, {events:{
       onReady:e=>{
         if(current !== src) return;
         e.target.setVolume(DEFAULT_VOLUME);
-        e.target.unMute();
+        if(userInitiated || userSoundRequested){
+          e.target.unMute();
+          soundButton.hidden = true;
+        } else {
+          e.target.mute();
+          soundButton.hidden = false;
+        }
         e.target.playVideo();
       },
       onStateChange:e=>{ if(next && e.data === YT.PlayerState.ENDED && current === src) next(); }
@@ -104,21 +109,34 @@ function bindYouTubePlayer(frame, src, next){
 
 /* ---------- 플레이어 ---------- */
 const stage = document.getElementById("player");
+const soundButton = document.getElementById("unmuteButton");
+let ytPlayer = null, userSoundRequested = false;
 let hls = null, raf = 0;
+soundButton.addEventListener("click", ()=>{
+  userSoundRequested = true;
+  if(ytPlayer){ ytPlayer.unMute(); ytPlayer.setVolume(DEFAULT_VOLUME); ytPlayer.playVideo(); }
+  const v = stage.querySelector("video");
+  if(v){ v.muted = false; v.volume = DEFAULT_VOLUME / 100; v.play().catch(()=>{}); }
+  soundButton.hidden = true;
+});
 function stop(){
   cancelAnimationFrame(raf);
+  ytPlayer = null;
+  userSoundRequested = false;
+  soundButton.hidden = true;
   if(hls){ hls.destroy(); hls = null; }
   stage.querySelectorAll("video").forEach(v=>{ v.pause(); v.removeAttribute("src"); v.load(); });
   stage.innerHTML = "";
 }
 function notice(html){ const d=document.createElement("div"); d.className="notice"; d.innerHTML=html; stage.appendChild(d); }
-function videoEl(){
+function videoEl(userInitiated=false){
   const v = document.createElement("video");
-  Object.assign(v,{controls:true,autoplay:true,muted:false,volume:DEFAULT_VOLUME / 100,playsInline:true});
+  Object.assign(v,{controls:true,autoplay:true,muted:!userInitiated,volume:DEFAULT_VOLUME / 100,playsInline:true});
+  soundButton.hidden = userInitiated;
   v.addEventListener("error",()=>{ stop(); notice("<strong>영상을 불러오지 못했습니다</strong><span>주소가 맞는지, 영상이 공개 상태인지 확인해 주세요.</span>"); });
   stage.appendChild(v); return v;
 }
-function play(src){
+function play(src, userInitiated=false){
   current = src; stop();
   if(src.type==="demo") demo();
   else if(src.type==="youtube"){
@@ -139,16 +157,17 @@ function play(src){
       if(!stage.innerHTML) notice(`<strong>유튜브 영상을 미리 볼 수 없습니다</strong><span>실제 사이트에서는 위 영상창에서 바로 재생됩니다.</span>`);
     } else {
       const f = document.createElement("iframe");
-      f.src = youTubeEmbed(yt) + (src.queue ? `&loop=1&playlist=${src.queue.map(v=>v.id).join(",")}` : ""); f.title = src.title;
+      f.src = youTubeEmbed(yt, userInitiated) + (src.queue ? `&loop=1&playlist=${src.queue.map(v=>v.id).join(",")}` : ""); f.title = src.title;
       f.allow = "autoplay; encrypted-media; picture-in-picture; fullscreen"; f.allowFullscreen = true;
       stage.appendChild(f);
-      bindYouTubePlayer(f, src, src.queue ? ()=>play(rotation(src.queue, src.idx + 1)) : null);
+      soundButton.hidden = userInitiated;
+      bindYouTubePlayer(f, src, src.queue ? ()=>play(rotation(src.queue, src.idx + 1)) : null, userInitiated);
     }
   }
   else if(src.type==="hls"){
     if(PREVIEW){ notice(`<strong>라이브 스트림이 이 자리에 나옵니다</strong><span>미리보기 화면에서는 외부 스트림 연결이 막혀 있습니다. 실제 사이트에서는 HLS(.m3u8) 라이브가 바로 재생됩니다.</span>`); }
     else {
-      const v = videoEl();
+      const v = videoEl(userInitiated);
       if(v.canPlayType("application/vnd.apple.mpegurl")) v.src = src.url;
       else if(window.Hls && Hls.isSupported()){ hls = new Hls({lowLatencyMode:true}); hls.loadSource(src.url); hls.attachMedia(v); }
       else { stop(); notice("<strong>이 브라우저는 라이브 스트림을 지원하지 않습니다</strong>"); }
@@ -156,7 +175,7 @@ function play(src){
   }
   else if(src.type==="file"){
     if(PREVIEW){ notice(`<strong>올린 영상 파일이 이 자리에 나옵니다</strong><span>관리자 화면에서 올린 영상이 이 자리에서 재생됩니다.</span>`); }
-    else { videoEl().src = src.url; }
+    else { videoEl(userInitiated).src = src.url; }
   }
   const badge = document.getElementById("nowBadge");
   badge.textContent = src.live ? "LIVE" : "다시보기";
@@ -227,11 +246,11 @@ document.getElementById("lineup").addEventListener("click",e=>{
       live:false,
       title:s.title,
       isAriNews:true
-    });
+    }, true);
     window.scrollTo({top:0,behavior:"smooth"});
     return;
   }
-  play(s);
+  play(s, true);
 });
 
 function renderTicker(){
@@ -242,10 +261,10 @@ function renderTicker(){
 function renderAds(){
   const bySlot = {}; DATA.ads.forEach(a=>bySlot[a.slot]=a);
   document.getElementById("ads").innerHTML = [1,2,3,4].map(n=>{
-    const a = bySlot[n];
+    const a = bySlot[n] || (n===1 ? {image_url:"assets/dm-ad-slot1.png", alt:"주식회사 대명디지털 LED 전광판·전자현수막 광고", link_url:null} : null);
     if(a && a.image_url){
       const img = `<img src="${esc(a.image_url)}" alt="${esc(a.alt||"광고")}" loading="lazy"><span class="adtag">AD</span>`;
-      return a.link_url ? `<a class="adslot" href="${esc(a.link_url)}" target="_blank" rel="noopener sponsored">${img}</a>` : `<div class="adslot">${img}</div>`;
+      return a.link_url ? `<a class="adslot has-image" href="${esc(a.link_url)}" target="_blank" rel="noopener sponsored">${img}</a>` : `<div class="adslot has-image">${img}</div>`;
     }
     return `<div class="adslot"><span class="adtag">AD</span><strong>광고 영역 ${n}</strong><small>300 × 125</small><em>광고 문의 · VoB TV</em></div>`;
   }).join("");
@@ -297,12 +316,12 @@ document.getElementById("player").addEventListener("click",e=>{
 });
 
 document.getElementById("shortsRow").addEventListener("click",e=>{
-  const b = e.target.closest(".short[data-i]");
+  const b = e.target.closest(".short[data-i],.short-title[data-i]");
   if(!b) return;
   const s = DATA.shorts[Number(b.dataset.i)];
   const yt = s?.url && parseYouTube(s.url);
   if(!yt?.video){
-    play({id:"short-"+(s?.id||Date.now()), type:"demo", live:false, title:s?.title||"VoB Shorts"});
+    play({id:"short-"+(s?.id||Date.now()), type:"demo", live:false, title:s?.title||"VoB Shorts"}, true);
     window.scrollTo({top:0,behavior:"smooth"});
     return;
   }
@@ -312,7 +331,7 @@ document.getElementById("shortsRow").addEventListener("click",e=>{
     url:`https://www.youtube.com/shorts/${yt.video}`,
     live:false,
     title:s.title
-  });
+  }, true);
   window.scrollTo({top:0,behavior:"smooth"});
 });
 
@@ -447,8 +466,8 @@ async function loadYouTube(){
 document.getElementById("videos").addEventListener("click",e=>{
   const b = e.target.closest(".vcard"); if(!b) return;
   const index = ROTATION_VIDEOS.findIndex(v=>v.id===b.dataset.v);
-  if(index >= 0) play(rotation(ROTATION_VIDEOS, index));
-  else play({id:"yt-"+b.dataset.v, type:"youtube", url:`https://youtu.be/${b.dataset.v}`, live:false, title:b.dataset.t});
+  if(index >= 0) play(rotation(ROTATION_VIDEOS, index), true);
+  else play({id:"yt-"+b.dataset.v, type:"youtube", url:`https://youtu.be/${b.dataset.v}`, live:false, title:b.dataset.t}, true);
   window.scrollTo({top:0,behavior:"smooth"});
 });
 

@@ -440,3 +440,14 @@ main section[id]{scroll-margin-top:110px}
 @media (max-width:380px){
   aside.ads,.videos,.ari-grid.wide,#ariTeaser{grid-template-columns:1fr}
 }
+
+/* VoB 광고 이미지: 픽셀 줄무늬/회색 여백이 생기는 3D 합성을 제거하고 전체 폭으로 표시 */
+aside.ads .adslot.has-image{display:block;position:relative;flex:0 0 auto;width:100%;height:auto;min-height:0;aspect-ratio:300/125;padding:0;overflow:hidden;isolation:isolate;transform-style:flat;-webkit-backdrop-filter:none;backdrop-filter:none;background:#080a14}
+aside.ads .adslot.has-image img{position:static;inset:auto;display:block;width:100%;height:auto;aspect-ratio:300/125;object-fit:fill;border-radius:8px}
+aside.ads .adslot.has-image::before{display:none}
+aside.ads .adslot.has-image .adtag{z-index:2;background:rgba(0,0,0,.65);color:#fff}
+/* 자동재생 음소거, 직접 클릭 시 음성 출력 */
+.unmute-btn{position:absolute;z-index:6;right:16px;bottom:62px;min-height:42px;padding:9px 16px;border:1px solid rgba(255,255,255,.7);border-radius:999px;background:rgba(10,15,28,.88);color:#fff;box-shadow:0 4px 18px rgba(0,0,0,.45);font:700 14px var(--body);cursor:pointer;backdrop-filter:blur(9px)}
+.unmute-btn:hover{background:rgba(70,25,60,.97)}
+.unmute-btn[hidden]{display:none!important}
+@media(max-width:760px){.unmute-btn{right:10px;bottom:12px;font-size:12px;min-height:36px;padding:7px 12px}}

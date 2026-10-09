@@ -41,7 +41,7 @@
   </div>
   <div class="broadcast">
     <div>
-      <div class="ring"><div class="player" id="player" aria-label="방송 화면"></div></div>
+      <div class="ring"><div class="player" id="player" aria-label="방송 화면"></div><button id="unmuteButton" class="unmute-btn" type="button" hidden aria-label="방송 소리 켜고 재생">🔊 소리 켜기</button></div>
       <div class="nowinfo">
         <span class="badge" id="nowBadge">LIVE</span>
         <h1 id="nowTitle">VoB TV 종합뉴스</h1>
@@ -113,7 +113,7 @@ window.renderAds = function renderAds(){
   (DATA.ads || []).forEach(a=>bySlot[a.slot]=a);
   bySlot[1] = {
     slot: 1,
-    image_url: "assets/ads/daemyeong-ad-1.jpg?v=20261009",
+    image_url: "assets/ads/daemyeong-ad-1.jpg?v=20261010-fixed",
     link_url: "mailto:model1211@naver.com?subject=VoB%20TV%20광고문의",
     alt: "주식회사 대명디지털 전광광고"
   };
