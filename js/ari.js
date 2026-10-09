@@ -106,7 +106,7 @@
           <button class="short" type="button" data-yt="${esc(v.yt)}" data-t="${esc(v.title)}" aria-label="${esc(v.title)} VoB 뉴스">
             <img src="${esc(ytThumb(v.yt))}" alt="" loading="lazy" referrerpolicy="no-referrer" onerror="this.style.display='none'">
             <span class="short-play" aria-hidden="true">▶</span>
-            <span class="short-badge">ARI NEWS</span>
+            <span class="short-badge">VoB NEWS</span>
           </button>
           <button class="short-title" type="button" data-yt="${esc(v.yt)}" data-t="${esc(v.title)}" title="${esc(v.title)}">${esc(v.title)}</button>
         </article>`).join("");
@@ -164,7 +164,7 @@
         <button class="short ari-news-home-short" type="button" data-ari-home-yt="${esc(w.yt)}" data-ari-home-title="${esc(w.title)}" aria-label="${esc(w.title)} VoB 뉴스">
           <img src="${esc(thumb)}" alt="" loading="lazy" referrerpolicy="no-referrer" onerror="this.style.display='none'">
           <span class="short-play" aria-hidden="true">▶</span>
-          <span class="short-badge">ARI NEWS</span>
+          <span class="short-badge">VoB NEWS</span>
         </button>
         <button class="short-title ari-news-home-title" type="button" data-ari-home-yt="${esc(w.yt)}" data-ari-home-title="${esc(w.title)}" title="${esc(w.title)}">${esc(w.title)}</button>
       </article>`;
