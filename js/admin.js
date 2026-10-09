@@ -155,7 +155,7 @@ async function loadVideoManagement(){
       db.from("hidden_youtube_videos").select("video_id,title")
     ]);
     if(hidden.error){
-      $("list").innerHTML = '<li class="empty"><strong>영상 관리 데이터베이스 설정이 필요합니다.</strong><p>Supabase SQL Editor에서 <code>supabase/video-management.sql</code> 파일을 한 번 실행해 주세요. 완료 후 이 탭을 다시 열면 사용할 수 있습니다.</p></li>';
+      $("list").innerHTML = '<li class="empty"><strong>영상 관리 데이터베이스 설정이 필요합니다.</strong><p>Supabase SQL Editor에서 <a href="https://github.com/model12110329-alt/vobtv/blob/main/supabase/video-management.sql" target="_blank" rel="noopener">영상 관리 SQL 설정 파일</a>을 복사해 한 번 실행해 주세요. 완료 후 이 탭을 다시 열면 사용할 수 있습니다.</p></li>';
       return;
     }
     if(!response.ok) throw new Error("유튜브 목록을 불러오지 못했습니다.");
