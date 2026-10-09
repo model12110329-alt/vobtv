@@ -152,7 +152,7 @@ async function loadVideoManagement(){
     const channel=(VOB.config||{}).youtubeChannel || "@VoBTV1";
     const [response, hidden] = await Promise.all([
       fetch("/api/youtube?channel="+encodeURIComponent(channel)),
-      db.from("hidden_youtube_videos").select("video_id")
+      db.from("hidden_youtube_videos").select("video_id,title")
     ]);
     if(hidden.error){
       $("list").innerHTML = '<li class="empty"><strong>영상 관리 데이터베이스 설정이 필요합니다.</strong><p>Supabase SQL Editor에서 <code>supabase/video-management.sql</code> 파일을 한 번 실행해 주세요. 완료 후 이 탭을 다시 열면 사용할 수 있습니다.</p></li>';
@@ -162,7 +162,15 @@ async function loadVideoManagement(){
     const payload=await response.json();
     const seen=new Set();
     managedVideos=(payload.videos||[]).filter(v=>v && /^[\w-]{11}$/.test(v.id) && !seen.has(v.id) && seen.add(v.id));
-    hiddenVideoIds=new Set((hidden.data||[]).map(v=>v.video_id));
+    const hiddenRecords=hidden.data||[];
+    hiddenVideoIds=new Set(hiddenRecords.map(v=>v.video_id));
+    // 유튜브 공개 목록에서 빠진 과거 영상도 숨김 목록에서 복원할 수 있게 남깁니다.
+    for(const row of hiddenRecords){
+      if(/^[\w-]{11}$/.test(row.video_id) && !seen.has(row.video_id)){
+        managedVideos.push({id:row.video_id,title:row.title||"이전에 숨긴 영상",isShort:false});
+        seen.add(row.video_id);
+      }
+    }
     renderVideoManagement();
   }catch(err){
     $("list").innerHTML='<li class="empty">'+esc(err.message || "영상 목록을 불러오지 못했습니다.")+' 잠시 후 다시 시도해 주세요.</li>';
