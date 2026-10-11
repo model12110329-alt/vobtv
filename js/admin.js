@@ -18,6 +18,7 @@ const TABLES = {
     {k:"sort", l:"순서 (작을수록 앞)", t:"number"},
   ], row:r=>[r.title, `${r.is_live?"라이브":"녹화"}${r.time_label?" · "+r.time_label:""}${r.is_main?" · 첫 화면":""}`] },
   video_management: {label:"영상 관리", custom:true},
+  tips_inbox: {label:"기사제보함", custom:true},
   news: { label:"기사", order:["published_at",false], fields:[
     {k:"section", l:"분야", t:"select", o:SECTIONS},
     {k:"title", l:"제목", t:"text", req:true},
@@ -104,6 +105,7 @@ async function load(){
   const T = TABLES[tab];
   $("title").textContent = T.label;
   $("form").hidden = !!T.custom;
+  if(tab==="tips_inbox") return loadTipsInbox();
   if(T.custom) return loadVideoManagement();
   if(T.single) return renderBriefing();
   const { data, error } = await db.from(tab).select("*").order(T.order[0], {ascending:T.order[1]});
@@ -125,6 +127,7 @@ function renderList(){
   }).join("") : `<li class="empty">아직 없습니다. 아래에서 추가하세요.</li>`;
 }
 $("list").addEventListener("click", async e=>{
+  if(tab==="tips_inbox"){await handleTipInboxAction(e);return}
   if(tab==="video_management"){
     const toggle=e.target.closest("button[data-video]");
     if(toggle) await toggleVideoVisibility(toggle);
@@ -212,6 +215,66 @@ async function toggleVideoVisibility(button){
   }
   if(wasHidden) hiddenVideoIds.delete(id); else hiddenVideoIds.add(id);
   renderVideoManagement();
+}
+
+
+/* ---------- 비공개 기사제보함: 관리자에게만 보이는 접수자료 ---------- */
+let tipEntries = [], tipDeleteConfirm = null;
+async function loadTipsInbox(){
+  $("list").innerHTML='<li class="empty">제보 내용을 불러오는 중입니다…</li>';
+  const {data,error}=await db.from("tips")
+    .select("id,name,email,content,attachments,status,created_at")
+    .order("created_at",{ascending:false}).limit(100);
+  if(error){
+    $("list").innerHTML='<li class="empty">기사제보 접수용 테이블이 아직 없습니다. Supabase SQL Editor에서 <a href="https://github.com/model12110329-alt/vobtv/blob/main/supabase/tips.sql" target="_blank" rel="noopener">supabase/tips.sql</a>을 한 번 실행해 주세요.</li>';
+    return;
+  }
+  tipEntries=data||[];
+  renderTipsInbox();
+}
+function renderTipsInbox(){
+  const statusLabels={new:"미확인",reviewing:"검토 중",closed:"처리 완료"};
+  $("list").innerHTML=tipEntries.length ? tipEntries.map(r=>{
+    const attachments=(r.attachments||[]).map((p,i)=>
+      '<button class="btn ghost sm" type="button" data-tip-file="'+esc(r.id)+'" data-index="'+i+'">첨부 '+(i+1)+' 열기</button>').join(" ");
+    const next=r.status==="new"?"reviewing":r.status==="reviewing"?"closed":"new";
+    return '<li class="tip-inbox-row"><div class="tip-inbox-info"><strong>'+esc(r.name)+' · '+esc(r.email)+'</strong>'+
+      '<small>'+esc(new Date(r.created_at).toLocaleString("ko-KR"))+' · '+esc(statusLabels[r.status]||r.status)+'</small>'+
+      '<p class="tip-inbox-content">'+esc(r.content)+'</p><div class="tip-inbox-files">'+attachments+'</div></div>'+
+      '<span class="act"><button class="btn ghost sm" type="button" data-tip-status="'+esc(r.id)+'" data-next="'+esc(next)+'">'+(next==="reviewing"?"검토 시작":next==="closed"?"처리 완료":"미확인으로")+'</button>'+
+      '<button class="btn danger sm" type="button" data-tip-delete="'+esc(r.id)+'">'+(tipDeleteConfirm===r.id?"삭제 확정":"제보 삭제")+'</button></span></li>';
+  }).join("") : '<li class="empty">접수된 기사제보가 없습니다.</li>';
+}
+async function handleTipInboxAction(e){
+  const btn=e.target.closest("button");
+  if(!btn)return;
+  const tip=btn.dataset.tipStatus||btn.dataset.tipDelete||btn.dataset.tipFile;
+  if(!tip)return;
+  const r=tipEntries.find(v=>v.id===tip); if(!r)return;
+  if(btn.dataset.tipFile){
+    const path=r.attachments?.[Number(btn.dataset.index)];
+    if(!path)return;
+    btn.disabled=true;
+    const {data,error}=await db.storage.from("tip-attachments").createSignedUrl(path,90);
+    btn.disabled=false;
+    if(error||!data?.signedUrl){msg("첨부파일을 열 수 없습니다. 저장소 권한을 확인해 주세요.",true);return}
+    window.open(data.signedUrl,"_blank","noopener,noreferrer");
+  }else if(btn.dataset.tipStatus){
+    const next=btn.dataset.next;
+    if(!["new","reviewing","closed"].includes(next))return;
+    const {error}=await db.from("tips").update({status:next}).eq("id",r.id);
+    if(error){msg("상태 변경에 실패했습니다.",true);return}
+    r.status=next;tipDeleteConfirm=null;renderTipsInbox();
+  }else if(btn.dataset.tipDelete){
+    if(tipDeleteConfirm!==r.id){tipDeleteConfirm=r.id;renderTipsInbox();return}
+    const {error}=await db.from("tips").delete().eq("id",r.id);
+    if(error){msg("제보 삭제에 실패했습니다.",true);return}
+    if(r.attachments?.length){
+      const {error:storageError}=await db.storage.from("tip-attachments").remove(r.attachments);
+      if(storageError)msg("제보는 삭제되었지만 첨부파일 정리에 실패했습니다. 저장소에서 확인이 필요합니다.",true);
+    }
+    tipEntries=tipEntries.filter(v=>v.id!==r.id);tipDeleteConfirm=null;renderTipsInbox();
+  }
 }
 
 /* ---------- 입력 폼 ---------- */

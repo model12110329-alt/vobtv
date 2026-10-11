@@ -451,3 +451,18 @@ aside.ads .adslot.has-image .adtag{z-index:2;background:rgba(0,0,0,.65);color:#f
 .unmute-btn:hover{background:rgba(70,25,60,.97)}
 .unmute-btn[hidden]{display:none!important}
 @media(max-width:760px){.unmute-btn{right:10px;bottom:12px;font-size:12px;min-height:36px;padding:7px 12px}}
+
+/* VoB TV 기사제보 메뉴: 데스크톱 우측, 모바일 시계 오른쪽 */
+body>header .tip-header-link{display:inline-flex;align-items:center;justify-content:center;gap:7px;flex-shrink:0;padding:8px 14px;border:1px solid rgba(230,72,126,.65);background:linear-gradient(110deg,rgba(155,24,79,.20),rgba(28,66,142,.16));border-radius:999px;text-decoration:none;color:var(--ink);font-size:13px;font-weight:700;white-space:nowrap;transition:background .2s,border-color .2s}
+body>header .tip-header-link:hover,body>header .tip-header-link[aria-current="page"]{background:rgba(186,44,104,.22);border-color:var(--brand)}
+@media(max-width:760px){
+ body>header .bar .clock{grid-column:1;grid-row:3}
+ body>header .tip-header-link{grid-column:2;grid-row:3;justify-self:end;padding:9px 11px;font-size:12px}
+}
+
+/* 기사제보함 관리자 전용 서식 */
+.rows-list .tip-inbox-row{align-items:flex-start}
+.tip-inbox-info{min-width:250px;flex:1}
+.tip-inbox-content{white-space:pre-wrap;overflow-wrap:anywhere;line-height:1.7;margin:8px 0 10px}
+.tip-inbox-files{display:flex;gap:6px;flex-wrap:wrap}
+.tip-inbox-row .act{flex-wrap:wrap;justify-content:flex-end}

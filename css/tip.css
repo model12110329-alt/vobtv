@@ -1,0 +1,37 @@
+
+.tip-layout{max-width:980px;margin:0 auto;padding:36px 20px 56px}
+.tip-intro{padding:0 3px 26px;border-bottom:1px solid var(--line)}
+.tip-eyebrow{color:var(--brand);letter-spacing:.15em;font-weight:700;font-size:13px}
+.tip-intro h1{font-size:clamp(30px,4vw,44px);margin:10px 0 12px}
+.tip-intro p{max-width:720px;color:var(--muted);line-height:1.9;margin:0}
+.tip-panel{margin-top:26px;padding:clamp(18px,3vw,30px);gap:12px}
+.tip-panel form{display:grid;gap:22px}
+.tip-panel .sechead{margin-bottom:2px}
+.tip-required{color:#ef5178}
+.tip-panel .field{display:grid;gap:7px}
+.tip-panel .field small{font-size:12px;color:var(--muted);line-height:1.6}
+.tip-two{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.tip-panel .field input,.tip-panel .field textarea{width:100%;border:1px solid var(--line);background:var(--bg);color:var(--ink);border-radius:9px;padding:12px 13px;outline-offset:2px}
+.tip-panel .field textarea{resize:vertical;min-height:220px;line-height:1.75}
+.tip-panel .field input[type=file]{padding:13px}
+.tip-file-list{list-style:none;display:flex;gap:7px;flex-wrap:wrap;margin:4px 0 0;padding:0}
+.tip-file-list li{background:rgba(114,131,172,.12);color:var(--ink);padding:7px 12px;border-radius:7px;font-size:12px;word-break:break-all}
+.tip-captcha{display:flex;align-items:center;gap:14px}
+.tip-captcha span{font-family:monospace;font-size:18px;font-weight:800;padding:11px 13px;border:1px dashed var(--line);border-radius:8px}
+.tip-captcha input{max-width:160px}
+.tip-privacy{border:1px solid var(--line);border-radius:12px;overflow:hidden}
+.tip-privacy h2{font-size:19px;margin:0;padding:17px 20px;border-bottom:1px solid var(--line)}
+.tip-privacy-scroll{padding:13px 20px;max-height:270px;overflow-y:auto;color:var(--muted);line-height:1.8;font-size:13px}
+.tip-privacy-scroll p{margin:8px 0}
+.tip-privacy-scroll a{color:var(--ink)}
+.tip-consent{display:flex;align-items:flex-start;gap:10px;padding:16px 20px;border-top:1px solid var(--line);cursor:pointer;font-weight:600;line-height:1.5}
+.tip-consent input{width:19px;height:19px;flex-shrink:0;accent-color:#b52a63}
+.tip-message{min-height:25px;color:var(--ink);font-weight:600;line-height:1.65}
+.tip-message[data-error=true]{color:#e04c68}
+.tip-actions{display:flex;gap:10px;flex-wrap:wrap}
+.tip-actions .btn{border:0;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;padding:12px 20px;border-radius:9px;text-decoration:none}
+.tip-actions .btn.ghost{background:transparent;border:1px solid var(--line);color:var(--ink)}
+.tip-actions #tipSubmit[disabled]{opacity:.6;cursor:wait}
+.tip-footnote{margin:24px 0 0;color:var(--muted);font-size:13px;line-height:1.8}
+.tip-honeypot{position:absolute;left:-9999px;top:auto;width:1px;height:1px;overflow:hidden}
+@media(max-width:600px){.tip-two{grid-template-columns:1fr}.tip-layout{padding:24px 14px 42px}.tip-privacy-scroll{padding:12px 15px}.tip-privacy h2{padding:15px}.tip-consent{padding:14px}.tip-panel form{gap:18px}}
