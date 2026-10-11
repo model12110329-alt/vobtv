@@ -91,26 +91,9 @@
     return data;
   }
 
-  // ARI 프로젝트: 관리자가 올린 소설·영상 (표가 아직 없으면 빈 목록)
-  // + 매주 자동 연재되는 소설 (저장소의 data/ari.json)
-  let ariCache = null;
-  async function ariAuto(){
-    if(ariCache) return ariCache;
-    let paths = ["data/ari.json"];
-    try {
-      const manifest = await fetch("data/ari-manifest.json", {cache:"no-cache"});
-      if(manifest.ok){
-        const list = await manifest.json();
-        if(Array.isArray(list) && list.length) paths = list.filter(p => typeof p === "string" && p.startsWith("data/ari") && p.endsWith(".json") && !p.includes(".."));
-      }
-    } catch(e) {}
-    const lists = await Promise.all(paths.map(async p => {
-      try { const r = await fetch(p, {cache:"no-cache"}); return r.ok ? await r.json() : []; }
-      catch(e){ return []; }
-    }));
-    ariCache = lists.flat().filter(w => w && w.id);
-    return ariCache;
-  }
+  // ARI 프로젝트는 관리자 수동 등록 자료만 읽습니다.
+  // 자동 연재 파일(ari-manifest 및 data/ari*.json)은 더 이상 읽거나 게시하지 않습니다.
+  // 과거 1~4화 공개 원고는 홈페이지에서 제거했으며 자동 재등록하지 않습니다.
   async function ariDb(id){
     if(!db) return id ? null : [];
     const controller = new AbortController();
@@ -126,9 +109,8 @@
     finally{ clearTimeout(timer); }
   }
   async function ari(id){
-    const auto = await ariAuto();
-    if(id) return auto.find(w=>w.id===id) || (/^a-/.test(id) ? null : await ariDb(id));
-    return auto.concat(await ariDb()).sort(byDate);
+    if(id) return await ariDb(id);
+    return (await ariDb()).sort(byDate);
   }
 
   // 공개 데이터에서 숨긴 유튜브 ID 목록. 방문자에게도 같은 숨김 상태가 적용됩니다.
