@@ -39,12 +39,15 @@
    setMessage("현재 기사제보 접수를 준비하고 있습니다. 잠시 후 다시 이용해 주세요.",true);
  }else{
    setMessage("제보 접수 서비스 상태를 확인하는 중입니다…");
-   db.from("tips").select("id",{head:true}).limit(1)
-     .then(({error})=>{
-       if(error){setMessage("현재 기사제보 접수 준비 중입니다. 잠시 후 다시 이용해 주세요.",true);}
-       else{submit.disabled=false;setMessage("");}
-     })
-     .catch(()=>setMessage("제보 접수 서버를 확인할 수 없습니다. 잠시 후 다시 이용해 주세요.",true));
+   // DB 테이블 존재 확인: 공개 키로 직접 REST API 상태를 검사해 실패 시 제출을 막습니다.
+   const config=window.VOB.config || {};
+   fetch(config.supabaseUrl+"/rest/v1/tips?select=id&limit=1",{
+     method:"GET",mode:"cors",cache:"no-store",
+     headers:{"apikey":config.supabaseAnonKey}
+   }).then(response=>{
+     if(!response.ok){setMessage("현재 기사제보 접수 준비 중입니다. 잠시 후 다시 이용해 주세요.",true);}
+     else{submit.disabled=false;setMessage("");}
+   }).catch(()=>setMessage("제보 접수 서버를 확인할 수 없습니다. 잠시 후 다시 이용해 주세요.",true));
  }
  form.addEventListener("submit",async e=>{
    e.preventDefault();
