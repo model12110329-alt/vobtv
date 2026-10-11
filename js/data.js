@@ -91,26 +91,38 @@
     return data;
   }
 
-  // ARI 프로젝트는 관리자 수동 등록 자료만 읽습니다.
-  // 자동 연재 파일(ari-manifest 및 data/ari*.json)은 더 이상 읽거나 게시하지 않습니다.
-  // 과거 1~4화 공개 원고는 홈페이지에서 제거했으며 자동 재등록하지 않습니다.
+  // 《아리with》 제1권은 서버가 공개 시각을 판정하여 하루 1장씩 연재합니다.
+  // 과거 1~4화 자동 연재 파일을 재사용하지 않고, 관리자 수동 등록도 그대로 지원합니다.
+  async function ariScheduled(id){
+    const controller = new AbortController();
+    const timer = setTimeout(()=>controller.abort(),8000);
+    try{
+      const url = "/api/ari-serial" + (id ? "?id="+encodeURIComponent(id) : "");
+      const r = await fetch(url,{cache:"no-store",signal:controller.signal});
+      if(!r.ok) return id ? null : [];
+      return await r.json();
+    }catch(e){return id ? null : [];}
+    finally{clearTimeout(timer);}
+  }
   async function ariDb(id){
     if(!db) return id ? null : [];
     const controller = new AbortController();
-    const timer = setTimeout(()=>controller.abort(), 5000);
+    const timer = setTimeout(()=>controller.abort(),5000);
     try{
       if(id){
-        const {data, error} = await db.from("ari_works").select("*").eq("id",id).maybeSingle().abortSignal(controller.signal);
+        const {data,error} = await db.from("ari_works").select("*").eq("id",id).maybeSingle().abortSignal(controller.signal);
         return error ? null : data;
       }
-      const {data, error} = await db.from("ari_works").select("id,kind,title,series,episode,summary,cover_url,video_url,published_at").order("published_at",{ascending:false}).abortSignal(controller.signal);
+      const {data,error} = await db.from("ari_works").select("id,kind,title,series,episode,summary,cover_url,video_url,published_at").order("published_at",{ascending:false}).abortSignal(controller.signal);
       return error ? [] : data;
-    }catch(e){ return id ? null : []; }
-    finally{ clearTimeout(timer); }
+    }catch(e){return id ? null : [];}
+    finally{clearTimeout(timer);}
   }
   async function ari(id){
+    if(id && String(id).startsWith("ari-v1-")) return await ariScheduled(id);
     if(id) return await ariDb(id);
-    return (await ariDb()).sort(byDate);
+    const [manual,scheduled] = await Promise.all([ariDb(),ariScheduled()]);
+    return [].concat(Array.isArray(manual)?manual:[],Array.isArray(scheduled)?scheduled:[]).sort(byDate);
   }
 
   // 공개 데이터에서 숨긴 유튜브 ID 목록. 방문자에게도 같은 숨김 상태가 적용됩니다.

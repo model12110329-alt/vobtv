@@ -7,7 +7,7 @@
   const ytThumb = id => `https://i.ytimg.com/vi/${id}/hqdefault.jpg`;
   const ytId = raw => { try{ const u = new URL(raw); if(u.hostname.endsWith("youtu.be")) return u.pathname.slice(1).split("/")[0];
     const p = u.pathname.split("/").filter(Boolean); return u.searchParams.get("v") || (["shorts","embed","live"].includes(p[0]) ? p[1] : null); }catch(e){ return null; } };
-  const epLabel = w => [w.series, w.episode ? `${w.episode}화` : ""].filter(Boolean).join(" · ");
+  const epLabel = w => String(w.id||"").startsWith("ari-v1-") ? `${w.series} · ${w.episode===0?"프롤로그":`제${w.episode}장`}` : [w.series, w.episode ? `${w.episode}화` : ""].filter(Boolean).join(" · ");
   // 표지가 없을 때: 제목 첫 글자로 만든 버건디-청색 표지
   const coverStyle = w => w.cover_url ? `background-image:url('${esc(w.cover_url)}')` : "";
 

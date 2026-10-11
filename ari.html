@@ -30,7 +30,7 @@
     <section class="ari-hero">
       <span class="chip">ARI PROJECT</span>
       <h1>ARI 프로젝트</h1>
-      <p>VoB TV가 쓰고 만드는 이야기. 소설을 읽고, 영상으로 만나 보세요.</p>
+      <p>VoB TV가 쓰고 만드는 이야기. 《아리with》 제1권은 매일 밤 9시 새 장이 공개됩니다.</p>
       <div class="ari-tabs" role="tablist"><button type="button" data-f="all" aria-selected="true">전체</button><button type="button" data-f="novel" aria-selected="false">소설</button><button type="button" data-f="video" aria-selected="false">영상</button></div>
     </section>
     <section class="ari-sec ari-news-sec">
@@ -57,7 +57,7 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.2/dist/umd/supabase.js"></script>
 <script src="js/nav.js"></script>
 <script src="js/config.js"></script>
-<script src="js/data.js?v=20261011-ari-manual-only"></script>
+<script src="js/data.js?v=20261011-ari-daily-v1"></script>
 <script>
 const esc = s => String(s ?? "").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 const clock = document.getElementById("clock");
@@ -68,6 +68,6 @@ const tick = ()=>{ const p = Object.fromEntries(fmtClock.formatToParts(new Date(
 tick(); setInterval(tick, 1000);
 
 </script>
-<script src="js/ari.js?v=20261010-videoadmin"></script>
+<script src="js/ari.js?v=20261011-ari-daily-v1"></script>
 </body>
 </html>
