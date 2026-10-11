@@ -33,7 +33,19 @@
    }
    setMessage(err,!!err);
  });
- if(!db){submit.disabled=true;setMessage("현재 제보 접수 연결을 준비하고 있습니다. 잠시 후 다시 이용해 주세요.",true);}
+ // DB 테이블이 설치되기 전에는 실제 제출 버튼을 비활성화합니다.
+ submit.disabled=true;
+ if(!db){
+   setMessage("현재 기사제보 접수를 준비하고 있습니다. 잠시 후 다시 이용해 주세요.",true);
+ }else{
+   setMessage("제보 접수 서비스 상태를 확인하는 중입니다…");
+   db.from("tips").select("id",{head:true}).limit(1)
+     .then(({error})=>{
+       if(error){setMessage("현재 기사제보 접수 준비 중입니다. 잠시 후 다시 이용해 주세요.",true);}
+       else{submit.disabled=false;setMessage("");}
+     })
+     .catch(()=>setMessage("제보 접수 서버를 확인할 수 없습니다. 잠시 후 다시 이용해 주세요.",true));
+ }
  form.addEventListener("submit",async e=>{
    e.preventDefault();
    if(!db){setMessage("현재 제보 접수 연결이 준비되지 않았습니다.",true);return}
