@@ -30,7 +30,6 @@
     <section class="ari-hero">
       <span class="chip">ARI PROJECT</span>
       <h1>ARI 프로젝트</h1>
-      <p>《아리with》 소설 연재는 중지되었습니다. 현재는 제1권의 프롤로그만 미리보기로 공개합니다.</p>
       <div class="ari-tabs" role="tablist"><button type="button" data-f="all" aria-selected="true">전체</button><button type="button" data-f="novel" aria-selected="false">소설</button><button type="button" data-f="video" aria-selected="false">영상</button></div>
     </section>
     <section class="ari-sec ari-news-sec">
@@ -59,7 +58,7 @@
 <script src="js/config.js"></script>
 <script src="js/data.js?v=20261012-ari-sample-v1"></script>
 <script>
-const esc = s => String(s ?? "").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const esc = s => String(s ?? "").replace(/[&<>\"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'\"':"&quot;"}[c]));
 const clock = document.getElementById("clock");
 const fmtClock = new Intl.DateTimeFormat("ko-KR",{timeZone:"Asia/Seoul",year:"numeric",month:"long",day:"numeric",weekday:"short",hour:"2-digit",minute:"2-digit",second:"2-digit",hourCycle:"h23"});
 const tick = ()=>{ const p = Object.fromEntries(fmtClock.formatToParts(new Date()).map(x=>[x.type,x.value]));
