@@ -467,7 +467,7 @@ body>header .tip-header-link:hover,body>header .tip-header-link[aria-current="pa
 .tip-inbox-files{display:flex;gap:6px;flex-wrap:wrap}
 .tip-inbox-row .act{flex-wrap:wrap;justify-content:flex-end}
 
-/* 주요 뉴스: 메인 최상단, 데스크톱 2열 × 2행 */
-#newsSec{margin-top:20px;margin-bottom:28px}
-#newsSec .news{grid-template-columns:repeat(2,minmax(0,1fr))}
+/* 주요 뉴스: 기존 편성표 아래 위치, PC 4열 × 최대 4행 */
+#newsSec .news{grid-template-columns:repeat(4,minmax(0,1fr))}
+@media(max-width:1000px){#newsSec .news{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:560px){#newsSec .news{grid-template-columns:1fr}}
