@@ -9,7 +9,7 @@
 <meta name="description" content="VoB TV · 바른 시선, 당당한 목소리. 대한민국 시사 저널 방송">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,900&family=Nanum+Myeongjo:wght@700;800&family=IBM+Plex+Sans+KR:wght@400;500;700&family=IBM+Plex+Mono:wght@500&family=Chakra+Petch:wght@500;700&display=swap">
-<link rel="stylesheet" href="css/site.css?v=20261013-news-top2">
+<link rel="stylesheet" href="css/site.css?v=20261013-news-4x4">
 <!-- Link preview for KakaoTalk and social sharing -->
 <meta property="og:type" content="website">
 <meta property="og:locale" content="ko_KR">
@@ -45,10 +45,6 @@
 </header>
 
 <main class="wrap">
-  <section id="newsSec">
-    <div class="sechead"><h2>주요 뉴스</h2><span id="newsNote"></span></div>
-    <div class="news" id="news"></div>
-  </section>
 
   <div class="banner" id="banner" role="img" aria-label="VoB TV 배너">
     <canvas id="bannerCanvas"></canvas>
@@ -95,6 +91,11 @@
     <ul class="lineup row" id="lineup"></ul>
   </section>
 
+  <section id="newsSec">
+    <div class="sechead"><h2>주요 뉴스</h2><span id="newsNote"></span></div>
+    <div class="news" id="news"></div>
+  </section>
+
 
   <section id="latest" hidden>
     <div class="sechead"><h2>유튜브 최신 영상</h2><span>@VoBTV1 채널에서 자동으로 가져옵니다 · 클릭하면 위 방송 화면에서 재생됩니다</span></div>
@@ -123,8 +124,8 @@
 <script src="js/supabase-vendor.js"></script>
 <script src="js/nav.js?v=20261008-ari1"></script>
 <script src="js/config.js?v=20261008-ari1"></script>
-<script src="js/data.js?v=20261011-ari-daily-v1"></script>
-<script src="js/site.js?v=20261010-videoadmin"></script>
+<script src="js/data.js?v=20261013-news16"></script>
+<script src="js/site.js?v=20261013-news16"></script>
 <script>
 // 광고 1번은 대명디지털 고정 광고로 표시하고, 2~4번은 기존 관리자 광고 데이터를 그대로 사용합니다.
 window.renderAds = function renderAds(){
