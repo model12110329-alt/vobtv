@@ -93,19 +93,6 @@
   async function list(page){
     const {novels, videos} = await everything();
     const stage = document.getElementById("ariStage");
-    const newsShelf = page.querySelector("#ariNewsShelf");
-    if(newsShelf){
-      const news = (await ytNewsVideos()).sort((a,b)=>(Date.parse(b.published_at)||0)-(Date.parse(a.published_at)||0)).slice(0,7);
-      newsShelf.innerHTML = news.map(v=>`
-        <article class="short-card">
-          <button class="short" type="button" data-yt="${esc(v.yt)}" data-t="${esc(v.title)}" aria-label="${esc(v.title)} VoB 뉴스">
-            <img src="${esc(ytThumb(v.yt))}" alt="" loading="lazy" referrerpolicy="no-referrer" onerror="this.style.display='none'">
-            <span class="short-play" aria-hidden="true">▶</span><span class="short-badge">VoB NEWS</span>
-          </button>
-          <button class="short-title" type="button" data-yt="${esc(v.yt)}" data-t="${esc(v.title)}" title="${esc(v.title)}">${esc(v.title)}</button>
-        </article>`).join("");
-      newsShelf.closest(".ari-news-sec").hidden = !news.length;
-    }
     page.querySelector("#ariNovels").innerHTML = novels.length ? novels.map(novelCard).join("") : `<p class="empty">프롤로그를 준비 중입니다.</p>`;
     page.querySelector("#ariVideos").innerHTML = videos.length ? videos.map(videoCard).join("") : `<p class="empty">곧 첫 영상이 올라옵니다.</p>`;
     const show = (yt, title, auto) => {
