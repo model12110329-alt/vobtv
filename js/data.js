@@ -48,12 +48,12 @@
     const auto = await daily();
     if(!db){
       const s = Object.assign({sample:true}, SAMPLE);
-      if(auto.length){ s.news = auto.slice().sort(byDate).slice(0,12); s.sample = false; }
+      if(auto.length){ s.news = auto.slice().sort(byDate).slice(0,16); s.sample = false; }
       return s;
     }
     // 저장된 기사는 외부 표가 느리거나 실패해도 먼저 표시합니다.
     const base = {
-      sample:false, programs:[], news:auto.slice().sort(byDate).slice(0,12),
+      sample:false, programs:[], news:auto.slice().sort(byDate).slice(0,16),
       shorts:[], ads:[], ticker:[], briefing:{lines:[], captions:[]}
     };
     if(onUpdate) onUpdate(base);
@@ -69,7 +69,7 @@
     }
     const [programs, news, shorts, ads, ticker, briefing] = await Promise.all([
       query(db.from("programs").select("*").order("sort").order("created_at"), []),
-      query(db.from("news").select("id,section,title,summary,image_url,link_url,published_at").order("published_at",{ascending:false}).limit(12), []),
+      query(db.from("news").select("id,section,title,summary,image_url,link_url,published_at").order("published_at",{ascending:false}).limit(16), []),
       query(db.from("shorts").select("*").order("sort"), []),
       query(db.from("ads").select("*").eq("active",true).order("slot"), []),
       query(db.from("ticker").select("*").eq("active",true).order("sort"), []),
@@ -77,7 +77,7 @@
     ]);
     const merged = Array.from(new Map(news.concat(auto).map(n=>[n.id,n])).values());
     return {
-      sample:false, programs, news:merged.sort(byDate).slice(0,12), shorts, ads,
+      sample:false, programs, news:merged.sort(byDate).slice(0,16), shorts, ads,
       ticker:ticker.map(t=>t.text), briefing,
     };
   }
