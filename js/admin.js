@@ -18,6 +18,7 @@ const TABLES = {
     {k:"sort", l:"순서 (작을수록 앞)", t:"number"},
   ], row:r=>[r.title, `${r.is_live?"라이브":"녹화"}${r.time_label?" · "+r.time_label:""}${r.is_main?" · 첫 화면":""}`] },
   video_management: {label:"영상 관리", custom:true},
+  vob_news: {label:"VoB 뉴스", custom:true},
   tips_inbox: {label:"기사제보함", custom:true},
   news: { label:"기사", order:["published_at",false], fields:[
     {k:"section", l:"분야", t:"select", o:SECTIONS},
@@ -128,7 +129,7 @@ function renderList(){
 }
 $("list").addEventListener("click", async e=>{
   if(tab==="tips_inbox"){await handleTipInboxAction(e);return}
-  if(tab==="video_management"){
+  if(tab==="video_management" || tab==="vob_news"){
     const toggle=e.target.closest("button[data-video]");
     if(toggle) await toggleVideoVisibility(toggle);
     return;
@@ -181,6 +182,7 @@ async function loadVideoManagement(){
 }
 function renderVideoManagement(){
   const items=managedVideos.filter(v=>{
+    if(tab==="vob_news") return isNewsVideo(v.title);
     if(videoFilter==="hidden") return hiddenVideoIds.has(v.id);
     if(videoFilter==="news") return isNewsVideo(v.title);
     if(videoFilter==="shorts") return !!v.isShort && !isNewsVideo(v.title);
@@ -188,14 +190,16 @@ function renderVideoManagement(){
   });
   const filterOptions=[["all","전체"],["news","VoB 뉴스"],["shorts","Shorts"],["hidden","숨긴 영상"]];
   const select='<label for="videoFilter">표시할 영상: </label><select id="videoFilter">'+filterOptions.map(([val,label])=>'<option value="'+val+'"'+(videoFilter===val?' selected':'')+'>'+label+'</option>').join("")+'</select>';
-  const intro='<li class="empty">유튜브 채널 영상을 홈페이지에서 숨기거나 복원할 수 있습니다. 유튜브 원본은 삭제되지 않습니다. 숨김 '+hiddenVideoIds.size+'개 · 전체 '+managedVideos.length+'개<div style="margin-top:10px">'+select+'</div></li>';
+  const intro=tab==="vob_news"
+    ? '<li class="empty">VoB 뉴스 전용 관리입니다. 유튜브 채널에서 VoB 뉴스 영상을 자동으로 불러옵니다. 숨기기/다시 표시로 홈페이지 노출을 관리하며, 유튜브 원본은 삭제되지 않습니다.</li>'
+    : '<li class="empty">유튜브 채널 영상을 홈페이지에서 숨기거나 복원할 수 있습니다. 유튜브 원본은 삭제되지 않습니다. 숨김 '+hiddenVideoIds.size+'개 · 전체 '+managedVideos.length+'개<div style="margin-top:10px">'+select+'</div></li>';
   const body=items.map(v=>{
     const hidden=hiddenVideoIds.has(v.id), id=esc(v.id), name=esc(v.title||"제목 없음");
     return '<li class="video-manage-row"><img src="https://i.ytimg.com/vi/'+id+'/mqdefault.jpg" alt="" loading="lazy" style="width:110px;max-width:25%;aspect-ratio:16/9;object-fit:cover;border-radius:8px;margin-right:12px"><div style="min-width:0;flex:1"><strong>'+name+'</strong><small>'+(v.isShort?'Shorts · ':'')+(isNewsVideo(v.title)?'VoB 뉴스 · ':'')+(hidden?'홈페이지에서 숨김':'현재 표시 중')+'</small></div><span class="act"><button type="button" class="btn '+(hidden?'ghost':'danger')+' sm" data-video="'+id+'" data-hidden="'+hidden+'">'+(hidden?'다시 표시':'숨기기')+'</button></span></li>';
   }).join("");
   $("list").innerHTML=intro+(body||'<li class="empty">해당하는 영상이 없습니다.</li>');
   const control=$("videoFilter");
-  control.addEventListener("change",e=>{videoFilter=e.target.value;renderVideoManagement()});
+  if(control) control.addEventListener("change",e=>{videoFilter=e.target.value;renderVideoManagement()});
 }
 async function toggleVideoVisibility(button){
   const id=button.dataset.video;
