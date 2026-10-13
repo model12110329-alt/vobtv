@@ -27,6 +27,19 @@
 <meta name="twitter:title" content="VoB TV | 바른 시선, 당당한 목소리">
 <meta name="twitter:description" content="대한민국 시사 뉴스와 춘천 지역 소식을 만나보세요.">
 <meta name="twitter:image" content="https://www.vobtv.kr/assets/vobtv-preview-20261013.jpg">
+<!-- 최신 영상과 Shorts는 2026-10-20 23:21(KST)부터 다시 표시합니다. -->
+<style>html.vob-video-pause #latest,html.vob-video-pause #shorts{display:none!important}</style>
+<script>
+(function(){
+  const resumeAt=Date.parse("2026-10-20T23:21:00+09:00");
+  const refreshVisibility=()=>{
+    document.documentElement.classList.toggle("vob-video-pause",Date.now()<resumeAt);
+  };
+  refreshVisibility();
+  const wait=resumeAt-Date.now();
+  if(wait>0) setTimeout(refreshVisibility,wait+100);
+})();
+</script>
 </head>
 <body>
 <canvas id="bg4d" class="bg4d" aria-hidden="true"></canvas>
