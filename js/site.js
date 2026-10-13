@@ -370,7 +370,7 @@ function renderNews(){
     return `<article class="card"><a href="${esc(href)}"${ext?' target="_blank" rel="noopener"':""}>${thumb}</a>
       <h3><a href="${esc(href)}"${ext?' target="_blank" rel="noopener"':""}>${esc(n.title)}</a></h3>
       ${n.summary?`<p>${esc(n.summary)}</p>`:""}
-      <div class="meta">${esc(n.section||"")} · ${ago(n.published_at)}${n.auto?`<span class="ai-tag">AI 정리</span>`:""}</div></article>`;
+      <div class="meta">${esc(n.section||"")} · ${ago(n.published_at)}</div></article>`;
   }).join("") : `<p class="empty">아직 올라온 기사가 없습니다.</p>`;
 }
 document.querySelector("nav").addEventListener("click",e=>{
