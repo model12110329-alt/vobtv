@@ -54,16 +54,15 @@ function mainRotation(news, ari, ariNews){
     return pool.slice(0,2);
   }
   const newsEpisode = Array.isArray(ariNews) && ariNews.length ? ariNews[0] : null;
-  const queue = [];
+  // VoB 뉴스를 편성표 첫 항목이자 메인 기본 재생 영상으로 고정합니다.
+  const queue = newsEpisode ? [newsEpisode] : [];
   if(ari.length){
-    ari.forEach((v,i)=>{
+    ari.forEach(v=>{
       queue.push(...pickTwo());
-      if(i===0 && newsEpisode) queue.push(newsEpisode);
       queue.push(v);
     });
   }else{
     queue.push(...pickTwo());
-    if(newsEpisode) queue.push(newsEpisode);
   }
   queue.refresh = ()=>mainRotation(news, ari, ariNews);
   return queue;
