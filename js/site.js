@@ -12,6 +12,14 @@ let ROTATION_VIDEOS = [];
 let YT_VIDEOS = [];       // 채널 영상, 최근 업로드 순
 let current = null;
 
+// 상단 방송: 2026-11-19 00:00 KST까지 VoB 뉴스 전용
+const VOB_NEWS_ONLY_UNTIL = Date.parse("2026-11-19T00:00:00+09:00");
+function vobNewsOnly(){ return Date.now() < VOB_NEWS_ONLY_UNTIL; }
+function isVoBNewsItem(v){
+ return !!v && (v.isAriNews || /(?:vob\s*(?:tv\s*)?(?:뉴스|news)|ari\s*(?:뉴스|news)|아리\s*뉴스)/i.test(String(v.title || "")));
+}
+
+
 function esc(s){ return String(s ?? "").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c])); }
 function ago(iso){
   const m = Math.max(1, Math.round((Date.now()-new Date(iso))/60000));
@@ -45,6 +53,14 @@ const ytThumb = id => `https://i.ytimg.com/vi/${id}/hqdefault.jpg`;
 
 /* ---------- 최신 동영상 로테이션: 한 편이 끝나면 다음 편, 마지막 다음은 처음으로 ---------- */
 function mainRotation(news, ari, ariNews){
+ if(vobNewsOnly()){
+   const seen=new Set();
+   const queue=(ariNews||[]).filter(isVoBNewsItem).filter(v=>{
+     const id=v.yt||v.id; return id && !seen.has(id) && seen.add(id);
+   });
+   queue.refresh=()=>mainRotation(news,ari,ariNews);
+   return queue;
+ }
   function pickTwo(){
     const pool = news.slice();
     for(let i=pool.length-1;i>0;i--){
@@ -136,6 +152,17 @@ function videoEl(userInitiated=false){
   stage.appendChild(v); return v;
 }
 function play(src, userInitiated=false){
+ if(vobNewsOnly() && !isVoBNewsItem(src)){
+   const queue=ROTATION_VIDEOS.filter(isVoBNewsItem);
+   if(queue.length) src=rotation(queue,0);
+   else {
+     stop();
+     notice("<strong>VoB 뉴스를 불러오는 중입니다</strong><span>상단 방송은 VoB 뉴스 전용입니다.</span>");
+     document.getElementById("nowBadge").textContent="VoB 뉴스";
+     document.getElementById("nowTitle").textContent="VoB 뉴스";
+     return;
+   }
+ }
   current = src; stop();
   if(src.type==="demo") demo();
   else if(src.type==="youtube"){
@@ -156,7 +183,7 @@ function play(src, userInitiated=false){
       if(!stage.innerHTML) notice(`<strong>유튜브 영상을 미리 볼 수 없습니다</strong><span>실제 사이트에서는 위 영상창에서 바로 재생됩니다.</span>`);
     } else {
       const f = document.createElement("iframe");
-      f.src = youTubeEmbed(yt, userInitiated) + (src.queue ? `&loop=1&playlist=${src.queue.map(v=>v.id).join(",")}` : ""); f.title = src.title;
+      f.src = youTubeEmbed(yt, userInitiated) + (src.queue ? `&loop=1&playlist=${src.queue.map(v=>v.yt || v.id).join(",")}` : ""); f.title = src.title;
       f.allow = "autoplay; encrypted-media; picture-in-picture; fullscreen"; f.allowFullscreen = true;
       stage.appendChild(f);
       soundButton.hidden = userInitiated;
@@ -408,7 +435,7 @@ async function loadYouTube(){
     const ariNewsVideos = vids
       .filter(v=>isVoBNewsTitle(v.title))
       .sort((a,b)=>(Date.parse(b.published)||0)-(Date.parse(a.published)||0))
-      .slice(0,1)
+      .slice(0,7)
       .map(v=>({
         id:"yt-"+v.id,
         yt:v.id,
@@ -431,7 +458,7 @@ async function loadYouTube(){
     renderShorts();
 
     const longs = vids.filter(v=>!v.isShort);
-    if(!longs.length) return;
+    if(!longs.length && !vobNewsOnly()) return;
     try{
       const episode = w => Number(w.episode) || Number((w.title.match(/(\d+)\s*화/)||[])[1]) || Infinity;
       const seen = new Set();
@@ -451,7 +478,7 @@ async function loadYouTube(){
       time:v.isAriNews?"VoB 뉴스":(v.isAri?"아리":"뉴스"),
       desc:v.isAri?"아리 프로젝트 · 회차순 순환 재생":"",
       main:i===0
-    })).filter((p,i,all)=>all.findIndex(x=>x.url===p.url)===i).concat(PROGRAMS.filter(p=>p.type!=="demo" && !p.id.startsWith("yt-")));
+    })).filter((p,i,all)=>all.findIndex(x=>x.url===p.url)===i).concat(vobNewsOnly() ? [] : PROGRAMS.filter(p=>p.type!=="demo" && !p.id.startsWith("yt-")));
     renderLineup();
     document.getElementById("latest").hidden = false;
     document.getElementById("videos").innerHTML = longs.map(v=>`
