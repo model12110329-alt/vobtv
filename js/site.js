@@ -259,6 +259,11 @@ function renderLineup(){
     </button></li>`;
   }).join("") : `<li class="empty">편성된 방송이 없습니다.</li>`;
 }
+function focusBroadcastPlayer(){
+  const player = document.getElementById("player");
+  if(!player) return;
+  player.scrollIntoView({behavior:"smooth",block:"center"});
+}
 document.getElementById("lineup").addEventListener("click",e=>{
   const b = e.target.closest("button[data-id]"); if(!b) return;
   const s = PROGRAMS.find(x=>x.id===b.dataset.id); if(!s) return;
@@ -273,10 +278,11 @@ document.getElementById("lineup").addEventListener("click",e=>{
       title:s.title,
       isAriNews:true
     }, true);
-    window.scrollTo({top:0,behavior:"smooth"});
+    focusBroadcastPlayer();
     return;
   }
   play(s, true);
+  focusBroadcastPlayer();
 });
 
 function renderTicker(){
