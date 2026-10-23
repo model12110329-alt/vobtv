@@ -262,7 +262,14 @@ function renderLineup(){
 function focusBroadcastPlayer(){
   const player = document.getElementById("player");
   if(!player) return;
-  player.scrollIntoView({behavior:"smooth",block:"center"});
+  // 상단 고정 헤더 아래에 방송 화면이 오도록 절대 스크롤 위치를 계산합니다.
+  const header = document.querySelector("body > header");
+  const headerHeight = header ? header.getBoundingClientRect().height : 0;
+  const target = Math.max(0, window.scrollY + player.getBoundingClientRect().top - headerHeight - 16);
+  window.scrollTo({top:target,behavior:"smooth"});
+  // 키보드 포커스도 방송 화면으로 이동하되, 포커스 자체의 자동 스크롤은 막습니다.
+  player.setAttribute("tabindex","-1");
+  player.focus({preventScroll:true});
 }
 document.getElementById("lineup").addEventListener("click",e=>{
   const b = e.target.closest("button[data-id]"); if(!b) return;
