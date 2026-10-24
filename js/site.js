@@ -361,7 +361,7 @@ document.getElementById("shortsRow").addEventListener("click",e=>{
   const yt = s?.url && parseYouTube(s.url);
   if(!yt?.video){
     play({id:"short-"+(s?.id||Date.now()), type:"demo", live:false, title:s?.title||"VoB Shorts"}, true);
-    window.scrollTo({top:0,behavior:"smooth"});
+    focusBroadcastPlayer();
     return;
   }
   play({
@@ -371,7 +371,7 @@ document.getElementById("shortsRow").addEventListener("click",e=>{
     live:false,
     title:s.title
   }, true);
-  window.scrollTo({top:0,behavior:"smooth"});
+  focusBroadcastPlayer();
 });
 
 
@@ -506,7 +506,7 @@ document.getElementById("videos").addEventListener("click",e=>{
   const index = ROTATION_VIDEOS.findIndex(v=>v.id===b.dataset.v);
   if(index >= 0) play(rotation(ROTATION_VIDEOS, index), true);
   else play({id:"yt-"+b.dataset.v, type:"youtube", url:`https://youtu.be/${b.dataset.v}`, live:false, title:b.dataset.t}, true);
-  window.scrollTo({top:0,behavior:"smooth"});
+  focusBroadcastPlayer();
 });
 
 /* ---------- AI 브리핑 ---------- */
