@@ -118,7 +118,7 @@
     teaserBox.addEventListener("click", e=>{
       const b=e.target.closest("[data-ari-news-yt]"); if(!b) return;
       const yt=b.getAttribute("data-ari-news-yt");
-      const title=b.getAttribute("data-ari-news-title")||"VoB 뉴스";
+      const title=b.getAttribute("data-ari-news-title")||"Today News";
       if(typeof play==="function"){
         play({id:"ari-news-"+yt,type:"youtube",url:`https://youtu.be/${yt}`,live:false,title});
         window.scrollTo({top:0,behavior:"smooth"});
@@ -130,13 +130,13 @@
     const items = (await ytNewsVideos()).filter(v=>v.yt).sort((a,b)=>(Date.parse(b.published_at)||0)-(Date.parse(a.published_at)||0)).slice(0,7);
     const section=document.getElementById("ariNewsHome");
     if(!items.length){
-      box.innerHTML = '<p class="empty">현재 등록된 VoB 뉴스 영상이 없습니다.</p>';
+      box.innerHTML = '<p class="empty">현재 등록된 Today News 영상이 없습니다.</p>';
       if(section) section.hidden=false;
       return;
     }
     box.innerHTML = items.map(w=>{
       const thumb = ytThumb(w.yt);
-      return `<article class="ari-news-home-card"><button class="short ari-news-home-short" type="button" data-ari-home-yt="${esc(w.yt)}" data-ari-home-title="${esc(w.title)}" aria-label="${esc(w.title)} VoB 뉴스"><img src="${esc(thumb)}" alt="" loading="lazy" referrerpolicy="no-referrer" onerror="this.style.display='none'"><span class="short-play" aria-hidden="true">▶</span><span class="short-badge">VoB NEWS</span></button><button class="short-title ari-news-home-title" type="button" data-ari-home-yt="${esc(w.yt)}" data-ari-home-title="${esc(w.title)}" title="${esc(w.title)}">${esc(w.title)}</button></article>`;
+      return `<article class="ari-news-home-card"><button class="short ari-news-home-short" type="button" data-ari-home-yt="${esc(w.yt)}" data-ari-home-title="${esc(w.title)}" aria-label="${esc(w.title)} Today News"><img src="${esc(thumb)}" alt="" loading="lazy" referrerpolicy="no-referrer" onerror="this.style.display='none'"><span class="short-play" aria-hidden="true">▶</span><span class="short-badge">Today News</span></button><button class="short-title ari-news-home-title" type="button" data-ari-home-yt="${esc(w.yt)}" data-ari-home-title="${esc(w.title)}" title="${esc(w.title)}">${esc(w.title)}</button></article>`;
     }).join("");
     if(section) section.hidden=false;
   }
@@ -146,7 +146,7 @@
     homeNewsBox.addEventListener("click", e=>{
       const b=e.target.closest("[data-ari-home-yt]"); if(!b) return;
       const yt=b.getAttribute("data-ari-home-yt");
-      const title=b.getAttribute("data-ari-home-title")||"VoB 뉴스";
+      const title=b.getAttribute("data-ari-home-title")||"Today News";
       if(typeof play==="function"){
         play({id:"ari-home-news-"+yt,type:"youtube",url:`https://youtu.be/${yt}`,live:false,title});
         window.scrollTo({top:0,behavior:"smooth"});
