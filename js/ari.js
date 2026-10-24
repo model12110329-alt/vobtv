@@ -121,7 +121,7 @@
       const title=b.getAttribute("data-ari-news-title")||"Today News";
       if(typeof play==="function"){
         play({id:"ari-news-"+yt,type:"youtube",url:`https://youtu.be/${yt}`,live:false,title});
-        window.scrollTo({top:0,behavior:"smooth"});
+        focusBroadcastPlayer();
       }
     });
   }
@@ -149,7 +149,7 @@
       const title=b.getAttribute("data-ari-home-title")||"Today News";
       if(typeof play==="function"){
         play({id:"ari-home-news-"+yt,type:"youtube",url:`https://youtu.be/${yt}`,live:false,title});
-        window.scrollTo({top:0,behavior:"smooth"});
+        focusBroadcastPlayer();
       } else {
         location.href=`ari.html#news=${encodeURIComponent(yt)}`;
       }
