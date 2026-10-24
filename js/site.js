@@ -12,7 +12,7 @@ let ROTATION_VIDEOS = [];
 let YT_VIDEOS = [];       // 채널 영상, 최근 업로드 순
 let current = null;
 
-// 상단 방송: 2026-11-19 00:00 KST까지 VoB 뉴스 전용
+// 상단 방송: 2026-11-19 00:00 KST까지 Today News 전용
 const VOB_NEWS_ONLY_UNTIL = Date.parse("2026-11-19T00:00:00+09:00");
 function vobNewsOnly(){ return Date.now() < VOB_NEWS_ONLY_UNTIL; }
 function isVoBNewsItem(v){
@@ -70,7 +70,7 @@ function mainRotation(news, ari, ariNews){
     return pool.slice(0,2);
   }
   const newsEpisode = Array.isArray(ariNews) && ariNews.length ? ariNews[0] : null;
-  // VoB 뉴스를 편성표 첫 항목이자 메인 기본 재생 영상으로 고정합니다.
+  // Today News를 편성표 첫 항목이자 메인 기본 재생 영상으로 고정합니다.
   const queue = newsEpisode ? [newsEpisode] : [];
   if(ari.length){
     ari.forEach(v=>{
@@ -157,9 +157,9 @@ function play(src, userInitiated=false){
    if(queue.length) src=rotation(queue,0);
    else {
      stop();
-     notice("<strong>VoB 뉴스를 불러오는 중입니다</strong><span>상단 방송은 VoB 뉴스 전용입니다.</span>");
-     document.getElementById("nowBadge").textContent="VoB 뉴스";
-     document.getElementById("nowTitle").textContent="VoB 뉴스";
+     notice("<strong>Today News를 불러오는 중입니다</strong><span>상단 방송은 Today News 전용입니다.</span>");
+     document.getElementById("nowBadge").textContent="Today News";
+     document.getElementById("nowTitle").textContent="Today News";
      return;
    }
  }
@@ -488,7 +488,7 @@ async function loadYouTube(){
     ROTATION_VIDEOS = queue;
     PROGRAMS = queue.map((v,i)=>({
       ...rotation(queue,i),
-      time:v.isAriNews?"VoB 뉴스":(v.isAri?"아리":"뉴스"),
+      time:v.isAriNews?"Today News":(v.isAri?"아리":"뉴스"),
       desc:v.isAri?"아리 프로젝트 · 회차순 순환 재생":"",
       main:i===0
     })).filter((p,i,all)=>all.findIndex(x=>x.url===p.url)===i).concat(vobNewsOnly() ? [] : PROGRAMS.filter(p=>p.type!=="demo" && !p.id.startsWith("yt-")));
