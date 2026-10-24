@@ -152,7 +152,8 @@ function videoEl(userInitiated=false){
   stage.appendChild(v); return v;
 }
 function play(src, userInitiated=false){
- if(vobNewsOnly() && !isVoBNewsItem(src)){
+ // Today News 전용 제한은 자동 재생에만 적용하고, 사용자가 고른 다시보기는 그대로 재생합니다.
+ if(!userInitiated && vobNewsOnly() && !isVoBNewsItem(src)){
    const queue=ROTATION_VIDEOS.filter(isVoBNewsItem);
    if(queue.length) src=rotation(queue,0);
    else {
