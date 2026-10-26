@@ -99,16 +99,8 @@
 
 
 
-  <section id="latest" hidden>
-    <div class="sechead"><h2>유튜브 최신 영상</h2><span>@VoBTV1 채널에서 자동으로 가져옵니다 · 클릭하면 위 방송 화면에서 재생됩니다</span></div>
-    <div class="videos" id="videos"></div>
-  </section>
-
-  <section id="shorts">
-    <div class="sechead shorts-head"><h2><span class="shorts-icon" aria-hidden="true">▶</span> Shorts</h2><span>최신 YouTube Shorts · 클릭하면 위 방송 화면에서 재생됩니다</span></div>
-    <div class="shorts" id="shortsRow"></div>
-  </section>
-
+  <section id="latest" hidden style="display:none"><div id="videos"></div></section>
+  <section id="shorts" hidden style="display:none"><div id="shortsRow"></div></section>
   <section id="ariNewsHome">
     <div class="sechead shorts-head"><h2><span class="shorts-icon" aria-hidden="true">▶</span> Today News</h2><span>최신 Today News · 클릭하면 위 방송 화면에서 재생됩니다</span></div>
     <div class="shorts ari-news-home-shelf" id="ariNewsHomeRow"></div>
@@ -140,7 +132,7 @@
 <script src="js/nav.js?v=20261008-ari1"></script>
 <script src="js/config.js?v=20261008-ari1"></script>
 <script src="js/data.js?v=20261013-news16"></script>
-<script src="js/site.js?v=20261026-today-only"></script>
+<script src="js/site.js?v=20261026-today-section"></script>
 <script>
 // 광고 1번은 대명디지털 고정 광고로 표시하고, 2~4번은 기존 관리자 광고 데이터를 그대로 사용합니다.
 window.renderAds = function renderAds(){
