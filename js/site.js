@@ -84,6 +84,24 @@ function loadYTApi(){
     const s = document.createElement("script"); s.src = "https://www.youtube.com/iframe_api"; document.head.appendChild(s);
   });
 }
+const LED_AD_VIDEO="assets/daemyeong-led-ad.mp4";
+function playAdBreak(next){
+ const ads=(DATA?.ads||[]).filter(a=>a.video_url||a.image_url);
+ if(!ads.some(a=>Number(a.slot)===1)) ads.unshift({slot:1,video_url:LED_AD_VIDEO,image_url:"assets/dm-ad-slot1.png"});
+ if(!ads.length){next();return;}
+ const ad=ads[playAdBreak.index++%ads.length];
+ const box=document.createElement("div");
+ box.style.cssText="position:absolute;inset:0;z-index:10;background:#000;display:grid;place-items:center";
+ const tag=document.createElement("span");tag.textContent="광고";tag.style.cssText="position:absolute;top:10px;left:10px;background:#333;color:white;padding:4px 8px;z-index:1";box.appendChild(tag);
+ stage.appendChild(box);
+ let finished=false,timer;
+ const done=()=>{if(finished)return;finished=true;clearTimeout(timer);box.remove();next();};
+ const image=()=>{if(!ad.image_url){done();return;}const img=document.createElement("img");img.src=ad.image_url;img.style.cssText="width:100%;height:100%;object-fit:contain";box.appendChild(img);timer=setTimeout(done,5000);};
+ if(ad.video_url){
+  const v=document.createElement("video");v.src=ad.video_url;v.autoplay=true;v.muted=true;v.playsInline=true;v.style.cssText="width:100%;height:100%;object-fit:contain";v.onended=done;v.onerror=()=>{v.remove();image();};box.appendChild(v);v.play().catch(()=>{v.remove();image();});timer=setTimeout(done,120000);
+ }else image();
+}
+playAdBreak.index=0;
 function bindYouTubePlayer(frame, src, next, userInitiated=false){
   loadYTApi().then(()=>{
     if(current !== src) return;
@@ -112,7 +130,7 @@ function bindYouTubePlayer(frame, src, next, userInitiated=false){
         // 재생이 시작된 후 화질 목록이 준비되는 경우에도 한 번 더 요청합니다.
         setTimeout(request720p, 1800);
       },
-      onStateChange:e=>{ if(next && e.data === YT.PlayerState.ENDED && current === src) next(); }
+      onStateChange:e=>{ if(next && e.data === YT.PlayerState.ENDED && current === src) playAdBreak(next); }
     }});
   });
 }
@@ -296,7 +314,8 @@ function renderTicker(){
 function renderAds(){
   const bySlot = {}; DATA.ads.forEach(a=>bySlot[a.slot]=a);
   document.getElementById("ads").innerHTML = [1,2,3,4].map(n=>{
-    const a = bySlot[n] || (n===1 ? {image_url:"assets/dm-ad-slot1.png", alt:"주식회사 대명디지털 LED 전광판·전자현수막 광고", link_url:null} : null);
+    const a = bySlot[n] || (n===1 ? {video_url:LED_AD_VIDEO,image_url:"assets/dm-ad-slot1.png", alt:"주식회사 대명디지털 LED 전광판·전자현수막 광고", link_url:null} : null);
+    if(a && a.video_url){return `<div class="adslot has-image"><video src="${esc(a.video_url)}" autoplay muted loop playsinline poster="${esc(a.image_url||"")}" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover" onerror="this.style.display=\'none\'"></video><span class="adtag">AD</span></div>`;}
     if(a && a.image_url){
       const img = `<img src="${esc(a.image_url)}" alt="${esc(a.alt||"광고")}" loading="lazy"><span class="adtag">AD</span>`;
       return a.link_url ? `<a class="adslot has-image" href="${esc(a.link_url)}" target="_blank" rel="noopener sponsored">${img}</a>` : `<div class="adslot has-image">${img}</div>`;
