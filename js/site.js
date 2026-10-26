@@ -53,34 +53,17 @@ const ytThumb = id => `https://i.ytimg.com/vi/${id}/hqdefault.jpg`;
 
 /* ---------- 최신 동영상 로테이션: 한 편이 끝나면 다음 편, 마지막 다음은 처음으로 ---------- */
 function mainRotation(news, ari, ariNews){
- if(vobNewsOnly()){
-   const seen=new Set();
-   const queue=(ariNews||[]).filter(isVoBNewsItem).filter(v=>{
-     const id=v.yt||v.id; return id && !seen.has(id) && seen.add(id);
-   });
-   queue.refresh=()=>mainRotation(news,ari,ariNews);
-   return queue;
- }
-  function pickTwo(){
-    const pool = news.slice();
-    for(let i=pool.length-1;i>0;i--){
-      const j = Math.floor(Math.random()*(i+1));
-      [pool[i],pool[j]] = [pool[j],pool[i]];
-    }
-    return pool.slice(0,2);
-  }
-  const newsEpisode = Array.isArray(ariNews) && ariNews.length ? ariNews[0] : null;
-  // Today News를 편성표 첫 항목이자 메인 기본 재생 영상으로 고정합니다.
-  const queue = newsEpisode ? [newsEpisode] : [];
-  if(ari.length){
-    ari.forEach(v=>{
-      queue.push(...pickTwo());
-      queue.push(v);
-    });
-  }else{
-    queue.push(...pickTwo());
-  }
-  queue.refresh = ()=>mainRotation(news, ari, ariNews);
+  // 최신 업로드된 일반 영상/Shorts를 최우선으로 재생합니다.
+  // 이후에는 나머지 최신 영상과 ARI 영상을 순환 재생합니다.
+  const seen = new Set();
+  const unique = video => {
+    const id = video.yt || video.id;
+    if(!id || seen.has(id)) return false;
+    seen.add(id);
+    return true;
+  };
+  const queue = [...news, ...ariNews, ...ari].filter(unique);
+  queue.refresh = () => mainRotation(news, ari, ariNews);
   return queue;
 }
 function rotation(queue, idx){
@@ -153,7 +136,7 @@ function videoEl(userInitiated=false){
 }
 function play(src, userInitiated=false){
  // Today News 전용 제한은 자동 재생에만 적용하고, 사용자가 고른 다시보기는 그대로 재생합니다.
- if(!userInitiated && vobNewsOnly() && !isVoBNewsItem(src)){
+ if(false && !userInitiated && vobNewsOnly() && !isVoBNewsItem(src)){
    const queue=ROTATION_VIDEOS.filter(isVoBNewsItem);
    if(queue.length) src=rotation(queue,0);
    else {
@@ -472,7 +455,7 @@ async function loadYouTube(){
     renderShorts();
 
     const longs = vids.filter(v=>!v.isShort);
-    if(!longs.length && !vobNewsOnly()) return;
+    if(!vids.length) return;
     try{
       const episode = w => Number(w.episode) || Number((w.title.match(/(\d+)\s*화/)||[])[1]) || Infinity;
       const seen = new Set();
@@ -483,8 +466,8 @@ async function loadYouTube(){
       }).map(w=>({id:w.yt||parseYouTube(w.video_url||"")?.video,title:w.title,summary:w.summary||"",isAri:true}))
         .filter(v=>v.id && !seen.has(v.id) && seen.add(v.id));
     }catch(e){}
-    const newsQueue = longs.slice(0,5);
-    // 최신 5편 중 중복 없는 무작위 2편 뒤 아리 다음 회차를 재생합니다.
+    const newsQueue = vids.slice(0,10);
+    // 최신 일반 영상과 Shorts를 모두 포함하여 업로드 순서대로 재생합니다.
     const queue = mainRotation(newsQueue, ariVideos, ariNewsVideos);
     ROTATION_VIDEOS = queue;
     PROGRAMS = queue.map((v,i)=>({
@@ -492,7 +475,7 @@ async function loadYouTube(){
       time:v.isAriNews?"Today News":(v.isAri?"아리":"뉴스"),
       desc:v.isAri?"아리 프로젝트 · 회차순 순환 재생":"",
       main:i===0
-    })).filter((p,i,all)=>all.findIndex(x=>x.url===p.url)===i).concat(vobNewsOnly() ? [] : PROGRAMS.filter(p=>p.type!=="demo" && !p.id.startsWith("yt-")));
+    })).filter((p,i,all)=>all.findIndex(x=>x.url===p.url)===i).concat(PROGRAMS.filter(p=>p.type!=="demo" && !p.id.startsWith("yt-")));
     renderLineup();
     document.getElementById("latest").hidden = false;
     document.getElementById("videos").innerHTML = longs.map(v=>`
