@@ -314,11 +314,11 @@ function renderTicker(){
 function renderAds(){
   const bySlot = {}; DATA.ads.forEach(a=>bySlot[a.slot]=a);
   document.getElementById("ads").innerHTML = [1,2,3,4].map(n=>{
-    const a = bySlot[n] || (n===1 ? {video_url:LED_AD_VIDEO,image_url:"assets/dm-ad-slot1.png", alt:"주식회사 대명디지털 LED 전광판·전자현수막 광고", link_url:null} : null);
+    const a = n===1 ? {...(bySlot[n]||{}),video_url:LED_AD_VIDEO,image_url:bySlot[n]?.image_url||"assets/dm-ad-slot1.png",alt:"주식회사 대명디지털 LED 전광판·전자현수막 광고",link_url:null} : bySlot[n];
     if(a && a.video_url){return `<div class="adslot has-image"><img src="${esc(a.image_url||"")}" alt="${esc(a.alt||"광고")}" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover"><video src="${esc(a.video_url)}" autoplay muted loop playsinline poster="${esc(a.image_url||"")}" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover" onerror="this.style.display=\'none\'"></video><span class="adtag">AD</span></div>`;}
     if(a && a.image_url){
       const img = `<img src="${esc(a.image_url)}" alt="${esc(a.alt||"광고")}" loading="lazy"><span class="adtag">AD</span>`;
-      return a.link_url ? `<a class="adslot has-image" href="${esc(a.link_url)}" target="_blank" rel="noopener sponsored">${img}</a>` : `<div class="adslot has-image">${img}</div>`;
+      return /^https?:\/\//i.test(a.link_url||"") ? `<a class="adslot has-image" href="${esc(a.link_url)}" target="_blank" rel="noopener sponsored">${img}</a>` : `<div class="adslot has-image">${img}</div>`;
     }
     return `<div class="adslot"><span class="adtag">AD</span><strong>광고 영역 ${n}</strong><small>300 × 125</small><em>광고 문의 · VoB TV</em></div>`;
   }).join("");
