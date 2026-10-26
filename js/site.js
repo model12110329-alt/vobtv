@@ -461,6 +461,20 @@ async function loadYouTube(){
     }));
     renderShorts();
 
+    // Today News 영역에 일반 영상과 Shorts를 함께 최신순으로 표시합니다.
+    const todayRow = document.getElementById("ariNewsHomeRow");
+    const todayItems = vids.filter(v=>isVoBNewsTitle(v.title)).slice(0,16);
+    document.getElementById("ariNewsHome").hidden = !todayItems.length;
+    todayRow.innerHTML = todayItems.map(v=>`
+      <article class="short-card">
+        <button class="short" type="button" data-today-id="${esc(v.id)}" aria-label="${esc(v.title)} 재생">
+          <img src="${ytThumb(v.id)}" alt="" loading="lazy" referrerpolicy="no-referrer">
+          <span class="short-badge">${v.isShort ? "Shorts" : "동영상"}</span>
+          <span class="short-play" aria-hidden="true">▶</span>
+        </button>
+        <button class="short-title" type="button" data-today-id="${esc(v.id)}">${esc(v.title)}</button>
+      </article>`).join("");
+
     const longs = vids.filter(v=>!v.isShort && isVoBNewsTitle(v.title));
     if(!vids.length) return;
     try{
@@ -484,7 +498,7 @@ async function loadYouTube(){
       main:i===0
     })).filter((p,i,all)=>all.findIndex(x=>x.url===p.url)===i).concat(PROGRAMS.filter(p=>p.type!=="demo" && !p.id.startsWith("yt-")));
     renderLineup();
-    document.getElementById("latest").hidden = false;
+    document.getElementById("latest").hidden = true;
     document.getElementById("videos").innerHTML = longs.map(v=>`
       <button class="vcard" data-v="${esc(v.id)}" data-t="${esc(v.title)}">
         <div class="thumb img" style="background-image:url('${ytThumb(v.id)}')"></div>
@@ -492,6 +506,14 @@ async function loadYouTube(){
       </button>`).join("");
   }catch(e){ /* 최신 영상은 없어도 사이트는 정상 동작 */ }
 }
+document.getElementById("ariNewsHomeRow").addEventListener("click",e=>{
+  const b=e.target.closest("[data-today-id]");
+  if(!b) return;
+  const v=YT_VIDEOS.find(v=>v.id===b.dataset.todayId);
+  if(!v) return;
+  play({id:"today-"+v.id,type:"youtube",url:"https://youtu.be/"+v.id,live:false,title:v.title},true);
+  focusBroadcastPlayer();
+});
 document.getElementById("videos").addEventListener("click",e=>{
   const b = e.target.closest(".vcard"); if(!b) return;
   const index = ROTATION_VIDEOS.findIndex(v=>v.id===b.dataset.v);
