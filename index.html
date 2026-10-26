@@ -27,23 +27,7 @@
 <meta name="twitter:title" content="VoB TV | 바른 시선, 당당한 목소리">
 <meta name="twitter:description" content="대한민국 시사 뉴스와 춘천 지역 소식을 만나보세요.">
 <meta name="twitter:image" content="https://www.vobtv.kr/assets/vobtv-preview-20261013.jpg">
-<!-- 최신 영상과 Shorts는 2026-11-16 00:47(KST)부터 다시 표시합니다. -->
-<style>html.vob-video-pause #latest,html.vob-video-pause #shorts{display:none!important}</style>
-<script>
-(function(){
-  const resumeAt=Date.parse("2026-11-16T00:47:00+09:00");
-  const refreshVisibility=()=>{
-    document.documentElement.classList.toggle("vob-video-pause",Date.now()<resumeAt);
-  };
-  refreshVisibility();
-  // 4주 타이머는 브라우저의 setTimeout 최대 대기시간을 넘을 수 있으므로 주기적으로 확인합니다.
-  const checkTimer=setInterval(()=>{
-    refreshVisibility();
-    if(Date.now()>=resumeAt) clearInterval(checkTimer);
-  },60000);
-  document.addEventListener("visibilitychange",refreshVisibility);
-})();
-</script>
+
 </head>
 <body>
 <canvas id="bg4d" class="bg4d" aria-hidden="true"></canvas>
@@ -156,7 +140,7 @@
 <script src="js/nav.js?v=20261008-ari1"></script>
 <script src="js/config.js?v=20261008-ari1"></script>
 <script src="js/data.js?v=20261013-news16"></script>
-<script src="js/site.js?v=20261024-replay-fix"></script>
+<script src="js/site.js?v=20261026-youtube-visible"></script>
 <script>
 // 광고 1번은 대명디지털 고정 광고로 표시하고, 2~4번은 기존 관리자 광고 데이터를 그대로 사용합니다.
 window.renderAds = function renderAds(){
