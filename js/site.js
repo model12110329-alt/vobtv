@@ -16,7 +16,7 @@ let current = null;
 const VOB_NEWS_ONLY_UNTIL = Date.parse("2026-11-19T00:00:00+09:00");
 function vobNewsOnly(){ return Date.now() < VOB_NEWS_ONLY_UNTIL; }
 function isVoBNewsItem(v){
- return !!v && (v.isAriNews || /(?:vob\s*(?:tv\s*)?(?:뉴스|news)|ari\s*(?:뉴스|news)|아리\s*뉴스)/i.test(String(v.title || "")));
+ return !!v && (v.isAriNews || /today\s*news/i.test(String(v.title || "")));
 }
 
 
@@ -435,7 +435,7 @@ async function loadYouTube(){
       projectWorks = await VOB.ariProjectVideos();
     }catch(e){}
     const ariProjectIds = new Set(projectWorks.map(v=>v.yt || v.id).filter(Boolean));
-    const isVoBNewsTitle = title => /(?:vob\s*(?:tv\s*)?(?:뉴스|news)|ari\s*(?:뉴스|news)|아리\s*뉴스)/i.test(String(title || ""));
+    const isVoBNewsTitle = title => /today\s*news/i.test(String(title || ""));
     const ariNewsVideos = vids
       .filter(v=>isVoBNewsTitle(v.title))
       .sort((a,b)=>(Date.parse(b.published)||0)-(Date.parse(a.published)||0))
@@ -452,7 +452,7 @@ async function loadYouTube(){
       vids.filter(v=>isVoBNewsTitle(v.title) || String(v.title||"").toLowerCase().includes(ariKeyword)).map(v=>v.id)
     );
     const ytShorts = vids
-      .filter(v=>v.isShort && !ariProjectIds.has(v.id) && !ariNewsIds.has(v.id))
+      .filter(v=>v.isShort && isVoBNewsTitle(v.title) && !ariProjectIds.has(v.id))
       .sort((a,b)=>(Date.parse(b.published)||0) - (Date.parse(a.published)||0));
     DATA.shorts = ytShorts.slice(0,7).map(v=>({
       id:v.id,
@@ -461,7 +461,7 @@ async function loadYouTube(){
     }));
     renderShorts();
 
-    const longs = vids.filter(v=>!v.isShort);
+    const longs = vids.filter(v=>!v.isShort && isVoBNewsTitle(v.title));
     if(!vids.length) return;
     try{
       const episode = w => Number(w.episode) || Number((w.title.match(/(\d+)\s*화/)||[])[1]) || Infinity;
@@ -473,7 +473,7 @@ async function loadYouTube(){
       }).map(w=>({id:w.yt||parseYouTube(w.video_url||"")?.video,title:w.title,summary:w.summary||"",isAri:true}))
         .filter(v=>v.id && !seen.has(v.id) && seen.add(v.id));
     }catch(e){}
-    const newsQueue = vids.slice(0,10);
+    const newsQueue = vids.filter(v=>isVoBNewsTitle(v.title)).slice(0,10);
     // 최신 일반 영상과 Shorts를 모두 포함하여 업로드 순서대로 재생합니다.
     const queue = mainRotation(newsQueue, ariVideos, ariNewsVideos);
     ROTATION_VIDEOS = queue;
