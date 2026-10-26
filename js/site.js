@@ -44,7 +44,7 @@ function parseYouTube(raw){
 }
 function youTubeEmbed(yt, userInitiated=false){
   // 자동재생 영상만 무음으로 시작하고, 직접 선택한 영상은 소리가 나오도록 설정합니다.
-  const q = `autoplay=1&mute=${userInitiated?0:1}&playsinline=1&rel=0&enablejsapi=1&vq=hd720&origin=${encodeURIComponent(location.origin)}`;
+  const q = `autoplay=1&mute=${userInitiated?0:1}&playsinline=1&rel=0&enablejsapi=1&vq=hd1080&origin=${encodeURIComponent(location.origin)}`;
   return yt.channel
     ? `https://www.youtube-nocookie.com/embed/live_stream?channel=${yt.channel}&${q}`
     : `https://www.youtube-nocookie.com/embed/${yt.video}?${q}`;
@@ -116,19 +116,23 @@ function bindYouTubePlayer(frame, src, next, userInitiated=false){
           e.target.mute();
           soundButton.hidden = false;
         }
-        // YouTube 플레이어에 720p를 우선 요청합니다. 실제 화질은 YouTube가 결정합니다.
-        const request720p = () => {
+        // YouTube가 허용하는 범위에서 가장 높은 화질을 우선 요청합니다.
+        // YouTube IFrame API의 화질 설정은 강제되지 않을 수 있습니다.
+        const requestBestQuality = () => {
           if(current !== src) return;
           try {
             const levels = e.target.getAvailableQualityLevels?.() || [];
-            if(levels.includes("hd720")) e.target.setPlaybackQuality?.("hd720");
-            e.target.setPlaybackQualityRange?.("hd720", "hd720");
+            const order = ["highres", "hd2160", "hd1440", "hd1080", "hd720", "large", "medium", "small", "tiny"];
+            const best = order.find(q => levels.includes(q));
+            if(best){
+              e.target.setPlaybackQuality?.(best);
+              e.target.setPlaybackQualityRange?.(best, best);
+            }
           } catch (_) {}
         };
-        request720p();
+        requestBestQuality();
         e.target.playVideo();
-        // 재생이 시작된 후 화질 목록이 준비되는 경우에도 한 번 더 요청합니다.
-        setTimeout(request720p, 1800);
+        [1200, 3000, 6000].forEach(ms => setTimeout(requestBestQuality, ms));
       },
       onStateChange:e=>{ if(next && e.data === YT.PlayerState.ENDED && current === src) playAdBreak(next); }
     }});
