@@ -44,7 +44,7 @@ function parseYouTube(raw){
 }
 function youTubeEmbed(yt, userInitiated=false){
   // 자동재생 영상만 무음으로 시작하고, 직접 선택한 영상은 소리가 나오도록 설정합니다.
-  const q = `autoplay=1&mute=${userInitiated?0:1}&playsinline=1&rel=0&enablejsapi=1&vq=highres&origin=${encodeURIComponent(location.origin)}`;
+  const q = `autoplay=1&mute=${userInitiated?0:1}&playsinline=1&rel=0&enablejsapi=1&vq=hd720&origin=${encodeURIComponent(location.origin)}`;
   return yt.channel
     ? `https://www.youtube-nocookie.com/embed/live_stream?channel=${yt.channel}&${q}`
     : `https://www.youtube-nocookie.com/embed/${yt.video}?${q}`;
@@ -98,20 +98,19 @@ function bindYouTubePlayer(frame, src, next, userInitiated=false){
           e.target.mute();
           soundButton.hidden = false;
         }
-        // YouTube가 제공하는 최고 해상도를 요청합니다. 실제 화질은 YouTube가 결정합니다.
-        const requestBestQuality = () => {
+        // YouTube 플레이어에 720p를 우선 요청합니다. 실제 화질은 YouTube가 결정합니다.
+        const request720p = () => {
           if(current !== src) return;
           try {
             const levels = e.target.getAvailableQualityLevels?.() || [];
-            const best = ["highres","hd2160","hd1440","hd1080","hd720"].find(q => levels.includes(q));
-            if(best) e.target.setPlaybackQuality?.(best);
-            e.target.setPlaybackQualityRange?.(best || "hd1080", best || "hd1080");
+            if(levels.includes("hd720")) e.target.setPlaybackQuality?.("hd720");
+            e.target.setPlaybackQualityRange?.("hd720", "hd720");
           } catch (_) {}
         };
-        requestBestQuality();
+        request720p();
         e.target.playVideo();
         // 재생이 시작된 후 화질 목록이 준비되는 경우에도 한 번 더 요청합니다.
-        setTimeout(requestBestQuality, 1800);
+        setTimeout(request720p, 1800);
       },
       onStateChange:e=>{ if(next && e.data === YT.PlayerState.ENDED && current === src) next(); }
     }});
