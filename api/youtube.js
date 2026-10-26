@@ -121,6 +121,15 @@ module.exports = async (req, res) => {
       byId.delete(v.id);
       return {...v, published:feed?.published || ""};
     }).concat([...byId.values()]);
+    // 일반 동영상 탭과 Shorts 탭을 합친 뒤 실제 업로드 날짜로 정렬합니다.
+    // 날짜가 없는 항목은 탭의 표시 순서를 유지합니다.
+    resultVideos.sort((a,b)=>{
+      const at=Date.parse(a.published), bt=Date.parse(b.published);
+      if(Number.isFinite(at) && Number.isFinite(bt)) return bt-at;
+      if(Number.isFinite(at)) return -1;
+      if(Number.isFinite(bt)) return 1;
+      return 0;
+    });
     let result = resultVideos.length ? resultVideos : videos;
     const fallback = !result.some(v=>!v.isShort) && channelId===KNOWN_CHANNEL;
     if(fallback) result = FALLBACK_VIDEOS.concat(result.filter(v=>v.isShort));
