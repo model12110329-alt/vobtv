@@ -25,7 +25,7 @@ function ago(iso){
   const m = Math.max(1, Math.round((Date.now()-new Date(iso))/60000));
   if(m<60) return `${m}분 전`;
   const h = Math.round(m/60); if(h<24) return `${h}시간 전`;
-  return new Date(iso).toLocaleDateString("ko-KR",{month:"long",day:"numeric"});
+  return new Date(iso).toLocaleDateString("ko-KR",{timeZone:"Asia/Seoul",month:"long",day:"numeric"});
 }
 
 /* ---------- 유튜브 주소 해석 ---------- */
@@ -428,7 +428,7 @@ function renderNews(){
     return `<article class="card"><a href="${esc(href)}"${ext?' target="_blank" rel="noopener"':""}>${thumb}</a>
       <h3><a href="${esc(href)}"${ext?' target="_blank" rel="noopener"':""}>${esc(n.title)}</a></h3>
       ${n.summary?`<p>${esc(n.summary)}</p>`:""}
-      <div class="meta">${esc(n.section||"")} · ${ago(n.published_at)}</div></article>`;
+      <div class="meta">${esc(n.section||"")} · ${new Date(n.published_at).toLocaleDateString("ko-KR",{timeZone:"Asia/Seoul",year:"numeric",month:"long",day:"numeric"})}</div></article>`;
   }).join("") : `<p class="empty">아직 올라온 기사가 없습니다.</p>`;
 }
 document.querySelector("nav").addEventListener("click",e=>{
