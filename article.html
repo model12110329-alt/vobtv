@@ -52,7 +52,7 @@ tick(); setInterval(tick, 1000);
     if(!n){ box.innerHTML = `<p class="empty">기사를 찾지 못했습니다.</p><a class="back" href="index.html">← 첫 화면으로</a>`; return; }
     document.title = n.title + " · VoB TV";
     const body = (n.body || n.summary || "").split(/\n{2,}|\r\n\r\n/).map(p=>`<p>${esc(p).replace(/\n/g,"<br>")}</p>`).join("");
-    box.innerHTML = `<div class="meta">${esc(n.section||"")} · ${new Date(n.published_at).toLocaleString("ko-KR",{dateStyle:"long",timeStyle:"short"})}</div>
+    box.innerHTML = `<div class="meta">${esc(n.section||"")} · ${new Date(n.published_at).toLocaleString("ko-KR",{timeZone:"Asia/Seoul",dateStyle:"long",timeStyle:"short"})}</div>
       <h1>${esc(n.title)}</h1>
       ${n.subtitle?`<p>${esc(n.subtitle)}</p>`:""}
       ${n.video_url?`<video controls playsinline preload="metadata" poster="${esc(n.image_url||"")}" style="display:block;width:100%;max-width:960px;max-height:75vh;margin:20px auto;background:#111" aria-label="${esc(n.title)}"><source src="${esc(n.video_url)}" type="video/mp4"></video>`:""}
