@@ -556,8 +556,8 @@ document.getElementById("easyNewsRow")?.addEventListener("click",e=>{
   if(!b) return;
   const v=YT_VIDEOS.find(x=>x.id===b.dataset.easyNewsId);
   if(!v) return;
-  play({type:"youtube",url:`https://www.youtube.com/watch?v=${v.id}`,title:v.title},true);
-  document.getElementById("player")?.scrollIntoView({behavior:"smooth",block:"center"});
+  play({id:"easy-"+v.id,type:"youtube",url:"https://youtu.be/"+v.id,live:false,title:v.title},true);
+  focusBroadcastPlayer();
 });
 document.getElementById("ariNewsHomeRow").addEventListener("click",e=>{
   const b=e.target.closest("[data-today-id]");
