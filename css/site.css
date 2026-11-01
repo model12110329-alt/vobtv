@@ -480,3 +480,19 @@ body>header .tip-header-link:hover,body>header .tip-header-link[aria-current="pa
 .easy-news-empty{padding:28px 16px;border:1px dashed rgba(225,105,153,.4);border-radius:12px;width:100%;text-align:center;opacity:.8}
 .easy-news-footer{margin:14px 0 0;text-align:right}
 .easy-news-footer a{color:var(--ink);font-weight:700;text-underline-offset:4px}
+
+/* 춘천 쉬운 뉴스·인터뷰는 세로 Shorts 카드 대신 16:9 가로 영상 카드로 표시 */
+#chuncheonEasyNews .shorts,
+#chuncheonEasyInterview .shorts{grid-auto-columns:minmax(260px,calc((100% - 48px)/4));gap:16px}
+#chuncheonEasyNews .short,
+#chuncheonEasyInterview .short{aspect-ratio:16/9;border-radius:10px}
+#chuncheonEasyNews .short img,
+#chuncheonEasyInterview .short img{object-fit:cover}
+#chuncheonEasyNews .short-title,
+#chuncheonEasyInterview .short-title{line-height:1.5;text-align:left}
+@media(max-width:900px){
+ #chuncheonEasyNews .shorts,#chuncheonEasyInterview .shorts{grid-auto-columns:minmax(240px,calc((100% - 16px)/2))}
+}
+@media(max-width:560px){
+ #chuncheonEasyNews .shorts,#chuncheonEasyInterview .shorts{grid-auto-columns:minmax(240px,84%)}
+}
