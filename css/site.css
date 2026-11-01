@@ -480,3 +480,11 @@ body>header .tip-header-link:hover,body>header .tip-header-link[aria-current="pa
 .easy-news-empty{padding:28px 16px;border:1px dashed rgba(225,105,153,.4);border-radius:12px;width:100%;text-align:center;opacity:.8}
 .easy-news-footer{margin:14px 0 0;text-align:right}
 .easy-news-footer a{color:var(--ink);font-weight:700;text-underline-offset:4px}
+
+/* 춘천 쉬운 인터뷰 전용 가로형 16:9 영상 카드. 쉬운 뉴스는 기존대로 유지 */
+#chuncheonEasyInterview .shorts{grid-auto-columns:minmax(260px,calc((100% - 48px)/4));gap:16px}
+#chuncheonEasyInterview .short{aspect-ratio:16/9;border-radius:10px}
+#chuncheonEasyInterview .short img{object-fit:cover}
+#chuncheonEasyInterview .short-title{text-align:left;line-height:1.5}
+@media(max-width:900px){#chuncheonEasyInterview .shorts{grid-auto-columns:minmax(240px,calc((100% - 16px)/2))}}
+@media(max-width:560px){#chuncheonEasyInterview .shorts{grid-auto-columns:minmax(240px,84%)}}
