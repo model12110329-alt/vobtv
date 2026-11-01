@@ -506,6 +506,23 @@ async function loadYouTube(){
       }
     }
 
+    // 춘천 쉬운 인터뷰: 영상 제목을 기준으로 자동 분류합니다.
+    const interviewRow = document.getElementById("easyInterviewRow");
+    if(interviewRow){
+      const interviewItems = vids.filter(v=>/춘천\\s*쉬운\\s*인터뷰/i.test(String(v.title||""))).slice(0,12);
+      if(interviewItems.length){
+        interviewRow.innerHTML = interviewItems.map(v=>`
+          <article class="short-card">
+            <button class="short" type="button" data-easy-interview-id="${esc(v.id)}" aria-label="${esc(v.title)} 재생">
+              <img src="${ytThumb(v.id)}" alt="" loading="lazy" referrerpolicy="no-referrer">
+              <span class="short-badge">${v.isShort ? "Shorts" : "동영상"}</span>
+              <span class="short-play" aria-hidden="true">▶</span>
+            </button>
+            <button class="short-title" type="button" data-easy-interview-id="${esc(v.id)}">${esc(v.title)}</button>
+          </article>`).join("");
+      }
+    }
+
     const longs = vids.filter(v=>!v.isShort && isVoBNewsTitle(v.title));
     if(!vids.length) return;
     try{
@@ -537,6 +554,14 @@ async function loadYouTube(){
       </button>`).join("");
   }catch(e){ /* 최신 영상은 없어도 사이트는 정상 동작 */ }
 }
+document.getElementById("easyInterviewRow")?.addEventListener("click",e=>{
+  const b=e.target.closest("[data-easy-interview-id]");
+  if(!b) return;
+  const v=YT_VIDEOS.find(x=>x.id===b.dataset.easyInterviewId);
+  if(!v) return;
+  play({id:"interview-"+v.id,type:"youtube",url:"https://youtu.be/"+v.id,live:false,title:v.title},true);
+  focusBroadcastPlayer();
+});
 document.getElementById("easyNewsRow")?.addEventListener("click",e=>{
   const b=e.target.closest("[data-easy-news-id]");
   if(!b) return;
