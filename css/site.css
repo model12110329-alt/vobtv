@@ -488,3 +488,11 @@ body>header .tip-header-link:hover,body>header .tip-header-link[aria-current="pa
 #chuncheonEasyInterview .short-title{text-align:left;line-height:1.5}
 @media(max-width:900px){#chuncheonEasyInterview .shorts{grid-auto-columns:minmax(240px,calc((100% - 16px)/2))}}
 @media(max-width:560px){#chuncheonEasyInterview .shorts{grid-auto-columns:minmax(240px,84%)}}
+
+/* 춘천 쉬운 뉴스도 가로형 16:9 영상 카드로 표시 */
+#chuncheonEasyNews .shorts{grid-auto-columns:minmax(260px,calc((100% - 48px)/4));gap:16px}
+#chuncheonEasyNews .short{aspect-ratio:16/9;border-radius:10px}
+#chuncheonEasyNews .short img{object-fit:cover}
+#chuncheonEasyNews .short-title{text-align:left;line-height:1.5}
+@media(max-width:900px){#chuncheonEasyNews .shorts{grid-auto-columns:minmax(240px,calc((100% - 16px)/2))}}
+@media(max-width:560px){#chuncheonEasyNews .shorts{grid-auto-columns:minmax(240px,84%)}}
