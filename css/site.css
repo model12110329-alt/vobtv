@@ -471,3 +471,12 @@ body>header .tip-header-link:hover,body>header .tip-header-link[aria-current="pa
 #newsSec .news{grid-template-columns:repeat(4,minmax(0,1fr))}
 @media(max-width:1000px){#newsSec .news{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:560px){#newsSec .news{grid-template-columns:1fr}}
+
+/* 춘천 쉬운 뉴스: 생활밀착형 지역 뉴스 코너 */
+.easy-news-section{margin-top:34px;scroll-margin-top:100px}
+.easy-news-intro{margin:12px 0 14px;line-height:1.8;color:var(--ink);opacity:.86}
+.easy-news-topics{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:18px}
+.easy-news-topics span{padding:7px 12px;border:1px solid rgba(225,105,153,.35);border-radius:999px;background:rgba(159,38,92,.12);font-size:12px}
+.easy-news-empty{padding:28px 16px;border:1px dashed rgba(225,105,153,.4);border-radius:12px;width:100%;text-align:center;opacity:.8}
+.easy-news-footer{margin:14px 0 0;text-align:right}
+.easy-news-footer a{color:var(--ink);font-weight:700;text-underline-offset:4px}
