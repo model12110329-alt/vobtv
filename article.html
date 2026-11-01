@@ -58,7 +58,7 @@ tick(); setInterval(tick, 1000);
       ${n.video_url?`<video controls playsinline preload="metadata" poster="${esc(n.image_url||"")}" style="display:block;width:100%;max-width:960px;max-height:75vh;margin:20px auto;background:#111" aria-label="${esc(n.title)}"><source src="${esc(n.video_url)}" type="video/mp4"></video>`:""}
       ${!n.video_url&&n.image_url?`<figure class="art-img"><img src="${esc(n.image_url)}" alt="${esc(n.image_alt||n.title)}">${n.image_caption?`<figcaption>${esc(n.image_caption)}</figcaption>`:""}</figure>`:""}
       ${n.stories?.length?n.stories.map(x=>`<section class="briefing-story"><h2>${esc(x.title)}</h2><figure class="art-img"><img loading="lazy" src="${esc(x.image_url)}" alt="${esc(x.image_alt||x.title)}"><figcaption>${esc(x.image_caption||"")}</figcaption></figure><div class="body">${x.body.split(/\n{2,}/).map(p=>`<p>${esc(p).replace(/\n/g,"<br>")}</p>`).join("")}</div></section>`).join(""):`<div class="body">${body}</div>`}
-      ${(n.sources||[]).length?`<p class="sources">참고: ${esc([...new Set(n.sources.map(x=>x.name).filter(Boolean))].join(", "))}</p>`:""}
+      ${(n.sources||[]).length?`<p class="sources">참고: ${n.sources.filter((x,i,a)=>x&&(x.name||x.url)&&a.findIndex(y=>(y.name||"")===(x.name||"")&&(y.url||"")===(x.url||""))===i).map(x=>x.url?`<a href="${esc(x.url)}" target="_blank" rel="noopener noreferrer">${esc(x.name||x.url)}${x.published_at?` (${esc(x.published_at)})`:""}</a>`:esc(x.name||"")).join(" · ")}</p>`:""}
       <a class="back" href="index.html">← 첫 화면으로</a>`;
   }catch(e){ box.innerHTML = `<p class="empty">기사를 불러오지 못했습니다. 잠시 후 다시 시도해 주세요.</p>`; }
 })();
