@@ -9,6 +9,7 @@ let DATA = null;          // 불러온 사이트 데이터
 let PROGRAMS = [];        // 편성표 (재생 가능한 방송)
 let CHANNEL_ID = null;    // 유튜브 채널 ID (최신 영상 API에서 받아옴)
 let ROTATION_VIDEOS = [];
+let CHUNCHEON_VIDEOS = [];
 let YT_VIDEOS = [];       // 채널 영상, 최근 업로드 순
 let current = null;
 
@@ -489,10 +490,19 @@ async function loadYouTube(){
     }));
     renderShorts();
 
+    let chuncheonVideos = [];
+    try {
+      const cr = await fetch("/api/youtube?channel="+encodeURIComponent("@VoB춘천"));
+      if(cr.ok) {
+        const cj = await cr.json();
+        chuncheonVideos = (cj.videos || []).filter(v=>!hiddenIds.has(v.id));
+      }
+    } catch (_) {}
+    CHUNCHEON_VIDEOS = chuncheonVideos;
     // 제목에 '춘천 쉬운 뉴스'가 포함된 채널 영상만 별도 코너에 표시합니다.
     const easyNewsRow = document.getElementById("easyNewsRow");
     if(easyNewsRow){
-      const easyNewsItems = vids.filter(v=>/춘천\\s*쉬운\\s*뉴스/i.test(String(v.title||""))).slice(0,12);
+      const easyNewsItems = chuncheonVideos.filter(v=>/춘천\s*쉬운\s*뉴스/i.test(String(v.title||""))).slice(0,12);
       if(easyNewsItems.length){
         easyNewsRow.innerHTML = easyNewsItems.map(v=>`
           <article class="short-card">
@@ -509,7 +519,7 @@ async function loadYouTube(){
     // 춘천 쉬운 인터뷰: 영상 제목을 기준으로 자동 분류합니다.
     const interviewRow = document.getElementById("easyInterviewRow");
     if(interviewRow){
-      const interviewItems = vids.filter(v=>/춘천\\s*쉬운\\s*인터뷰/i.test(String(v.title||""))).slice(0,12);
+      const interviewItems = chuncheonVideos.filter(v=>/춘천\s*쉬운\s*인터뷰/i.test(String(v.title||""))).slice(0,12);
       if(interviewItems.length){
         interviewRow.innerHTML = interviewItems.map(v=>`
           <article class="short-card">
@@ -557,7 +567,7 @@ async function loadYouTube(){
 document.getElementById("easyInterviewRow")?.addEventListener("click",e=>{
   const b=e.target.closest("[data-easy-interview-id]");
   if(!b) return;
-  const v=YT_VIDEOS.find(x=>x.id===b.dataset.easyInterviewId);
+  const v=CHUNCHEON_VIDEOS.find(x=>x.id===b.dataset.easyInterviewId);
   if(!v) return;
   play({id:"interview-"+v.id,type:"youtube",url:"https://youtu.be/"+v.id,live:false,title:v.title},true);
   focusBroadcastPlayer();
@@ -565,7 +575,7 @@ document.getElementById("easyInterviewRow")?.addEventListener("click",e=>{
 document.getElementById("easyNewsRow")?.addEventListener("click",e=>{
   const b=e.target.closest("[data-easy-news-id]");
   if(!b) return;
-  const v=YT_VIDEOS.find(x=>x.id===b.dataset.easyNewsId);
+  const v=CHUNCHEON_VIDEOS.find(x=>x.id===b.dataset.easyNewsId);
   if(!v) return;
   play({id:"easy-"+v.id,type:"youtube",url:"https://youtu.be/"+v.id,live:false,title:v.title},true);
   focusBroadcastPlayer();
