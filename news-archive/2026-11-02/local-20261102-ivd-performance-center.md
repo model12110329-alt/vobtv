@@ -23,6 +23,8 @@ KCL이 사업을 주관하고 나머지 전문기관이 참여해 성능평가 �
 
 ## 출처
 
+- G1방송 보도 — 2026-10-31 (시각 미표기)
+  https://www.g1tv.co.kr/news/?mid=1_207_6&newsid=350433
 - 강원특별자치도 바이오헬스과 공식 보도자료 — 2026-10-30 (시각 미표기)\n  https://state.gwd.go.kr/portal/briefing/pressRelease?seq=9391
 - 연합뉴스 보도 — 2026-10-30T11:11:00+09:00\n  https://www.yna.co.kr/view/AKR20261030077700062
 - 춘천시 첨단산업과 공식 보도자료 — 2026-07-02 (시각 미표기)\n  https://www.chuncheon.go.kr/mayor/newsroom/press-release/?bbsId=BBSMSTR_000000000335&flag=view&nttId=524016

@@ -10,10 +10,15 @@
     "image_caption": "AI 생성 3D 삽화 · VoB TV. 체외진단의료기기 종합성능평가센터 구축사업을 설명하기 위한 연출 이미지이며 실제 센터나 협약 현장 사진이 아닙니다.",
     "author": "성현수 기자",
     "published_at": "2026-11-02T08:20:00+09:00",
-    "source_published_at": "강원특별자치도 2026-10-30(시각 미표기), 연합뉴스 2026-10-30T11:11:00+09:00",
+    "source_published_at": "G1 2026-10-31(시각 미표기), 강원특별자치도 2026-10-30(시각 미표기), 연합뉴스 2026-10-30T11:11:00+09:00",
     "auto": true,
     "image_generated": true,
     "sources": [
+      {
+        "name": "G1방송 보도",
+        "url": "https://www.g1tv.co.kr/news/?mid=1_207_6&newsid=350433",
+        "published_at": "2026-10-31 (시각 미표기)"
+      },
       {
         "name": "강원특별자치도 바이오헬스과 공식 보도자료",
         "url": "https://state.gwd.go.kr/portal/briefing/pressRelease?seq=9391",
