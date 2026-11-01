@@ -38,7 +38,7 @@
     <a class="logo" href="#"><span class="l3d"><i class="spin" role="img" aria-label="VoB TV"></i></span><small>Victory Begins with Our Voice</small></a>
     <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="siteNav" hidden><span aria-hidden="true">☰</span> 메뉴</button>
     <nav id="siteNav" aria-label="분야">
-      <a href="#" aria-current="page">홈</a><a href="#">정치</a><a href="#">경제</a><a href="#">사회</a><a href="#">문화</a><a href="#chuncheonEasyNews">춘천 쉬운 뉴스</a><a href="#shorts">숏츠</a><a href="#newsSec">뉴스</a><a href="ari.html">ARI 프로젝트</a>
+      <a href="#" aria-current="page">홈</a><a href="#">정치</a><a href="#">경제</a><a href="#">사회</a><a href="#">문화</a><a href="#chuncheonEasyNews">춘천 쉬운 뉴스</a><a href="#chuncheonEasyInterview">춘천 쉬운 인터뷰</a><a href="#shorts">숏츠</a><a href="#newsSec">뉴스</a><a href="ari.html">ARI 프로젝트</a>
     </nav>
     <span class="clock" id="clock">--:--:--</span>
     <a class="tip-header-link" href="tip.html"><span aria-hidden="true">✉</span> 기사제보</a>
@@ -109,6 +109,14 @@
     <p class="easy-news-footer"><a href="tip.html">춘천 생활 속 불편과 개선 아이디어 제보하기 →</a></p>
   </section>
 
+  <section id="chuncheonEasyInterview" class="easy-news-section" aria-labelledby="easyInterviewTitle">
+    <div class="sechead"><h2 id="easyInterviewTitle">춘천 쉬운 인터뷰</h2><span>춘천 사람들의 목소리를 듣습니다</span></div>
+    <p class="easy-news-intro">시민과 같은 눈높이에서 묻고 듣습니다. 일상 속 이야기부터 지역을 바꾸는 생각까지, 춘천 시민의 생생한 목소리를 전합니다.</p>
+    <div class="easy-news-topics"><span>시민 이야기</span><span>우리 동네</span><span>생활 속 제안</span><span>사람과 일</span><span>현장 인터뷰</span></div>
+    <div class="shorts ari-news-home-shelf" id="easyInterviewRow"><p class="easy-news-empty">춘천 쉬운 인터뷰 영상을 준비하고 있습니다. 새 영상이 등록되면 이곳에 표시됩니다.</p></div>
+    <p class="easy-news-footer"><a href="tip.html">인터뷰 인물·사연 제보하기 →</a></p>
+  </section>
+
   <section id="ariProjectSec" hidden>
     <div class="sechead"><h2>ARI 프로젝트</h2><a class="more" href="ari.html">전체 프로젝트 보기 →</a></div>
     <div class="ari-grid" id="ariProjectTeaser"></div>
@@ -135,7 +143,7 @@
 <script src="js/nav.js?v=20261008-ari1"></script>
 <script src="js/config.js?v=20261008-ari1"></script>
 <script src="js/data.js?v=20261013-news16"></script>
-<script src="js/site.js?v=20261101-easy-replace"></script>
+<script src="js/site.js?v=20261101-interview"></script>
 <script>
 // 광고 1번은 대명디지털 고정 광고로 표시하고, 2~4번은 기존 관리자 광고 데이터를 그대로 사용합니다.
 window.renderAds = function renderAds(){
