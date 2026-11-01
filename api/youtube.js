@@ -59,8 +59,8 @@ async function resolveChannelId(channel) {
   if(channel.toLowerCase()==="@vobtv1") return KNOWN_CHANNEL;
   if (/^UC[\w-]{22}$/.test(channel)) return channel;
   const handle = channel.startsWith("@") ? channel : "@" + channel;
-  if (!/^@[\w.\-]{3,30}$/.test(handle)) throw new Error("채널 이름 형식이 올바르지 않습니다");
-  const r = await timedFetch(`https://www.youtube.com/${handle}`, {
+  if (!/^@[\p{L}\p{N}_.\-]{2,40}$/u.test(handle)) throw new Error("채널 이름 형식이 올바르지 않습니다");
+  const r = await timedFetch(`https://www.youtube.com/${encodeURIComponent(handle)}`, {
     headers: { "user-agent": "Mozilla/5.0", "accept-language": "ko-KR,ko;q=0.9" },
   });
   const html = await r.text();
