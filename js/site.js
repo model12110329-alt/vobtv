@@ -489,20 +489,6 @@ async function loadYouTube(){
     }));
     renderShorts();
 
-    // Today News 영역에 일반 영상과 Shorts를 함께 최신순으로 표시합니다.
-    const todayRow = document.getElementById("ariNewsHomeRow");
-    const todayItems = vids.filter(v=>isVoBNewsTitle(v.title)).slice(0,16);
-    document.getElementById("ariNewsHome").hidden = !todayItems.length;
-    todayRow.innerHTML = todayItems.map(v=>`
-      <article class="short-card">
-        <button class="short" type="button" data-today-id="${esc(v.id)}" aria-label="${esc(v.title)} 재생">
-          <img src="${ytThumb(v.id)}" alt="" loading="lazy" referrerpolicy="no-referrer">
-          <span class="short-badge">${v.isShort ? "Shorts" : "동영상"}</span>
-          <span class="short-play" aria-hidden="true">▶</span>
-        </button>
-        <button class="short-title" type="button" data-today-id="${esc(v.id)}">${esc(v.title)}</button>
-      </article>`).join("");
-
     // 제목에 '춘천 쉬운 뉴스'가 포함된 채널 영상만 별도 코너에 표시합니다.
     const easyNewsRow = document.getElementById("easyNewsRow");
     if(easyNewsRow){
@@ -559,7 +545,7 @@ document.getElementById("easyNewsRow")?.addEventListener("click",e=>{
   play({id:"easy-"+v.id,type:"youtube",url:"https://youtu.be/"+v.id,live:false,title:v.title},true);
   focusBroadcastPlayer();
 });
-document.getElementById("ariNewsHomeRow").addEventListener("click",e=>{
+document.getElementById("ariNewsHomeRow")?.addEventListener("click",e=>{
   const b=e.target.closest("[data-today-id]");
   if(!b) return;
   const v=YT_VIDEOS.find(v=>v.id===b.dataset.todayId);
