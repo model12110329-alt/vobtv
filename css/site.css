@@ -496,3 +496,45 @@ body>header .tip-header-link:hover,body>header .tip-header-link[aria-current="pa
 #chuncheonEasyNews .short-title{text-align:left;line-height:1.5}
 @media(max-width:900px){#chuncheonEasyNews .shorts{grid-auto-columns:minmax(240px,calc((100% - 16px)/2))}}
 @media(max-width:560px){#chuncheonEasyNews .shorts{grid-auto-columns:minmax(240px,84%)}}
+
+/* VoB TV Chuncheon sky theme, approved 2026-11-03 */
+:root,:root[data-theme="light"],:root[data-theme="dark"]{
+ --bg:#e9f7ff;--surface:#ffffff;--ink:#102d56;--muted:#526e8d;--line:#c9e4f7;
+ --brand:#1764ce;--brand-ink:#ffffff;--glow:#66b9ff;--blue:#1764ce;--onair:#e73553;
+ color-scheme:light;
+}
+body{background:linear-gradient(180deg,#d9f2ff 0%,#eefaff 36%,#f8fcff 100%);color:var(--ink)}
+body>.bg4d{opacity:.055}
+body>header{background:linear-gradient(90deg,#06265a,#0b4384);color:#fff;border-bottom:2px solid #2c9deb;box-shadow:0 4px 18px rgba(5,50,98,.15)}
+body>header::after{background:linear-gradient(90deg,#26b9f4,#7cceff,#26b9f4)}
+body>header nav a,body>header .clock,body>header .logo small{color:#d9ebff}
+body>header nav a:hover,body>header nav a[aria-current]{color:#fff}
+body>header .tip-header-link{background:transparent;border-color:#8cc6ff;color:#fff}
+body>header .tip-header-link:hover{background:rgba(255,255,255,.14)}
+.banner{margin-top:16px;aspect-ratio:1983/793;border:0;border-radius:18px;box-shadow:0 10px 30px rgba(22,97,169,.13);background:#bde9ff}
+.banner img{object-fit:fill}
+.banner .copy,.banner canvas{display:none!important}
+#chuncheonEasyNews,#chuncheonEasyInterview{
+ background:rgba(255,255,255,.96);border:1px solid #d6eafb;border-radius:18px;
+ padding:22px 24px 18px;box-shadow:0 8px 22px rgba(24,111,187,.09);margin-top:18px
+}
+#chuncheonEasyNews .sechead,#chuncheonEasyInterview .sechead{border-bottom:2px solid #247cdb;padding-bottom:10px}
+#chuncheonEasyNews .sechead h2,#chuncheonEasyInterview .sechead h2{font-family:var(--body);font-size:25px;font-weight:800;color:#0755b8}
+#chuncheonEasyNews .sechead h2::before,#chuncheonEasyInterview .sechead h2::before{
+ content:"▶";display:inline-grid;place-items:center;width:31px;height:31px;margin-right:10px;
+ border-radius:50%;background:#1364d2;color:white;font-size:14px;vertical-align:3px
+}
+#chuncheonEasyNews .easy-news-intro,#chuncheonEasyInterview .easy-news-intro{color:#203b5b;opacity:1}
+#chuncheonEasyNews .easy-news-topics span,#chuncheonEasyInterview .easy-news-topics span{
+ background:#f7fcff;border:1px solid #a6c9eb;color:#124a8b;font-weight:700;padding:7px 13px
+}
+#chuncheonEasyNews .easy-news-footer a,#chuncheonEasyInterview .easy-news-footer a{color:#075bbf}
+#chuncheonEasyNews .short-title,#chuncheonEasyInterview .short-title{color:#12365d}
+#newsSec,.sched,.ai{background:rgba(255,255,255,.78);border-radius:16px}
+#newsSec,.sched{padding:18px}
+.ticker{background:linear-gradient(90deg,#0756a6,#187dc7);color:#fff;border-radius:10px}
+@media(max-width:600px){
+ #chuncheonEasyNews,#chuncheonEasyInterview{padding:15px 13px}
+ #chuncheonEasyNews .sechead h2,#chuncheonEasyInterview .sechead h2{font-size:20px}
+ .banner{border-radius:10px}
+}
