@@ -1,7 +1,7 @@
 // VoB TV 메인 화면
 // 미리보기(Artifact)에서는 외부 영상 삽입이 막혀 있어 VOB_PREVIEW=true 로 안내 문구를 보여줍니다.
 const PREVIEW = window.VOB_PREVIEW === true;
-const BANNER_IMG = "assets/banner.jpg";
+const BANNER_IMG = "";
 const REDUCED = matchMedia("(prefers-reduced-motion: reduce)").matches;
 const DEFAULT_VOLUME = 30; // 메인 영상 기본 음량 (%)
 
