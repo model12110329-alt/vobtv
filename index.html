@@ -9,7 +9,7 @@
 <meta name="description" content="VoB TV · 바른 시선, 당당한 목소리. 대한민국 시사 저널 방송">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,900&family=Nanum+Myeongjo:wght@700;800&family=IBM+Plex+Sans+KR:wght@400;500;700&family=IBM+Plex+Mono:wght@500&family=Chakra+Petch:wght@500;700&display=swap">
-<link rel="stylesheet" href="css/site.css?v=20261101-both-landscape">
+<link rel="stylesheet" href="css/site.css?v=20261103-sky">
 <!-- Link preview for KakaoTalk and social sharing -->
 <meta property="og:type" content="website">
 <meta property="og:locale" content="ko_KR">
@@ -47,6 +47,11 @@
 
 <main class="wrap">
 
+  <div class="banner has-img" id="banner" role="img" aria-label="춘천 쉬운 뉴스, 어려운 소식도 쉽게 알려드립니다">
+    <img src="assets/%EC%B6%98%EC%B2%9C%20%EC%89%AC%EC%9A%B4%20%EB%89%B4%EC%8A%A4%20%EC%9C%A0%ED%8A%9C%EB%B8%8C%20%EB%B0%B0%EB%84%88-1.png" alt="VoB TV 춘천 쉬운 뉴스. 어려운 소식도, 쉽게 알려드립니다." fetchpriority="high">
+  </div>
+
+
   <section id="chuncheonEasyNews" class="easy-news-section" aria-labelledby="easyNewsTitle">
     <div class="sechead"><h2 id="easyNewsTitle">춘천 쉬운 뉴스</h2><span>춘천 시민의 생활을 바꾸는 3분 제안 뉴스</span></div>
     <p class="easy-news-intro">시민과 같은 눈높이로, 춘천을 봅니다. 교통·주차·공공시설·생활환경을 살펴보고 시민의 목소리와 실천 가능한 대안을 전합니다.</p>
@@ -69,14 +74,6 @@
     <div class="news" id="news"></div>
   </section>
 
-  <div class="banner" id="banner" role="img" aria-label="VoB TV 배너">
-    <canvas id="bannerCanvas"></canvas>
-    <div class="copy">
-      <span class="k">AI NEWS BROADCAST</span>
-      <span class="t">Vo<i>B</i> TV</span>
-      <span class="s">AI가 요약하고 자막을 다는 실시간 방송 뉴스</span>
-    </div>
-  </div>
   <div class="ticker" style="margin-top:16px" role="marquee" aria-label="속보">
     <b>속보</b>
     <div class="track"><div class="run" id="ticker"></div></div>
@@ -144,7 +141,7 @@
 <script src="js/nav.js?v=20261008-ari1"></script>
 <script src="js/config.js?v=20261008-ari1"></script>
 <script src="js/data.js?v=20261013-news16"></script>
-<script src="js/site.js?v=20261101-chuncheonchannel"></script>
+<script src="js/site.js?v=20261103-sky"></script>
 <script>
 // 광고 1번은 대명디지털 고정 광고로 표시하고, 2~4번은 기존 관리자 광고 데이터를 그대로 사용합니다.
 window.renderAds = function renderAds(){
