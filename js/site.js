@@ -507,7 +507,7 @@ async function loadYouTube(){
         easyNewsRow.innerHTML = easyNewsItems.map(v=>`
           <article class="short-card">
             <button class="short" type="button" data-easy-news-id="${esc(v.id)}" aria-label="${esc(v.title)} 재생">
-              <img src="${ytThumb(v.id)}" alt="" loading="lazy" referrerpolicy="no-referrer">
+              <img src="https://i.ytimg.com/vi/${encodeURIComponent(v.id)}/maxresdefault.jpg" alt="${esc(v.title)} 썸네일" loading="lazy" decoding="async" referrerpolicy="no-referrer" onload="if(this.naturalWidth<=120){this.onerror();}" onerror="this.onerror=null;this.src='https://i.ytimg.com/vi/${encodeURIComponent(v.id)}/hqdefault.jpg';">
               <span class="short-badge">${v.isShort ? "Shorts" : "동영상"}</span>
               <span class="short-play" aria-hidden="true">▶</span>
             </button>
