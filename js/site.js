@@ -50,7 +50,11 @@ function youTubeEmbed(yt, userInitiated=false){
     ? `https://www.youtube-nocookie.com/embed/live_stream?channel=${yt.channel}&${q}`
     : `https://www.youtube-nocookie.com/embed/${yt.video}?${q}`;
 }
-const ytThumb = id => `https://i.ytimg.com/vi/${id}/hqdefault.jpg`;
+// 썸네일 이미지는 유튜브에서 변경될 수 있으므로 30분 단위로 URL을 갱신합니다.
+// 일반화질(hqdefault)을 우선 사용해 고화질(maxresdefault) 캐시에 남은 구버전 이미지를 피합니다.
+const YT_THUMB_REFRESH_MS = 30 * 60 * 1000;
+const ytThumb = (id, quality = "hqdefault") =>
+  `https://i.ytimg.com/vi/${encodeURIComponent(id)}/${quality}.jpg?refresh=${Math.floor(Date.now() / YT_THUMB_REFRESH_MS)}`;
 
 /* ---------- 최신 동영상 로테이션: 한 편이 끝나면 다음 편, 마지막 다음은 처음으로 ---------- */
 function mainRotation(news, ari, ariNews){
@@ -507,7 +511,7 @@ async function loadYouTube(){
         easyNewsRow.innerHTML = easyNewsItems.map(v=>`
           <article class="short-card">
             <button class="short" type="button" data-easy-news-id="${esc(v.id)}" aria-label="${esc(v.title)} 재생">
-              <img src="https://i.ytimg.com/vi/${encodeURIComponent(v.id)}/maxresdefault.jpg" alt="${esc(v.title)} 썸네일" loading="lazy" decoding="async" referrerpolicy="no-referrer" onload="if(this.naturalWidth<=120){this.onerror();}" onerror="this.onerror=null;this.src='https://i.ytimg.com/vi/${encodeURIComponent(v.id)}/hqdefault.jpg';">
+              <img src="${ytThumb(v.id)}" alt="${esc(v.title)} 썸네일" loading="lazy" decoding="async" referrerpolicy="no-referrer" onload="if(this.naturalWidth<=120 && this.onerror){this.onerror();}" onerror="this.onerror=null;this.src='${ytThumb(v.id,"mqdefault")}';">
               <span class="short-badge">${v.isShort ? "Shorts" : "동영상"}</span>
               <span class="short-play" aria-hidden="true">▶</span>
             </button>
@@ -524,7 +528,7 @@ async function loadYouTube(){
         interviewRow.innerHTML = interviewItems.map(v=>`
           <article class="short-card">
             <button class="short" type="button" data-easy-interview-id="${esc(v.id)}" aria-label="${esc(v.title)} 재생">
-              <img src="${ytThumb(v.id)}" alt="" loading="lazy" referrerpolicy="no-referrer">
+              <img src="${ytThumb(v.id)}" alt="${esc(v.title)} 썸네일" loading="lazy" referrerpolicy="no-referrer" onerror="this.onerror=null;this.src='${ytThumb(v.id,"mqdefault")}';">
               <span class="short-badge">${v.isShort ? "Shorts" : "동영상"}</span>
               <span class="short-play" aria-hidden="true">▶</span>
             </button>
