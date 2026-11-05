@@ -9,20 +9,27 @@
   const epLabel = w => String(w.id||"").startsWith("ari-v1-") ? `${w.series} · ${w.episode===0?"프롤로그":`제${w.episode}장`}` : [w.series, w.episode ? `${w.episode}화` : ""].filter(Boolean).join(" · ");
   const coverStyle = w => w.cover_url ? `background-image:url('${esc(w.cover_url)}')` : "";
 
-  const isVoBNewsTitle = title => /(?:vob\s*(?:tv\s*)?(?:뉴스|news)|ari\s*(?:뉴스|news)|아리\s*뉴스)/i.test(String(title || ""));
+  const isVoBNewsTitle = title => /(?:today\s*news|vob\s*(?:tv\s*)?(?:뉴스|news)|ari\s*(?:뉴스|news)|아리\s*뉴스|주요\s*뉴스)/i.test(String(title || ""));
   async function ytNewsVideos(){
     if(location.protocol === "file:") return [];
     try{
       const playlist = String(C.newsPlaylist || "").trim();
-      const source = playlist
-        ? `/api/youtube?playlist=${encodeURIComponent(playlist)}`
-        : `/api/youtube?channel=${encodeURIComponent(C.youtubeChannel || "@VoBTV1")}`;
-      const r = await fetch(source, {signal:AbortSignal.timeout(10000)});
-      if(!r.ok) return [];
-      const vids = (await r.json()).videos || [];
+      let vids = [];
+      if(playlist){
+        try {
+          const r = await fetch(`/api/youtube?playlist=${encodeURIComponent(playlist)}`, {signal:AbortSignal.timeout(10000)});
+          if(r.ok) vids = (await r.json()).videos || [];
+        }catch(e){ console.warn("VoB 뉴스 재생목록 조회 실패", e); }
+      }
+      const usePlaylist = vids.length > 0;
+      if(!usePlaylist){
+        const r = await fetch(`/api/youtube?channel=${encodeURIComponent(C.youtubeChannel || "@VoBTV1")}`, {signal:AbortSignal.timeout(10000)});
+        if(!r.ok) return [];
+        vids = (await r.json()).videos || [];
+      }
       const hiddenIds = await VOB.hiddenYoutubeIds();
       return vids
-        .filter(v => v && v.id && !hiddenIds.has(v.id) && (playlist || isVoBNewsTitle(v.title)))
+        .filter(v => v && v.id && !hiddenIds.has(v.id) && (usePlaylist || isVoBNewsTitle(v.title)))
         .sort((a,b)=>(Date.parse(b.published)||0)-(Date.parse(a.published)||0))
         .map(v => ({id:"yt-"+v.id, kind:"news", yt:v.id, title:v.title, published_at:v.published}));
     }catch(e){ return []; }
