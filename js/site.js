@@ -456,15 +456,31 @@ document.querySelector("nav").addEventListener("click",e=>{
 async function loadChuncheonVideos(){
   try {
     const hiddenIds = await VOB.hiddenYoutubeIds().catch(()=>new Set());
-    let chuncheonVideos = [];
-    try {
-      const ch = (window.VOB_CONFIG||{}).youtubeChannel || "@VoBTV1";
-      const cr = await fetch("/api/youtube?channel="+encodeURIComponent(ch));
-      if(cr.ok) {
-        const cj = await cr.json();
-        chuncheonVideos = (cj.videos || []).filter(v=>!hiddenIds.has(v.id));
+    // 춘천 영상은 VoB TV 본 채널과 춘천 전용 채널 양쪽에 게시되어 있습니다.
+    // 한 채널에 없는 인터뷰도 빠지지 않게 병합하고 같은 제목의 재게시 영상은 중복 제거합니다.
+    const primaryChannel = (window.VOB_CONFIG||{}).youtubeChannel || "@VoBTV1";
+    const channels = [...new Set([primaryChannel, "@VoB춘천"])];
+    const groups = await Promise.all(channels.map(async ch => {
+      try {
+        const response = await fetch("/api/youtube?channel="+encodeURIComponent(ch));
+        if(!response.ok) return [];
+        const data = await response.json();
+        return (data.videos || []).filter(v=>v && v.id && !hiddenIds.has(v.id));
+      } catch(err) {
+        console.warn("유튜브 채널 영상 조회 실패:", ch, err);
+        return [];
       }
-    } catch (_) {}
+    }));
+    const videoKeys = new Set();
+    const chuncheonVideos = groups.flat().sort((a,b)=>
+      (Date.parse(b.published)||0) - (Date.parse(a.published)||0)
+    ).filter(v=>{
+      const normalized = String(v.title||"").toLowerCase().replace(/[\\s|….,!?·-]+/g,"");
+      const key = normalized ? (v.isShort ? "short:" : "video:") + normalized : v.id;
+      if(videoKeys.has(key)) return false;
+      videoKeys.add(key);
+      return true;
+    });
     CHUNCHEON_VIDEOS = chuncheonVideos;
     if(!chuncheonVideos.length) console.warn("Chuncheon YouTube channel returned no videos");
     // 제목에 '춘천 쉬운 뉴스'가 포함된 채널 영상만 별도 코너에 표시합니다.
