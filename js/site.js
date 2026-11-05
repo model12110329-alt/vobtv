@@ -475,7 +475,7 @@ async function loadChuncheonVideos(){
     const chuncheonVideos = groups.flat().sort((a,b)=>
       (Date.parse(b.published)||0) - (Date.parse(a.published)||0)
     ).filter(v=>{
-      const normalized = String(v.title||"").toLowerCase().replace(/[\\s|….,!?·-]+/g,"");
+      const normalized = String(v.title||"").toLowerCase().replace(/[\s|….,!?·-]+/g,"");
       const key = normalized ? (v.isShort ? "short:" : "video:") + normalized : v.id;
       if(videoKeys.has(key)) return false;
       videoKeys.add(key);
