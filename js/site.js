@@ -450,6 +450,57 @@ document.querySelector("nav").addEventListener("click",e=>{
 });
 
 /* ---------- 유튜브 최신 영상 (Vercel 서버 함수 /api/youtube) ---------- */
+/* 춘천 전용 채널 영상은 메인 채널 처리와 독립적으로 로드합니다. */
+async function loadChuncheonVideos(){
+  try {
+    const hiddenIds = await VOB.hiddenYoutubeIds().catch(()=>new Set());
+    let chuncheonVideos = [];
+    try {
+      const cr = await fetch("/api/youtube?channel="+encodeURIComponent("@VoB춘천"));
+      if(cr.ok) {
+        const cj = await cr.json();
+        chuncheonVideos = (cj.videos || []).filter(v=>!hiddenIds.has(v.id));
+      }
+    } catch (_) {}
+    CHUNCHEON_VIDEOS = chuncheonVideos;
+    if(!chuncheonVideos.length) console.warn("Chuncheon YouTube channel returned no videos");
+    // 제목에 '춘천 쉬운 뉴스'가 포함된 채널 영상만 별도 코너에 표시합니다.
+    const easyNewsRow = document.getElementById("easyNewsRow");
+    if(easyNewsRow){
+      const easyNewsItems = chuncheonVideos.filter(v=>/춘천\s*쉬운\s*뉴스/i.test(String(v.title||""))).slice(0,12);
+      if(easyNewsItems.length){
+        easyNewsRow.innerHTML = easyNewsItems.map(v=>`
+          <article class="short-card">
+            <button class="short" type="button" data-easy-news-id="${esc(v.id)}" aria-label="${esc(v.title)} 재생">
+              <img src="${ytThumb(v.id)}" alt="${esc(v.title)} 썸네일" loading="lazy" decoding="async" referrerpolicy="no-referrer" onload="if(this.naturalWidth<=120 && this.onerror){this.onerror();}" onerror="this.onerror=null;this.src='${ytThumb(v.id,"mqdefault")}';">
+              <span class="short-badge">${v.isShort ? "Shorts" : "동영상"}</span>
+              <span class="short-play" aria-hidden="true">▶</span>
+            </button>
+            <button class="short-title" type="button" data-easy-news-id="${esc(v.id)}">${esc(v.title)}</button>
+          </article>`).join("");
+      }
+    }
+
+    // 춘천 쉬운 인터뷰: 영상 제목을 기준으로 자동 분류합니다.
+    const interviewRow = document.getElementById("easyInterviewRow");
+    if(interviewRow){
+      const interviewItems = chuncheonVideos.filter(v=>/춘천\s*쉬운\s*인터뷰/i.test(String(v.title||""))).slice(0,12);
+      if(interviewItems.length){
+        interviewRow.innerHTML = interviewItems.map(v=>`
+          <article class="short-card">
+            <button class="short" type="button" data-easy-interview-id="${esc(v.id)}" aria-label="${esc(v.title)} 재생">
+              <img src="${ytThumb(v.id)}" alt="${esc(v.title)} 썸네일" loading="lazy" referrerpolicy="no-referrer" onerror="this.onerror=null;this.src='${ytThumb(v.id,"mqdefault")}';">
+              <span class="short-badge">${v.isShort ? "Shorts" : "동영상"}</span>
+              <span class="short-play" aria-hidden="true">▶</span>
+            </button>
+            <button class="short-title" type="button" data-easy-interview-id="${esc(v.id)}">${esc(v.title)}</button>
+          </article>`).join("");
+      }
+    }
+
+  } catch (err) { console.error("춘천 뉴스/인터뷰 불러오기 실패",err); }
+}
+
 async function loadYouTube(){
   if(PREVIEW || location.protocol==="file:") return;
   try{
@@ -493,49 +544,6 @@ async function loadYouTube(){
       url:`https://www.youtube.com/shorts/${v.id}`
     }));
     renderShorts();
-
-    let chuncheonVideos = [];
-    try {
-      const cr = await fetch("/api/youtube?channel="+encodeURIComponent("@VoB춘천"));
-      if(cr.ok) {
-        const cj = await cr.json();
-        chuncheonVideos = (cj.videos || []).filter(v=>!hiddenIds.has(v.id));
-      }
-    } catch (_) {}
-    CHUNCHEON_VIDEOS = chuncheonVideos;
-    // 제목에 '춘천 쉬운 뉴스'가 포함된 채널 영상만 별도 코너에 표시합니다.
-    const easyNewsRow = document.getElementById("easyNewsRow");
-    if(easyNewsRow){
-      const easyNewsItems = chuncheonVideos.filter(v=>/춘천\s*쉬운\s*뉴스/i.test(String(v.title||""))).slice(0,12);
-      if(easyNewsItems.length){
-        easyNewsRow.innerHTML = easyNewsItems.map(v=>`
-          <article class="short-card">
-            <button class="short" type="button" data-easy-news-id="${esc(v.id)}" aria-label="${esc(v.title)} 재생">
-              <img src="${ytThumb(v.id)}" alt="${esc(v.title)} 썸네일" loading="lazy" decoding="async" referrerpolicy="no-referrer" onload="if(this.naturalWidth<=120 && this.onerror){this.onerror();}" onerror="this.onerror=null;this.src='${ytThumb(v.id,"mqdefault")}';">
-              <span class="short-badge">${v.isShort ? "Shorts" : "동영상"}</span>
-              <span class="short-play" aria-hidden="true">▶</span>
-            </button>
-            <button class="short-title" type="button" data-easy-news-id="${esc(v.id)}">${esc(v.title)}</button>
-          </article>`).join("");
-      }
-    }
-
-    // 춘천 쉬운 인터뷰: 영상 제목을 기준으로 자동 분류합니다.
-    const interviewRow = document.getElementById("easyInterviewRow");
-    if(interviewRow){
-      const interviewItems = chuncheonVideos.filter(v=>/춘천\s*쉬운\s*인터뷰/i.test(String(v.title||""))).slice(0,12);
-      if(interviewItems.length){
-        interviewRow.innerHTML = interviewItems.map(v=>`
-          <article class="short-card">
-            <button class="short" type="button" data-easy-interview-id="${esc(v.id)}" aria-label="${esc(v.title)} 재생">
-              <img src="${ytThumb(v.id)}" alt="${esc(v.title)} 썸네일" loading="lazy" referrerpolicy="no-referrer" onerror="this.onerror=null;this.src='${ytThumb(v.id,"mqdefault")}';">
-              <span class="short-badge">${v.isShort ? "Shorts" : "동영상"}</span>
-              <span class="short-play" aria-hidden="true">▶</span>
-            </button>
-            <button class="short-title" type="button" data-easy-interview-id="${esc(v.id)}">${esc(v.title)}</button>
-          </article>`).join("");
-      }
-    }
 
     const longs = vids.filter(v=>!v.isShort && isVoBNewsTitle(v.title));
     if(!vids.length) return;
@@ -713,6 +721,7 @@ document.addEventListener("pointermove",e=>{
   play(PROGRAMS.find(p=>p.main) || PROGRAMS.find(p=>p.live) || PROGRAMS[0]
     || {id:"demo", type:"demo", live:true, title:"VoB TV 종합뉴스", desc:""});
   const initial = current;
+  await loadChuncheonVideos();
   await loadYouTube();
   if(current !== initial) return;
   // 무작위 뉴스 2편 뒤 아리 영상을 회차순으로 한 편씩 재생합니다.
