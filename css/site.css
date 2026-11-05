@@ -538,3 +538,12 @@ body>header .tip-header-link:hover{background:rgba(255,255,255,.14)}
  #chuncheonEasyNews .sechead h2,#chuncheonEasyInterview .sechead h2{font-size:20px}
  .banner{border-radius:10px}
 }
+
+/* Mobile menu: keep the toggle visible regardless of script initialization. */
+@media(max-width:760px){
+ body>header .bar .menu-toggle{display:flex!important;align-items:center;justify-content:center;gap:7px;grid-column:2;grid-row:1;min-height:44px;padding:8px 13px;border:1px solid #a8d5ff;border-radius:10px;background:#fff;color:#0b4384;font-weight:700;cursor:pointer}
+ body>header .bar .menu-toggle[aria-expanded="false"]+nav{display:none!important}
+ body>header .bar .menu-toggle[aria-expanded="true"]+nav{display:grid!important}
+ body>header .bar nav a{color:#e7f3ff}
+ body>header .bar nav a:hover,body>header .bar nav a[aria-current]{color:#fff}
+}
