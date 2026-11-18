@@ -19,3 +19,12 @@
 - HeyGen 로그인은 확인했습니다.
 - ‘성현수’ 저장 아바타와 기존 프로젝트가 계정에서 확인되지 않아 영상 생성·다운로드·게시를 보류했습니다.
 - 추가 결제나 크레딧 구매는 진행하지 않았습니다.
+
+## 공개 게시 상태
+
+- GitHub 기본 브랜치 반영: 성공
+- vobtv.kr 메인 주요 뉴스 카드: 3건 확인
+- 기사 본문·대표 이미지·기사별 og:image: 3건 모두 확인
+- 춘천, 강원 첫 청년친화도시…원도심·대학가·농촌서 ‘청년실험’: https://vobtv.kr/article.html?id=local-20261119-youth-friendly-city
+- 강원 고액·상습 체납자 373명 신규 공개…체납액 171억원: https://vobtv.kr/article.html?id=gangwon-20261119-tax-arrears-list
+- 27~29일 춘천 문화예술교육 축제…사전 신청은 27일까지: https://vobtv.kr/article.html?id=life-20261119-arts-education-festival
