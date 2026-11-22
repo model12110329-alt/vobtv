@@ -17,8 +17,12 @@
 ## 제작·저장·게시 상태
 
 - 기사 생성: 완료 (3건)
-- 기사 저장: GitHub 반영 진행 중
-- 공개 게시: 배포 확인 전
-- 영상: 확인 전
+- 기사 저장: 완료 — GitHub 기본 브랜치와 news-archive/2026-11-23/ 반영
+- 공개 게시: 완료 — 메인 주요 뉴스 카드, 기사 본문, 대표 이미지, 기사별 og:image 실제 확인
+- 공개 기사:
+  - https://vobtv.kr/article.html?id=local-20261123-seoksadong-wildfire
+  - https://vobtv.kr/article.html?id=gangwon-20261123-ski-season-opening
+  - https://vobtv.kr/article.html?id=life-20261123-worker-rental-deposit
+- 영상: 보류 — 2026-11-23 기존 프로젝트 없음. 계정 설정 0/4이며 ‘내 아바타’가 비어 있어 저장된 ‘성현수’ 아바타를 확인할 수 없음. 남은 제작 한도 화면은 재인증을 요구해 확인하지 못함. 프로젝트 링크 및 영상 파일 없음
 - 이메일·SNS 발송: 하지 않음
 - ARI 등 중지된 다른 작업: 재개하지 않음
