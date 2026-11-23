@@ -17,8 +17,11 @@
 ## 제작·저장·게시 상태
 
 - 기사 생성: 완료 (3건)
-- 기사 저장: GitHub 반영 진행 중
-- 공개 게시: 배포 확인 전
-- 영상: 확인 전
+- 기사 저장: 완료 (GitHub 기본 브랜치 및 2026-11-24 날짜별 보관함)
+- 공개 게시: 완료 (메인 주요 뉴스 상단 3건, 기사 본문, 대표 이미지, 대체텍스트, og:image 실검증)
+- 공개 기사: https://vobtv.kr/article.html?id=local-20261124-northern-inland-cooperation-forum
+- 공개 기사: https://vobtv.kr/article.html?id=gangwon-20261124-icy-road-crashes
+- 공개 기사: https://vobtv.kr/article.html?id=life-20261124-winter-youth-admin-experience
+- 영상: 보류 — HeyGen 로그인은 유지됐으나 ‘내 아바타’에 저장된 ‘성현수’ 아바타가 없고 오늘 프로젝트도 없음. 제작 한도 확인은 2단계 재인증 요구로 중단했으며 결제·업그레이드는 하지 않음. 영상 경로·프로젝트 링크 없음
 - 이메일·SNS 발송: 하지 않음
 - ARI 등 중지된 다른 작업: 재개하지 않음
