@@ -17,8 +17,11 @@
 ## 제작·저장·게시 상태
 
 - 기사 생성: 완료 (3건)
-- 기사 저장: GitHub 반영 진행 중
-- 공개 게시: 배포 확인 전
-- 영상: 확인 전
+- 기사 저장: 완료 (GitHub 기본 브랜치 및 2026-11-25 날짜별 보관함)
+- 공개 게시: 완료 (메인 주요 뉴스 상단 3건, 기사 본문, 대표 이미지, AI 캡션, 기자 표기, og:image, 원본 PNG 응답 실검증)
+- 공개 기사: https://vobtv.kr/article.html?id=local-20261125-chuncheon-craft-masterpieces
+- 공개 기사: https://vobtv.kr/article.html?id=gangwon-20261125-wonju-taebaek-vacancy
+- 공개 기사: https://vobtv.kr/article.html?id=life-20261125-lifelong-learning-instructors
+- 영상: 보류 — HeyGen 홈은 열렸으나 프로젝트 페이지에서 Google 재로그인을 요구해 오늘 프로젝트 중복 여부, 저장된 ‘성현수’ 아바타, 한국어 음성, 남은 제작 한도를 확인하지 못함. 렌더·다운로드·게시 미진행, 영상 경로·프로젝트 링크 없음, 결제·업그레이드 없음
 - 이메일·SNS 발송: 하지 않음
 - ARI 등 중지된 다른 작업: 재개하지 않음
